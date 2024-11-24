@@ -14,6 +14,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@spirobel/mininext": "^0.6.0"
+    "@spirobel/mininext": "^0.6.0",
+    "@spirobel/monero-wallet-api":"../monero-wallet-api/typescript"
   }
 }
