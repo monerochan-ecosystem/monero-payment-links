@@ -5,7 +5,10 @@
   "scripts": {
     "start": "bun run start.ts",
     "dev": "bun --hot dev.ts",
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "db:mm": "bunx drizzle-kit generate:sqlite --schema ./db/schema.ts --out ./db/migrations",
+    "db:migrate": "bun db/migrate.ts",
+    "ft": "bunx ts-simplify ./backend/frontendTypes.ts ./frontend/backendTypes.ts -f"
   },
   "devDependencies": {
     "@types/bun": "latest"
