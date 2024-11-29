@@ -13,3 +13,5 @@ export const sessionCookies = sqliteTable("session_cookies", {
   }).default("user"),
   timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
 });
+
+export type NewSessionCookie = typeof sessionCookies.$inferInsert;
