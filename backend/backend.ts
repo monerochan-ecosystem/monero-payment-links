@@ -1,11 +1,7 @@
 import { url, head, commonHead, cssReset } from "@spirobel/mininext";
 import { LoginCheck } from "./users/loginLogout";
+import { dashBoardIndex } from "./dashboard";
 head((mini) => mini.html`<title>hello hello</title>${commonHead}`);
-url.set(
-  "/",
-  LoginCheck((mini) => {
-    return mini.html`<h1>Hello world</h1>`;
-  })
-);
+url.set("/", LoginCheck(dashBoardIndex));
 
 export default url.install;
