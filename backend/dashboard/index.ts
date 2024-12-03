@@ -1,9 +1,12 @@
 import { html, url, type Mini } from "@spirobel/mininext";
 import type { Loggedin } from "../users/loginLogout";
+import { db } from "../../db/db";
+import { wallets } from "../../db/schema";
 
 const frontend = url.frontend("dashboardIndex.ts");
 const walletSvg = url.svg("/svgs/wallet.svg");
 export function dashBoardIndex(mini: Mini<Loggedin>) {
+  //db.select().from(wallets);
   return mini.html`
   ${frontend} 
   ${indexStyles}
@@ -72,15 +75,36 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <label class="form-label">Primary Address</label>
             <input type="text" class="form-input" required placeholder="Enter the Primary Address ...">
           </div>
-                    <div class="form-group">
+
+          <div class="form-group">
             <label class="form-label">Private View Key</label>
             <input type="text" class="form-input" required placeholder="Enter the Private View Key ...">
+          </div>
+
+          <button type="button" class="advanced-toggle">
+            Show Advanced Options
+            <svg class="toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+          
+          <div class="advanced-fields" style="display: none;">
+            <div class="form-group">
+              <label class="form-label">Sync Height</label>
+              <input type="number" class="form-input" placeholder="Enter block height">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Daemon URL</label>
+              <input type="url" class="form-input" placeholder="https://...">
+            </div>
           </div>
           
           <button type="submit" class="submit-btn">Add Wallet</button>
         </form>
       </div>
     </div>
+    
   </main>
 </div>
 
@@ -271,6 +295,47 @@ const indexStyles = html`<style>
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+  }
+  .advanced-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+  }
+
+  .advanced-toggle:hover {
+    opacity: 1;
+  }
+
+  .toggle-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .advanced-toggle.active .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .advanced-fields {
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    max-height: 0;
+  }
+
+  .advanced-fields.active {
+    opacity: 1;
+    max-height: 300px;
+    margin-bottom: 1rem;
   }
 
   .submit-btn {

@@ -79,3 +79,38 @@ document.querySelector(".wallet-address").addEventListener("click", () => {
       }, 2000);
     });
 });
+
+// Advanced options toggle
+document.addEventListener("DOMContentLoaded", () => {
+  const advancedToggle = document.querySelector(".advanced-toggle");
+  const advancedFields = document.querySelector(".advanced-fields");
+
+  advancedToggle.addEventListener("click", () => {
+    advancedToggle.classList.toggle("active");
+    advancedFields.classList.toggle("active");
+
+    if (advancedFields.classList.contains("active")) {
+      advancedFields.style.display = "block";
+      advancedToggle.textContent = "Hide Advanced Options";
+    } else {
+      setTimeout(() => {
+        advancedFields.style.display = "none";
+      }, 300); // Match the transition duration
+      advancedToggle.textContent = "Show Advanced Options";
+    }
+  });
+
+  // Update the form submission handler to include advanced fields
+  addWalletForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(addWalletForm);
+    // Here you would typically handle the wallet creation
+    dialogOverlay.style.display = "none";
+    addWalletForm.reset();
+    // Reset advanced fields state
+    advancedFields.classList.remove("active");
+    advancedFields.style.display = "none";
+    advancedToggle.classList.remove("active");
+    advancedToggle.textContent = "Show Advanced Options";
+  });
+});
