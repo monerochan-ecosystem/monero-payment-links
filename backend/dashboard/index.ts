@@ -96,8 +96,8 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
           
           <div class="advanced-fields" style="display: none;">
             <div class="form-group">
-              <label class="form-label">Sync Height</label>
-              <input type="number" class="form-input" placeholder="Enter block height">
+              <label class="form-label">Start Sync Height</label>
+              <input type="number" class="form-input" placeholder="Enter block height to sync from">
             </div>
             
             <div class="form-group">
