@@ -119,6 +119,9 @@ const indexStyles = html`<style>
     --text: #f8fafc;
     --bg: #18181b;
   }
+  input {
+    box-sizing: border-box;
+  }
 
   body {
     margin: 0;
