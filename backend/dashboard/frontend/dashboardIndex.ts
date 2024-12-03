@@ -83,6 +83,8 @@ document.querySelector(".wallet-address").addEventListener("click", () => {
 // Advanced options toggle
 document.addEventListener("DOMContentLoaded", () => {
   const advancedToggle = document.querySelector(".advanced-toggle");
+  const showMore = document.querySelector(".show-more");
+  const showLess = document.querySelector(".show-less");
   const advancedFields = document.querySelector(".advanced-fields");
 
   advancedToggle.addEventListener("click", () => {
@@ -91,12 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (advancedFields.classList.contains("active")) {
       advancedFields.style.display = "block";
-      advancedToggle.textContent = "Hide Advanced Options";
+      showLess.style.display = "block";
+      showMore.style.display = "none";
     } else {
       setTimeout(() => {
         advancedFields.style.display = "none";
       }, 300); // Match the transition duration
-      advancedToggle.textContent = "Show Advanced Options";
+      showLess.style.display = "none";
+      showMore.style.display = "block";
     }
   });
 

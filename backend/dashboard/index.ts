@@ -82,10 +82,16 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
           </div>
 
           <button type="button" class="advanced-toggle">
-            Show Advanced Options
-            <svg class="toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
+            <span class="show-more">Show Advanced Options
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
             </svg>
+            </span>
+            <span class="show-less" style="display: none;">Hide Advanced Options
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
+              </svg>
+            </span>
           </button>
           
           <div class="advanced-fields" style="display: none;">
