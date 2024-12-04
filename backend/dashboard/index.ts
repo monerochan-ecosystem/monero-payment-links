@@ -6,7 +6,7 @@ import { wallets } from "../../db/schema";
 const frontend = url.frontend("dashboardIndex.ts");
 const walletSvg = url.svg("/svgs/wallet.svg");
 export function dashBoardIndex(mini: Mini<Loggedin>) {
-  //db.select().from(wallets);
+  const walletList = db.select().from(wallets).all();
   return mini.html`
   ${frontend} 
   ${indexStyles}
@@ -37,7 +37,16 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
   </nav>
 
   <main class="main-content">
-    <div class="wallet-card">
+    ${() => {
+      if (walletList.length < 1) {
+        return mini.html`
+        <div class="empty-wallet-card">
+            <img class="empty-state-icon floating" src="${walletSvg}" width="38" height="38" />
+            <div class="empty-state-text">No Wallets Connected</div>
+            <div class="empty-state-subtext">Click the button below to add your first wallet</div>
+        </div>`;
+      }
+      const walletElementList = mini.html`<div class="wallet-card">
       <div class="wallet-header">
         <img src="${walletSvg}" width="38" height="38" />
         <div class="wallet-balance">2.4389 XMR</div>
@@ -54,7 +63,9 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
       <div class="sync-progress">
         <div class="sync-bar"></div>
       </div>
-    </div>
+    </div>`;
+      return walletElementList;
+    }}
 
     <button class="add-wallet-btn">+ Add Wallet</button>
 
@@ -207,6 +218,64 @@ const indexStyles = html`<style>
     transition: all 0.3s ease;
     cursor: pointer;
     animation: pulse 2s infinite;
+  }
+  .wallet-card:hover {
+    border-color: var(--accent);
+    background: rgba(91, 33, 182, 0.2);
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  .empty-wallet-card {
+    width: 380px;
+    height: 220px;
+    background: rgba(91, 33, 182, 0.1);
+    border: 2px dashed var(--accent);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .empty-state-icon {
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state-text {
+    font-size: 1.1rem;
+    color: var(--text);
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  .empty-state-subtext {
+    font-size: 0.9rem;
+    color: var(--text);
+    opacity: 0.5;
+    text-align: center;
+  }
+
+  .floating {
+    animation: float 3s ease-in-out infinite;
   }
 
   .add-wallet-btn {
