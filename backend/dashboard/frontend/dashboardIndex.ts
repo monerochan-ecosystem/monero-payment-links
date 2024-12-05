@@ -64,6 +64,10 @@ function installButtonHandlers() {
       const formData = new FormData(addWalletForm);
       // Here you would typically handle the wallet creation
       // For now, we'll just close the dialog
+      const response = fetch("endpointUrl", {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
       dialogOverlay.style.display = "none";
       addWalletForm.reset();
     });
@@ -131,21 +135,4 @@ document.addEventListener("DOMContentLoaded", () => {
       showMore.style.display = "block";
     }
   });
-  const addWalletForm = document.querySelector(
-    "#add-wallet-form"
-  ) as HTMLFormElement;
-  if (addWalletForm)
-    // Update the form submission handler to include advanced fields
-    addWalletForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const formData = new FormData(addWalletForm);
-      // Here you would typically handle the wallet creation
-      dialogOverlay.style.display = "none";
-      addWalletForm.reset();
-      // Reset advanced fields state
-      advancedFields.classList.remove("active");
-      advancedFields.style.display = "none";
-      advancedToggle.classList.remove("active");
-      advancedToggle.textContent = "Show Advanced Options";
-    });
 });

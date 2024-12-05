@@ -79,17 +79,17 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
         <form id="add-wallet-form">
           <div class="form-group">
             <label class="form-label">Wallet Name</label>
-            <input type="text" class="form-input"  placeholder="My XMR Wallet">
+            <input type="text" class="form-input" name="wallet-name" placeholder="My XMR Wallet">
           </div>
           
           <div class="form-group">
             <label class="form-label">Primary Address</label>
-            <input type="text" class="form-input" required placeholder="Enter the Primary Address ...">
+            <input type="text" class="form-input" name="primary-address" required placeholder="Enter the Primary Address ...">
           </div>
 
           <div class="form-group">
             <label class="form-label">Private View Key</label>
-            <input type="text" class="form-input" required placeholder="Enter the Private View Key ...">
+            <input type="text" class="form-input" name="private-view-key" required placeholder="Enter the Private View Key ...">
           </div>
 
           <button type="button" class="advanced-toggle">
@@ -108,12 +108,12 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
           <div class="advanced-fields" style="display: none;">
             <div class="form-group">
               <label class="form-label">Start Sync Height</label>
-              <input type="number" class="form-input" placeholder="Enter block height to sync from">
+              <input type="number" class="form-input" name="sync-height" placeholder="Enter block height to sync from">
             </div>
             
             <div class="form-group">
               <label class="form-label">Daemon URL</label>
-              <input type="url" class="form-input" placeholder="https://...">
+              <input type="url" class="form-input" name="daemon-url" placeholder="https://...">
             </div>
           </div>
           
