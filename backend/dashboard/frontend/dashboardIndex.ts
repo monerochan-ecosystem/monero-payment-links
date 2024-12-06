@@ -34,15 +34,55 @@ function installButtonHandlers() {
     // Form submission
     addWalletForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const submitBtn = addWalletForm.querySelector(
+        ".submit-btn"
+      ) as HTMLButtonElement;
+
+      // Reset previous errors
+      document.querySelectorAll(".form-input").forEach((input) => {
+        input.classList.remove("error");
+      });
+      document.querySelectorAll(".error-message").forEach((msg) => {
+        (msg as HTMLDivElement).style.display = "none";
+      });
+
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.classList.add("loading");
+
       const formData = new FormData(addWalletForm);
-      const response = fetch("addWallet", {
+      fetch("addWallet", {
         method: "POST",
         body: JSON.stringify(Object.fromEntries(formData)),
       }).then(async (result) => {
-        console.log(await result.json());
+        const response = await result.json();
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("loading");
+        console.log(response);
+        if (!response.success && response.error) {
+          // Handle validation errors
+          response.error.issues.forEach(
+            (issue: { path: string[]; message: string }) => {
+              const fieldName = issue.path[0];
+              const input = document.querySelector(`[name="${fieldName}"]`);
+              const errorElement = document.getElementById(
+                `${fieldName}-error`
+              );
+
+              if (input && errorElement) {
+                input.classList.add("error");
+                errorElement.textContent = issue.message;
+                errorElement.style.display = "block";
+              }
+            }
+          );
+        } else {
+          // Handle success case
+          dialogOverlay.style.display = "none";
+          addWalletForm.reset();
+        }
       });
-      dialogOverlay.style.display = "none";
-      addWalletForm.reset();
     });
 }
 installButtonHandlers();

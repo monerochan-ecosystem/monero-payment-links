@@ -80,16 +80,19 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
           <div class="form-group">
             <label class="form-label">Wallet Name</label>
             <input type="text" class="form-input" name="walletName" placeholder="My XMR Wallet">
+            <div class="error-message" id="walletName-error"></div>
           </div>
           
           <div class="form-group">
             <label class="form-label">Primary Address</label>
             <input type="text" class="form-input" name="primaryAddress" required placeholder="Enter the Primary Address ...">
+            <div class="error-message" id="primaryAddress-error"></div>
           </div>
 
           <div class="form-group">
             <label class="form-label">Private View Key</label>
             <input type="text" class="form-input" name="secretViewKey" required placeholder="Enter the Private View Key ...">
+            <div class="error-message" id="secretViewKey-error"></div>
           </div>
 
           <button type="button" class="advanced-toggle">
@@ -109,15 +112,20 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <div class="form-group">
               <label class="form-label">Start Sync Height</label>
               <input type="number" class="form-input" name="start_height" placeholder="Enter block height to sync from">
+               <div class="error-message" id="start_height-error"></div>
             </div>
             
             <div class="form-group">
               <label class="form-label">Daemon URL</label>
               <input type="url" class="form-input" name="daemonUrl" placeholder="https://...">
+              <div class="error-message" id="daemonUrl-error"></div>
             </div>
           </div>
           
-          <button type="submit" class="submit-btn">Add Wallet</button>
+          <button type="submit" class="submit-btn">
+            <span class="spinner"></span>
+            <span class="button-text">Add Wallet</span>
+          </button>
         </form>
       </div>
     </div>
@@ -416,6 +424,22 @@ const indexStyles = html`<style>
     margin-bottom: 1rem;
   }
 
+  .error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  .form-input.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .form-input.error:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+
   .submit-btn {
     width: 100%;
     padding: 1rem;
@@ -427,6 +451,41 @@ const indexStyles = html`<style>
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+  }
+
+  .submit-btn:disabled {
+    background: #4c4c4c;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-btn .button-text {
+    display: inline;
+  }
+
+  .submit-btn.loading .button-text {
+    display: none;
+  }
+
+  .submit-btn.loading .spinner {
+    display: inline-block;
+  }
+
+  .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .submit-btn:hover {
