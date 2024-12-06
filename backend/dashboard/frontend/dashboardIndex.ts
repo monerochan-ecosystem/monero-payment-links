@@ -1,30 +1,3 @@
-const syncBar = document.querySelector(".sync-bar") as HTMLElement;
-const syncStatus = document.querySelector(".sync-status") as HTMLElement;
-const totalBlocks = 20;
-
-function blockAnimation() {
-  const blocksContainer = document.querySelector(".blocks-container");
-  if (!blocksContainer) return;
-  // Create blocks and animate them sequentially
-  for (let i = 0; i < totalBlocks; i++) {
-    const block = document.createElement("div");
-    block.className = "block";
-    blocksContainer.appendChild(block);
-
-    setTimeout(() => {
-      block.classList.add("synced");
-      syncStatus.textContent = `Syncing block ${i + 1} of ${totalBlocks}...`;
-      syncBar.style.width = `${((i + 1) / totalBlocks) * 100}%`;
-
-      if (i === totalBlocks - 1) {
-        setTimeout(() => {
-          syncStatus.textContent = "Sync complete!";
-        }, 1000);
-      }
-    }, i * 300);
-  }
-}
-blockAnimation();
 function installButtonHandlers() {
   const dialogOverlay = document.querySelector(
     ".dialog-overlay"
@@ -73,38 +46,6 @@ function installButtonHandlers() {
     });
 }
 installButtonHandlers();
-function installSyncProgressBar() {
-  // Add hover effect for blocks
-  setTimeout(() => {
-    const blocks = document.querySelectorAll(".block");
-    blocks.forEach((block, index) => {
-      block.addEventListener("mouseover", () => {
-        syncStatus.textContent = `Block ${index + 1}: Verified ✓`;
-      });
-
-      block.addEventListener("mouseout", () => {
-        syncStatus.textContent = "Sync complete!";
-      });
-    });
-  }, totalBlocks * 300 + 1000);
-  const walletAddress = document.querySelector(".wallet-address");
-  if (walletAddress)
-    // Add click handler for wallet address
-    walletAddress.addEventListener("click", () => {
-      navigator.clipboard
-        .writeText(
-          "5B5ieVKGSyfAyh68X6AFB48Gnx9diT8jPbWN6UcZHJUZVQSLRhaaHuHQz3dGuxxZDXPYgCXzrkerK3m6Q1tHoougR7VYyd9"
-        )
-        .then(() => {
-          const originalText = syncStatus.textContent;
-          syncStatus.textContent = "Address copied to clipboard!";
-          setTimeout(() => {
-            syncStatus.textContent = originalText;
-          }, 2000);
-        });
-    });
-}
-installSyncProgressBar();
 
 // Advanced options toggle
 document.addEventListener("DOMContentLoaded", () => {
@@ -136,3 +77,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+function installSyncProgressBar() {
+  const syncBar = document.querySelector(".sync-bar") as HTMLElement;
+  const syncStatus = document.querySelector(".sync-status") as HTMLElement;
+  const totalBlocks = 20;
+
+  function blockAnimation() {
+    const blocksContainer = document.querySelector(".blocks-container");
+    if (!blocksContainer) return;
+    // Create blocks and animate them sequentially
+    for (let i = 0; i < totalBlocks; i++) {
+      const block = document.createElement("div");
+      block.className = "block";
+      blocksContainer.appendChild(block);
+
+      setTimeout(() => {
+        block.classList.add("synced");
+        syncStatus.textContent = `Syncing block ${i + 1} of ${totalBlocks}...`;
+        syncBar.style.width = `${((i + 1) / totalBlocks) * 100}%`;
+
+        if (i === totalBlocks - 1) {
+          setTimeout(() => {
+            syncStatus.textContent = "Sync complete!";
+          }, 1000);
+        }
+      }, i * 300);
+    }
+  }
+  blockAnimation();
+  // Add hover effect for blocks
+  setTimeout(() => {
+    const blocks = document.querySelectorAll(".block");
+    blocks.forEach((block, index) => {
+      block.addEventListener("mouseover", () => {
+        syncStatus.textContent = `Block ${index + 1}: Verified ✓`;
+      });
+
+      block.addEventListener("mouseout", () => {
+        syncStatus.textContent = "Sync complete!";
+      });
+    });
+  }, totalBlocks * 300 + 1000);
+  const walletAddress = document.querySelector(".wallet-address");
+  if (walletAddress)
+    // Add click handler for wallet address
+    walletAddress.addEventListener("click", () => {
+      navigator.clipboard
+        .writeText(
+          "5B5ieVKGSyfAyh68X6AFB48Gnx9diT8jPbWN6UcZHJUZVQSLRhaaHuHQz3dGuxxZDXPYgCXzrkerK3m6Q1tHoougR7VYyd9"
+        )
+        .then(() => {
+          const originalText = syncStatus.textContent;
+          syncStatus.textContent = "Address copied to clipboard!";
+          setTimeout(() => {
+            syncStatus.textContent = originalText;
+          }, 2000);
+        });
+    });
+}
+installSyncProgressBar();
