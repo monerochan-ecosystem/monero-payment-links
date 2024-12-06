@@ -22,6 +22,7 @@
   "dependencies": {
     "@spirobel/mininext": "^0.6.0",
     "@spirobel/monero-wallet-api": "../monero-wallet-api/typescript",
-    "drizzle-orm": "^0.36.4"
+    "drizzle-orm": "^0.36.4",
+    "zod": "^3.23.8"
   }
 }
