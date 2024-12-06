@@ -35,11 +35,11 @@ function installButtonHandlers() {
     addWalletForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const formData = new FormData(addWalletForm);
-      // Here you would typically handle the wallet creation
-      // For now, we'll just close the dialog
-      const response = fetch("endpointUrl", {
+      const response = fetch("addWallet", {
         method: "POST",
         body: JSON.stringify(Object.fromEntries(formData)),
+      }).then(async (result) => {
+        console.log(await result.json());
       });
       dialogOverlay.style.display = "none";
       addWalletForm.reset();
