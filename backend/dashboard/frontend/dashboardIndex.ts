@@ -51,9 +51,14 @@ function installButtonHandlers() {
       submitBtn.classList.add("loading");
 
       const formData = new FormData(addWalletForm);
+      const input: any = Object.fromEntries(formData);
+      if (input["start_height"] === "") delete input["start_height"];
+      else {
+        input["start_height"] = Number(input["start_height"]);
+      }
       fetch("addWallet", {
         method: "POST",
-        body: JSON.stringify(Object.fromEntries(formData)),
+        body: JSON.stringify(input),
       }).then(async (result) => {
         const response = await result.json();
         // Re-enable submit button
