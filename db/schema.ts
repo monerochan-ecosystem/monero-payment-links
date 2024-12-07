@@ -31,7 +31,7 @@ export const wallets = sqliteTable("wallets", {
 export const WalletSchema = z.object({
   id: z.number().int().optional(),
   walletName: z.string().max(255).nullish(),
-  primaryAddress: z.string().min(55).max(55).optional(),
+  primaryAddress: z.string().min(95).max(95).optional(),
   secretViewKey: z.string().min(20).max(100).optional(),
   daemonURL: z.string().max(500).nullish(),
   start_height: z.number().int().nullish(),
