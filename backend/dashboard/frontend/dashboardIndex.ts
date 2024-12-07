@@ -56,6 +56,10 @@ function installButtonHandlers() {
       else {
         input["start_height"] = Number(input["start_height"]);
       }
+      if (input["primaryAddress"])
+        input["primaryAddress"] = input["primaryAddress"].trim();
+      if (input["secretViewKey"])
+        input["secretViewKey"] = input["secretViewKey"].trim();
       fetch("addWallet", {
         method: "POST",
         body: JSON.stringify(input),
