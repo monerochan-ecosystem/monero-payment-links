@@ -4,7 +4,7 @@ import { db } from "../../db/db";
 import { wallets } from "../../db/schema";
 
 const frontend = url.frontend("dashboardIndex.ts");
-const walletSvg = url.svg("/svgs/wallet.svg");
+const walletSvg = url.svg("wallet.svg");
 export function dashBoardIndex(mini: Mini<Loggedin>) {
   const walletList = db.select().from(wallets).all();
   return mini.html`
