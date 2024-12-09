@@ -2,9 +2,11 @@ import { html, url, type Mini } from "@spirobel/mininext";
 import type { Loggedin } from "../users/loginLogout";
 import { db } from "../../db/db";
 import { wallets } from "../../db/schema";
+import { walletSvg } from "./svgs";
+import { emptyWalletCard } from "./components/walletCard";
 
 const frontend = url.frontend("dashboardIndex.ts");
-const walletSvg = url.svg("wallet.svg");
+
 export function dashBoardIndex(mini: Mini<Loggedin>) {
   const walletList = db.select().from(wallets).all();
   return mini.html`
@@ -39,12 +41,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
   <main class="main-content">
     ${() => {
       if (walletList.length < 1) {
-        return mini.html`
-        <div class="empty-wallet-card">
-            <img class="empty-state-icon floating" src="${walletSvg}" width="38" height="38" />
-            <div class="empty-state-text">No Wallets Connected</div>
-            <div class="empty-state-subtext">Click the button below to add your first wallet</div>
-        </div>`;
+        return emptyWalletCard(mini);
       }
       const walletElementList = mini.html`
       <div class="wallet-card">
