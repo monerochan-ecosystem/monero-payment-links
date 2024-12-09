@@ -309,10 +309,6 @@ const indexStyles = html`<style>
     cursor: pointer;
     animation: pulse 2s infinite;
   }
-  .wallet-card:hover {
-    border-color: var(--accent);
-    background: rgba(91, 33, 182, 0.2);
-  }
 
   @keyframes float {
     0% {
