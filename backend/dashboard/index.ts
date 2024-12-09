@@ -367,7 +367,6 @@ const indexStyles = html`<style>
     position: absolute;
     bottom: 1rem; /* Change from top to bottom */
     right: 1rem;
-    z-index: 1; /* Add z-index to ensure it displays above the sync progress bar */
   }
 
   .edit-wallet-btn {
