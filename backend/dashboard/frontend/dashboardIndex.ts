@@ -186,3 +186,130 @@ function installSyncProgressBar() {
     });
 }
 installSyncProgressBar();
+const dialogOverlay = document.querySelector(".dialog-overlay");
+const closeBtn = document.querySelector(".close-btn");
+// Delete wallet functionality
+const deleteBtn = document.querySelector(".delete-btn");
+const deleteWarning = document.querySelector(".delete-warning");
+const cancelDeleteBtn = document.querySelector(".cancel-delete");
+const confirmDeleteBtn = document.querySelector(".confirm-delete");
+
+deleteBtn.addEventListener("click", () => {
+  deleteWarning.classList.add("show");
+  deleteBtn.style.display = "none";
+});
+
+cancelDeleteBtn.addEventListener("click", () => {
+  deleteWarning.classList.remove("show");
+  deleteBtn.style.display = "block";
+});
+
+confirmDeleteBtn.addEventListener("click", async () => {
+  confirmDeleteBtn.disabled = true;
+  cancelDeleteBtn.disabled = true;
+
+  try {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Close dialog and reset state
+    dialogOverlay.style.display = "none";
+    deleteWarning.classList.remove("show");
+    deleteBtn.style.display = "block";
+    addWalletForm.reset();
+
+    // Could add a toast notification here
+    syncStatus.textContent = "Wallet deleted successfully";
+    setTimeout(() => {
+      syncStatus.textContent = "Sync complete!";
+    }, 2000);
+  } catch (error) {
+    console.error("Error deleting wallet:", error);
+  } finally {
+    confirmDeleteBtn.disabled = false;
+    cancelDeleteBtn.disabled = false;
+  }
+});
+
+// Reset delete warning state when dialog is closed
+[closeBtn, dialogOverlay].forEach((element) => {
+  element.addEventListener("click", (e) => {
+    if (e.target === element) {
+      deleteWarning.classList.remove("show");
+      deleteBtn.style.display = "block";
+    }
+  });
+});
+// Add event listener for edit button
+const editWalletBtn = document.querySelector(".edit-wallet-btn");
+
+editWalletBtn.addEventListener("click", () => {
+  // Switch to show edit dialog instead of add dialog
+  const editDialog = document.querySelector(".edit-dialog-overlay");
+  editDialog.style.display = "flex";
+
+  // Pre-fill the form with current wallet data
+  const form = document.querySelector("#edit-wallet-form");
+  const walletNameInput = form.querySelector('[name="walletName"]');
+  const primaryAddressInput = form.querySelector('[name="primaryAddress"]');
+  const secretViewKeyInput = form.querySelector('[name="secretViewKey"]');
+  const startHeightInput = form.querySelector('[name="start_height"]');
+  const daemonUrlInput = form.querySelector('[name="daemonUrl"]');
+
+  // Pre-fill form data
+  walletNameInput.value = "My XMR Wallet";
+  primaryAddressInput.value = "the primary address";
+  secretViewKeyInput.value = ""; // Add actual view key if available
+  startHeightInput.value = "0"; // Add actual start height if available
+  daemonUrlInput.value = ""; // Add actual daemon URL if available
+});
+
+// Add close handler for edit dialog
+document
+  .querySelector(".edit-dialog-overlay .close-btn")
+  .addEventListener("click", () => {
+    document.querySelector(".edit-dialog-overlay").style.display = "none";
+  });
+
+// Add click outside handler for edit dialog
+document
+  .querySelector(".edit-dialog-overlay")
+  .addEventListener("click", (e) => {
+    if (e.target === document.querySelector(".edit-dialog-overlay")) {
+      document.querySelector(".edit-dialog-overlay").style.display = "none";
+    }
+  });
+
+// Handle edit form submission
+document
+  .querySelector("#edit-wallet-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector(".submit-btn");
+
+    // Reset previous errors
+    e.target.querySelectorAll(".form-input").forEach((input) => {
+      input.classList.remove("error");
+    });
+    e.target.querySelectorAll(".error-message").forEach((msg) => {
+      msg.style.display = "none";
+    });
+
+    // Disable button and show loading state
+    submitBtn.disabled = true;
+    submitBtn.classList.add("loading");
+
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Close dialog on success
+      document.querySelector(".edit-dialog-overlay").style.display = "none";
+      e.target.reset();
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove("loading");
+    }
+  });

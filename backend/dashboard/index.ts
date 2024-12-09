@@ -46,7 +46,17 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <div class="empty-state-subtext">Click the button below to add your first wallet</div>
         </div>`;
       }
-      const walletElementList = mini.html`<div class="wallet-card">
+      const walletElementList = mini.html`
+      <div class="wallet-card">
+      <div class="wallet-actions">
+        <button class="edit-wallet-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+      </div>
+
       <div class="wallet-header">
         <img src="${walletSvg}" width="38" height="38" />
         <div class="wallet-balance">2.4389 XMR</div>
@@ -130,6 +140,78 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
       </div>
     </div>
     
+
+
+        <div class="dialog-overlay edit-dialog-overlay">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h2 class="dialog-title">Edit Wallet</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        
+        <form id="edit-wallet-form">
+          <div class="form-group">
+            <label class="form-label">Wallet Name</label>
+            <input type="text" class="form-input" name="walletName" required placeholder="My ETH Wallet">
+            <div class="error-message" id="edit-walletName-error"></div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Primary Address</label>
+            <input type="text" class="form-input" name="primaryAddress" required placeholder="Enter the Primary Address ...">
+            <div class="error-message" id="edit-primaryAddress-error"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Private View Key</label>
+            <input type="text" class="form-input" name="secretViewKey" required placeholder="Enter the Private View Key ...">
+            <div class="error-message" id="edit-secretViewKey-error"></div>
+          </div>
+
+          <button type="button" class="advanced-toggle">
+            <span class="show-more">Show Advanced Options
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
+              </svg>
+            </span>
+            <span class="show-less" style="display: none;">Hide Advanced Options
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
+              </svg>
+            </span>
+          </button>
+          
+          <div class="advanced-fields" style="display: none;">
+            <div class="form-group">
+              <label class="form-label">Start Sync Height</label>
+              <input type="number" class="form-input" name="start_height" placeholder="Enter block height to sync from">
+              <div class="error-message" id="edit-start_height-error"></div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Daemon URL</label>
+              <input type="url" class="form-input" name="daemonUrl" placeholder="https://...">
+              <div class="error-message" id="edit-daemonUrl-error"></div>
+            </div>
+          </div>
+          
+          <button type="submit" class="submit-btn">
+            <span class="spinner"></span>
+            <span class="button-text">Update Wallet</span>
+          </button>
+
+          <button type="button" class="delete-btn">Delete Wallet</button>
+
+          <div class="delete-warning">
+            <p><strong>Warning:</strong> This action cannot be undone. Deleting this wallet will also remove all associated payment links and transaction history.</p>
+            <div class="warning-actions">
+              <button type="button" class="cancel-delete">Cancel</button>
+              <button type="button" class="confirm-delete">Delete Permanently</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -285,6 +367,31 @@ const indexStyles = html`<style>
   .floating {
     animation: float 3s ease-in-out infinite;
   }
+  .wallet-actions {
+    position: absolute;
+    bottom: 1rem; /* Change from top to bottom */
+    right: 1rem;
+    z-index: 1; /* Add z-index to ensure it displays above the sync progress bar */
+  }
+
+  .edit-wallet-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-wallet-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
 
   .add-wallet-btn {
     position: fixed;
@@ -438,6 +545,77 @@ const indexStyles = html`<style>
 
   .form-input.error:focus {
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+
+  /* Add these styles to the existing CSS */
+  .delete-btn {
+    background: #dc2626;
+    color: var(--text);
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .delete-btn:hover {
+    background: #b91c1c;
+  }
+
+  .delete-warning {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    color: #fecaca;
+  }
+
+  .delete-warning.show {
+    display: block;
+  }
+
+  .warning-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .warning-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .cancel-delete {
+    background: #374151;
+    color: var(--text);
+  }
+
+  .cancel-delete:hover {
+    background: #4b5563;
+  }
+
+  .confirm-delete {
+    background: #dc2626;
+    color: var(--text);
+  }
+
+  .confirm-delete:hover {
+    background: #b91c1c;
+  }
+
+  /* Add styles for edit dialog */
+  .edit-dialog-overlay {
+    display: none;
   }
 
   .submit-btn {
