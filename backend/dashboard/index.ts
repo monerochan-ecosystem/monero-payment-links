@@ -3,7 +3,7 @@ import type { Loggedin } from "../users/loginLogout";
 import { db } from "../../db/db";
 import { wallets } from "../../db/schema";
 import { walletSvg } from "./svgs";
-import { emptyWalletCard } from "./components/walletCard";
+import { emptyWalletCard, filledWalletCard } from "./components/walletCard";
 
 const frontend = url.frontend("dashboardIndex.ts");
 
@@ -43,35 +43,12 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
       if (walletList.length < 1) {
         return emptyWalletCard(mini);
       }
-      const walletElementList = mini.html`
-      <div class="wallet-card">
-      <div class="wallet-actions">
-        <button class="edit-wallet-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="wallet-header">
-        <img src="${walletSvg}" width="38" height="38" />
-        <div class="wallet-balance">2.4389 XMR</div>
-      </div>
-      
-      <div class="wallet-address">5B5ieVKGSyfAyh68X6AFB48Gnx9diT8jPbWN6UcZHJUZVQSLRhaaHuHQz3dGuxxZDXPYgCXzrkerK3m6Q1tHoougR7VYyd9</div>
-      
-      <div class="blocks-container">
-        <!-- Blocks added dynamically -->
-      </div>
-      
-      <div class="sync-status">Sync complete!</div>
-      
-      <div class="sync-progress">
-        <div class="sync-bar"></div>
-      </div>
-    </div>`;
-      return walletElementList;
+      const walletElementList = [];
+      for (const wallet of walletList) {
+        walletElementList.push(filledWalletCard(mini, wallet));
+      }
+      return mini.html`
+      <div class="wallets-grid">${walletElementList}</div>`;
     }}
 
     <button class="add-wallet-btn">+ Add Wallet</button>
@@ -291,6 +268,15 @@ const indexStyles = html`<style>
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .wallets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
   }
 
   .wallet-card {
@@ -794,6 +780,12 @@ const indexStyles = html`<style>
 
   /* Updated mobile menu styles */
   @media (max-width: 768px) {
+    .wallets-grid {
+      grid-template-columns: 1fr; /* Single column on mobile */
+      padding: 1rem;
+      padding-bottom: 80px; /* Account for bottom menu */
+    }
+
     .icon {
       width: 24px;
       height: 24px;
