@@ -126,7 +126,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
         <form id="edit-wallet-form">
           <div class="form-group">
             <label class="form-label">Wallet Name</label>
-            <input type="text" class="form-input" name="walletName" required placeholder="My ETH Wallet">
+            <input type="text" class="form-input" name="walletName" required placeholder="My XMR Wallet">
             <div class="error-message" id="edit-walletName-error"></div>
           </div>
           
@@ -673,6 +673,11 @@ const indexStyles = html`<style>
   }
 
   .wallet-balance {
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  .wallet-name {
     font-size: 2rem;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

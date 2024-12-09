@@ -1,4 +1,4 @@
-import type { Mini } from "@spirobel/mininext";
+import { url, type Mini } from "@spirobel/mininext";
 import type { Loggedin } from "../../users/loginLogout";
 import { walletSvg } from "../svgs";
 import type { Wallet } from "../../../db/schema";
@@ -15,8 +15,9 @@ export function emptyWalletCard(mini: Mini<Loggedin>) {
 export function filledWalletCard(mini: Mini<Loggedin>, wallet: Wallet) {
   return mini.html`
       <div class="wallet-card">
+      ${url.deliver("wallet-" + wallet.id, wallet)}
       <div class="wallet-actions">
-        <button class="edit-wallet-btn">
+        <button class="edit-wallet-btn" onclick="editWallet('${wallet.id}')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -29,16 +30,8 @@ export function filledWalletCard(mini: Mini<Loggedin>, wallet: Wallet) {
         <div class="wallet-balance">2.4389 XMR</div>
       </div>
       
-      <div class="wallet-address">5B5ieVKGSyfAyh68X6AFB48Gnx9diT8jPbWN6UcZHJUZVQSLRhaaHuHQz3dGuxxZDXPYgCXzrkerK3m6Q1tHoougR7VYyd9</div>
+      <div class="wallet-address">${wallet.primaryAddress!}</div>
       
-      <div class="blocks-container">
-        <!-- Blocks added dynamically -->
-      </div>
-      
-      <div class="sync-status">Sync complete!</div>
-      
-      <div class="sync-progress">
-        <div class="sync-bar"></div>
-      </div>
+        <div class="wallet-name">${wallet.walletName || " "}</div>
     </div>`;
 }

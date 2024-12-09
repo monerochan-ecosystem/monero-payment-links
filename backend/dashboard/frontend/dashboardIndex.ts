@@ -1,3 +1,5 @@
+import type { Wallet } from "../../../db/schema";
+
 function installButtonHandlers() {
   const dialogOverlay = document.querySelector(
     ".dialog-overlay"
@@ -240,42 +242,62 @@ confirmDeleteBtn.addEventListener("click", async () => {
     }
   });
 });
-// Add event listener for edit button
-const editWalletBtn = document.querySelector(".edit-wallet-btn");
 
-editWalletBtn.addEventListener("click", () => {
-  // Switch to show edit dialog instead of add dialog
-  const editDialog = document.querySelector(".edit-dialog-overlay");
+function editWallet(walletId: number) {
+  // open the edit dialog
+  const editDialog = document.querySelector(
+    ".edit-dialog-overlay"
+  ) as HTMLDivElement;
   editDialog.style.display = "flex";
-
+  //@ts-ignore
+  const wallet = window["wallet-" + walletId] as Wallet;
   // Pre-fill the form with current wallet data
-  const form = document.querySelector("#edit-wallet-form");
-  const walletNameInput = form.querySelector('[name="walletName"]');
-  const primaryAddressInput = form.querySelector('[name="primaryAddress"]');
-  const secretViewKeyInput = form.querySelector('[name="secretViewKey"]');
-  const startHeightInput = form.querySelector('[name="start_height"]');
-  const daemonUrlInput = form.querySelector('[name="daemonUrl"]');
+  const form = document.querySelector("#edit-wallet-form") as HTMLFormElement;
+  const walletNameInput = form.querySelector(
+    '[name="walletName"]'
+  ) as HTMLInputElement;
+  const primaryAddressInput = form.querySelector(
+    '[name="primaryAddress"]'
+  ) as HTMLInputElement;
+  const secretViewKeyInput = form.querySelector(
+    '[name="secretViewKey"]'
+  ) as HTMLInputElement;
+  const startHeightInput = form.querySelector(
+    '[name="start_height"]'
+  ) as HTMLInputElement;
+  const daemonUrlInput = form.querySelector(
+    '[name="daemonUrl"]'
+  ) as HTMLInputElement;
 
   // Pre-fill form data
-  walletNameInput.value = "My XMR Wallet";
-  primaryAddressInput.value = "the primary address";
-  secretViewKeyInput.value = ""; // Add actual view key if available
-  startHeightInput.value = "0"; // Add actual start height if available
-  daemonUrlInput.value = ""; // Add actual daemon URL if available
-});
+  walletNameInput.value = wallet.walletName || "";
+  primaryAddressInput.value = wallet.primaryAddress || "";
+  secretViewKeyInput.value = wallet.secretViewKey || "";
+  startHeightInput.value = String(wallet.start_height) || "";
+  daemonUrlInput.value = wallet.daemonURL || "";
+
+  console.log(walletId, wallet);
+}
+
+//@ts-ignore
+window.editWallet = editWallet;
 
 // Add close handler for edit dialog
+//@ts-ignore
 document
   .querySelector(".edit-dialog-overlay .close-btn")
   .addEventListener("click", () => {
+    //@ts-ignore
     document.querySelector(".edit-dialog-overlay").style.display = "none";
   });
 
 // Add click outside handler for edit dialog
+//@ts-ignore
 document
   .querySelector(".edit-dialog-overlay")
   .addEventListener("click", (e) => {
     if (e.target === document.querySelector(".edit-dialog-overlay")) {
+      //@ts-ignore
       document.querySelector(".edit-dialog-overlay").style.display = "none";
     }
   });
