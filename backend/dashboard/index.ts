@@ -527,16 +527,16 @@ const indexStyles = html`<style>
 
   /* Add these styles to the existing CSS */
   .delete-btn {
-    background: #dc2626;
-    color: var(--text);
-    border: none;
-    padding: 1rem;
-    border-radius: 8px;
     cursor: pointer;
     width: 100%;
     font-size: 1rem;
     margin-top: 1rem;
     transition: all 0.3s ease;
+    padding: 1rem;
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 8px;
+    color: #fecaca;
   }
 
   .delete-btn:hover {
@@ -570,7 +570,6 @@ const indexStyles = html`<style>
     border: none;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s ease;
   }
 
   .cancel-delete {
