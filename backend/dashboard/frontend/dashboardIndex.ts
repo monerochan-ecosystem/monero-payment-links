@@ -240,6 +240,14 @@ function editWallet(walletId: number | null) {
 
     //@ts-ignore
     wallet = window["wallet-" + walletId] as Wallet;
+    function confirmDeletion() {
+      fetch("deleteWallet", {
+        method: "POST",
+        body: JSON.stringify({ walletId }),
+      }).then(() => window.location.reload());
+    }
+    //@ts-ignore
+    window.confirmDeletion = confirmDeletion;
   }
   // Pre-fill form data
   walletNameInput.value = wallet.walletName || "";

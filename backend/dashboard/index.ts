@@ -154,7 +154,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <p><strong>Warning:</strong> This action cannot be undone. Deleting this wallet will also remove all associated payment links and transaction history.</p>
             <div class="warning-actions">
               <button type="button" class="cancel-delete" onClick="hideDeleteDialog()">Cancel</button>
-              <button type="button" class="confirm-delete">Delete Permanently</button>
+              <button type="button" class="confirm-delete" onClick="confirmDeletion()">Delete Permanently</button>
             </div>
           </div>
         </form>
