@@ -96,7 +96,7 @@ function installButtonHandlers() {
       });
     });
 }
-installButtonHandlers();
+//installButtonHandlers();
 
 // Advanced options toggle
 document.addEventListener("DOMContentLoaded", () => {
@@ -290,15 +290,6 @@ function editWallet(walletId: number | null) {
 
 //@ts-ignore
 window.editWallet = editWallet;
-
-// Add close handler for edit dialog
-//@ts-ignore
-document
-  .querySelector(".edit-dialog-overlay .close-btn")
-  .addEventListener("click", () => {
-    //@ts-ignore
-    document.querySelector(".edit-dialog-overlay").style.display = "none";
-  });
 
 // Add click outside handler for edit dialog
 //@ts-ignore

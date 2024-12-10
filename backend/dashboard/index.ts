@@ -53,11 +53,11 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
 
     <button class="add-wallet-btn" onclick="editWallet()">+ Add Wallet</button>
 
-        <div class="dialog-overlay edit-dialog-overlay">
+      <div class="dialog-overlay edit-dialog-overlay">
       <div class="dialog">
         <div class="dialog-header">
           <h2 class="dialog-title"></h2>
-          <button class="close-btn">&times;</button>
+          <button class="close-btn" onclick="document.querySelector('.edit-dialog-overlay').style.display = 'none'">&times;</button>
         </div>
         
         <form id="edit-wallet-form">
