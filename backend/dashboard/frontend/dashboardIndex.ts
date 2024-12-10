@@ -86,6 +86,7 @@ function editWallet(walletId: number | null) {
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
+    if (walletId) input.id = walletId;
     if (input["start_height"] === "") delete input["start_height"];
     else {
       input["start_height"] = Number(input["start_height"]);
@@ -94,6 +95,7 @@ function editWallet(walletId: number | null) {
       input["primaryAddress"] = input["primaryAddress"].trim();
     if (input["secretViewKey"])
       input["secretViewKey"] = input["secretViewKey"].trim();
+    if (input["walletName"]) input["walletName"] = input["walletName"].trim();
     fetch("editWallet", {
       method: "POST",
       body: JSON.stringify(input),
@@ -122,6 +124,7 @@ function editWallet(walletId: number | null) {
         // Handle success case
         editDialog.style.display = "none";
         form.reset();
+        window.location.reload();
       }
     });
   };

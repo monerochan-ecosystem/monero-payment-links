@@ -11,6 +11,7 @@ export function editWalletEndpoint(mini: Mini<Loggedin>) {
     const insertedRow = db
       .insert(wallets)
       .values(result.data)
+      .onConflictDoUpdate({ target: wallets.id, set: result.data })
       .returning()
       .get();
     return mini.json`${insertedRow}`;
