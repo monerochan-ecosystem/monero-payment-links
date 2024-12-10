@@ -243,15 +243,20 @@ confirmDeleteBtn.addEventListener("click", async () => {
   });
 });
 
-function editWallet(walletId: number) {
+function editWallet(walletId: number | null) {
+  console.log("EDIT WALLT ", walletId);
+  let submitButtonText = "Add Wallet";
+  let dialogTitle = "Add New Wallet";
+  const deleteBtnElement = document.querySelector(
+    ".delete-btn"
+  ) as HTMLButtonElement;
+  deleteBtnElement.style.display = "none";
   // open the edit dialog
   const editDialog = document.querySelector(
     ".edit-dialog-overlay"
   ) as HTMLDivElement;
   editDialog.style.display = "flex";
-  //@ts-ignore
-  const wallet = window["wallet-" + walletId] as Wallet;
-  // Pre-fill the form with current wallet data
+
   const form = document.querySelector("#edit-wallet-form") as HTMLFormElement;
   const walletNameInput = form.querySelector(
     '[name="walletName"]'
@@ -268,15 +273,29 @@ function editWallet(walletId: number) {
   const daemonUrlInput = form.querySelector(
     '[name="daemonUrl"]'
   ) as HTMLInputElement;
+  let wallet = {} as Wallet;
+  if (walletId) {
+    submitButtonText = "Update Wallet";
+    dialogTitle = "Edit Wallet";
+    deleteBtnElement.style.display = "block";
 
+    //@ts-ignore
+    wallet = window["wallet-" + walletId] as Wallet;
+  }
   // Pre-fill form data
   walletNameInput.value = wallet.walletName || "";
   primaryAddressInput.value = wallet.primaryAddress || "";
   secretViewKeyInput.value = wallet.secretViewKey || "";
   startHeightInput.value = String(wallet.start_height) || "";
   daemonUrlInput.value = wallet.daemonURL || "";
-
-  console.log(walletId, wallet);
+  const dialogTitleElement = document.querySelector(
+    ".dialog-title"
+  ) as HTMLHeadingElement;
+  const submitButtonTextElement = document.querySelector(
+    ".submit-btn .button-text"
+  ) as HTMLSpanElement;
+  submitButtonTextElement.innerText = submitButtonText;
+  dialogTitleElement.innerText = dialogTitle;
 }
 
 //@ts-ignore

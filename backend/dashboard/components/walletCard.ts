@@ -31,7 +31,9 @@ export function filledWalletCard(mini: Mini<Loggedin>, wallet: Wallet) {
       </div>
       
       <div class="wallet-address">${wallet.primaryAddress!}</div>
-      
-        <div class="wallet-name">${wallet.walletName || " "}</div>
+      <div class="wallet-name">${wallet.walletName || " "}</div>
+      <div class="sync-progress">
+        <div class="sync-bar"></div>
+      </div>
     </div>`;
 }

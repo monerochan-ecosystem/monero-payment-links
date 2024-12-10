@@ -51,19 +51,19 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
       <div class="wallets-grid">${walletElementList}</div>`;
     }}
 
-    <button class="add-wallet-btn">+ Add Wallet</button>
+    <button class="add-wallet-btn" onclick="editWallet()">+ Add Wallet</button>
 
-    <div class="dialog-overlay">
+        <div class="dialog-overlay edit-dialog-overlay">
       <div class="dialog">
         <div class="dialog-header">
-          <h2 class="dialog-title">Add New Wallet</h2>
+          <h2 class="dialog-title"></h2>
           <button class="close-btn">&times;</button>
         </div>
         
-        <form id="add-wallet-form">
+        <form id="edit-wallet-form">
           <div class="form-group">
             <label class="form-label">Wallet Name</label>
-            <input type="text" class="form-input" name="walletName" placeholder="My XMR Wallet">
+            <input type="text" class="form-input" name="walletName" required placeholder="My XMR Wallet">
             <div class="error-message" id="walletName-error"></div>
           </div>
           
@@ -108,70 +108,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
           
           <button type="submit" class="submit-btn">
             <span class="spinner"></span>
-            <span class="button-text">Add Wallet</span>
-          </button>
-        </form>
-      </div>
-    </div>
-    
-
-
-        <div class="dialog-overlay edit-dialog-overlay">
-      <div class="dialog">
-        <div class="dialog-header">
-          <h2 class="dialog-title">Edit Wallet</h2>
-          <button class="close-btn">&times;</button>
-        </div>
-        
-        <form id="edit-wallet-form">
-          <div class="form-group">
-            <label class="form-label">Wallet Name</label>
-            <input type="text" class="form-input" name="walletName" required placeholder="My XMR Wallet">
-            <div class="error-message" id="edit-walletName-error"></div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Primary Address</label>
-            <input type="text" class="form-input" name="primaryAddress" required placeholder="Enter the Primary Address ...">
-            <div class="error-message" id="edit-primaryAddress-error"></div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Private View Key</label>
-            <input type="text" class="form-input" name="secretViewKey" required placeholder="Enter the Private View Key ...">
-            <div class="error-message" id="edit-secretViewKey-error"></div>
-          </div>
-
-          <button type="button" class="advanced-toggle">
-            <span class="show-more">Show Advanced Options
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
-              </svg>
-            </span>
-            <span class="show-less" style="display: none;">Hide Advanced Options
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
-              </svg>
-            </span>
-          </button>
-          
-          <div class="advanced-fields" style="display: none;">
-            <div class="form-group">
-              <label class="form-label">Start Sync Height</label>
-              <input type="number" class="form-input" name="start_height" placeholder="Enter block height to sync from">
-              <div class="error-message" id="edit-start_height-error"></div>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">Daemon URL</label>
-              <input type="url" class="form-input" name="daemonUrl" placeholder="https://...">
-              <div class="error-message" id="edit-daemonUrl-error"></div>
-            </div>
-          </div>
-          
-          <button type="submit" class="submit-btn">
-            <span class="spinner"></span>
-            <span class="button-text">Update Wallet</span>
+            <span class="button-text"></span>
           </button>
 
           <button type="button" class="delete-btn">Delete Wallet</button>
