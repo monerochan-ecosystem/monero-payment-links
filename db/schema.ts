@@ -22,7 +22,7 @@ export const wallets = sqliteTable("wallets", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   walletName: text("walletName"),
   primaryAddress: text("primaryAddress"),
-  secretViewKey: text("walletName"),
+  secretViewKey: text("secretViewKey"),
   daemonURL: text("daemonURL"),
   start_height: integer("start_height"),
   timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
