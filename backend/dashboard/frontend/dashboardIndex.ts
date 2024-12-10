@@ -98,37 +98,6 @@ function installButtonHandlers() {
 }
 //installButtonHandlers();
 
-// Advanced options toggle
-document.addEventListener("DOMContentLoaded", () => {
-  const advancedToggle = document.querySelector(".advanced-toggle");
-  const showMore = document.querySelector(".show-more") as HTMLElement;
-  const showLess = document.querySelector(".show-less") as HTMLElement;
-  const advancedFields = document.querySelector(
-    ".advanced-fields"
-  ) as HTMLElement;
-  if (!advancedToggle) return;
-  const dialogOverlay = document.querySelector(
-    ".dialog-overlay"
-  ) as HTMLDivElement;
-  if (!dialogOverlay) return;
-  advancedToggle.addEventListener("click", () => {
-    advancedToggle.classList.toggle("active");
-    advancedFields.classList.toggle("active");
-
-    if (advancedFields.classList.contains("active")) {
-      advancedFields.style.display = "block";
-      showLess.style.display = "block";
-      showMore.style.display = "none";
-    } else {
-      setTimeout(() => {
-        advancedFields.style.display = "none";
-      }, 300); // Match the transition duration
-      showLess.style.display = "none";
-      showMore.style.display = "block";
-    }
-  });
-});
-
 function installSyncProgressBar() {
   const syncBar = document.querySelector(".sync-bar") as HTMLElement;
   const syncStatus = document.querySelector(".sync-status") as HTMLElement;
@@ -290,17 +259,6 @@ function editWallet(walletId: number | null) {
 
 //@ts-ignore
 window.editWallet = editWallet;
-
-// Add click outside handler for edit dialog
-//@ts-ignore
-document
-  .querySelector(".edit-dialog-overlay")
-  .addEventListener("click", (e) => {
-    if (e.target === document.querySelector(".edit-dialog-overlay")) {
-      //@ts-ignore
-      document.querySelector(".edit-dialog-overlay").style.display = "none";
-    }
-  });
 
 // Handle edit form submission
 document

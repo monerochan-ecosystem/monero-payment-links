@@ -53,7 +53,15 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
 
     <button class="add-wallet-btn" onclick="editWallet()">+ Add Wallet</button>
 
-      <div class="dialog-overlay edit-dialog-overlay">
+      <div class="dialog-overlay edit-dialog-overlay" onclick="clickOutsideClose(event)">
+      <script>
+          function clickOutsideClose (e) {
+            if (e.target === document.querySelector(".edit-dialog-overlay")) {
+              document.querySelector(".edit-dialog-overlay").style.display = "none";
+            }
+          }
+      </script>
+
       <div class="dialog">
         <div class="dialog-header">
           <h2 class="dialog-title"></h2>
@@ -79,18 +87,30 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <div class="error-message" id="secretViewKey-error"></div>
           </div>
 
-          <button type="button" class="advanced-toggle">
-            <span class="show-more">Show Advanced Options
+          <div class="advanced-toggle">
+            <span class="show-more" onclick="showMore()">Show Advanced Options
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
               <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
             </svg>
             </span>
-            <span class="show-less" style="display: none;">Hide Advanced Options
+            <span class="show-less" onclick="showLess()" style="display: none;">Hide Advanced Options
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
               </svg>
             </span>
-          </button>
+            <script>
+              function showMore(){
+                document.querySelector(".show-more").style.display = "none"
+                document.querySelector(".show-less").style.display = "flex"
+                document.querySelector(".advanced-fields").style.display = "block"
+              }
+              function showLess(){
+                document.querySelector(".show-more").style.display = "flex"
+                document.querySelector(".show-less").style.display = "none"
+                document.querySelector(".advanced-fields").style.display = "none"
+              }
+              </script>
+          </div>
           
           <div class="advanced-fields" style="display: none;">
             <div class="form-group">
@@ -113,7 +133,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
 
           <button type="button" class="delete-btn" onclick="showDeleteDialog()">Delete Wallet</button>
           <script>
-            showDeleteDialog = () => {
+            function showDeleteDialog () {
             const deleteWarning = document.querySelector(".delete-warning");
             const deleteBtn = document.querySelector(".delete-btn");
 
@@ -121,7 +141,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
               deleteBtn.style.display = "none";
             }
 
-            hideDeleteDialog = () => {
+            function hideDeleteDialog () {
             const deleteWarning = document.querySelector(".delete-warning");
             const deleteBtn = document.querySelector(".delete-btn");
 
@@ -421,9 +441,9 @@ const indexStyles = html`<style>
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
   }
-  .advanced-toggle {
+
+  .show-more {
     width: 100%;
-    background: none;
     border: none;
     color: var(--text);
     padding: 1rem;
@@ -434,7 +454,20 @@ const indexStyles = html`<style>
     gap: 0.5rem;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
+    opacity: 0.8;
+  }
+  .show-less {
+    width: 100%;
+    border: none;
+    color: var(--text);
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
     opacity: 0.8;
   }
 
@@ -442,22 +475,8 @@ const indexStyles = html`<style>
     opacity: 1;
   }
 
-  .toggle-icon {
-    transition: transform 0.3s ease;
-  }
-
-  .advanced-toggle.active .toggle-icon {
-    transform: rotate(180deg);
-  }
-
   .advanced-fields {
     overflow: hidden;
-    transition: all 0.3s ease;
-    opacity: 0;
-    max-height: 0;
-  }
-
-  .advanced-fields.active {
     opacity: 1;
     max-height: 300px;
     margin-bottom: 1rem;
