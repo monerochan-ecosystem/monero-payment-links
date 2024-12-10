@@ -5,7 +5,7 @@ import type { Wallet } from "../../../db/schema";
 
 export function emptyWalletCard(mini: Mini<Loggedin>) {
   return mini.html`
-        <div class="empty-wallet-card">
+        <div class="empty-wallet-card" onclick="editWallet()">
             <img class="empty-state-icon floating" src="${walletSvg}" width="38" height="38" />
             <div class="empty-state-text">No Wallets Connected</div>
             <div class="empty-state-subtext">Click the button below to add your first wallet</div>
