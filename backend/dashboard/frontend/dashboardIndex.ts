@@ -196,16 +196,6 @@ const deleteWarning = document.querySelector(".delete-warning");
 const cancelDeleteBtn = document.querySelector(".cancel-delete");
 const confirmDeleteBtn = document.querySelector(".confirm-delete");
 
-deleteBtn.addEventListener("click", () => {
-  deleteWarning.classList.add("show");
-  deleteBtn.style.display = "none";
-});
-
-cancelDeleteBtn.addEventListener("click", () => {
-  deleteWarning.classList.remove("show");
-  deleteBtn.style.display = "block";
-});
-
 confirmDeleteBtn.addEventListener("click", async () => {
   confirmDeleteBtn.disabled = true;
   cancelDeleteBtn.disabled = true;

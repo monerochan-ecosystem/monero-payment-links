@@ -111,12 +111,29 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
             <span class="button-text"></span>
           </button>
 
-          <button type="button" class="delete-btn">Delete Wallet</button>
+          <button type="button" class="delete-btn" onclick="showDeleteDialog()">Delete Wallet</button>
+          <script>
+            showDeleteDialog = () => {
+            const deleteWarning = document.querySelector(".delete-warning");
+            const deleteBtn = document.querySelector(".delete-btn");
+
+              deleteWarning.classList.add("show");
+              deleteBtn.style.display = "none";
+            }
+
+            hideDeleteDialog = () => {
+            const deleteWarning = document.querySelector(".delete-warning");
+            const deleteBtn = document.querySelector(".delete-btn");
+
+              deleteWarning.classList.remove("show");
+              deleteBtn.style.display = "block";
+            }
+            </script>
 
           <div class="delete-warning">
             <p><strong>Warning:</strong> This action cannot be undone. Deleting this wallet will also remove all associated payment links and transaction history.</p>
             <div class="warning-actions">
-              <button type="button" class="cancel-delete">Cancel</button>
+              <button type="button" class="cancel-delete" onClick="hideDeleteDialog()">Cancel</button>
               <button type="button" class="confirm-delete">Delete Permanently</button>
             </div>
           </div>
