@@ -2,7 +2,6 @@ import { html, url, type Mini } from "@spirobel/mininext";
 import type { Loggedin } from "../users/loginLogout";
 import { db } from "../../db/db";
 import { wallets } from "../../db/schema";
-import { walletSvg } from "./svgs";
 import { emptyWalletCard, filledWalletCard } from "./components/walletCard";
 import { sidebar } from "./components/sidebar";
 
