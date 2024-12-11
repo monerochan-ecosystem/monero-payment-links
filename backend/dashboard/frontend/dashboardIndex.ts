@@ -1,6 +1,12 @@
 import type { Wallet } from "../../../db/schema";
 
 function editWallet(walletId: number | null) {
+  //delete warning hidden
+  const deleteWarning = document.querySelector(
+    ".delete-warning"
+  ) as HTMLDivElement;
+  deleteWarning.classList.remove("show");
+
   // Reset previous errors
   document.querySelectorAll(".form-input").forEach((input) => {
     input.classList.remove("error");

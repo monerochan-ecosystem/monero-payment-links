@@ -4,6 +4,7 @@ import { db } from "../../db/db";
 import { wallets } from "../../db/schema";
 import { walletSvg } from "./svgs";
 import { emptyWalletCard, filledWalletCard } from "./components/walletCard";
+import { sidebar } from "./components/sidebar";
 
 const frontend = url.frontend("dashboardIndex.ts");
 
@@ -11,33 +12,10 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
   const walletList = db.select().from(wallets).all();
   return mini.html`
   ${frontend} 
+  ${mainStyles}
   ${indexStyles}
   <div class="layout-container">
-  <nav class="sidebar">
-
-    
-    <a href="https://example.com/wallets" class="menu-item active">
-        <img src="${walletSvg}" class="icon" />
-      Wallets
-    </a>
-    
-    <a href="https://example.com/transactions" class="menu-item">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M7 16V4M7 4L3 8M7 4L11 8"/>
-        <path d="M17 8v12M17 20l4-4M17 20l-4-4"/>
-      </svg>
-      Transactions
-    </a>
-    
-    <a href="https://example.com/payment-links" class="menu-item">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-      </svg>
-      Payment Links
-    </a>
-  </nav>
-
+  ${sidebar}
   <main class="main-content">
     ${() => {
       if (walletList.length < 1) {
@@ -165,8 +143,7 @@ export function dashBoardIndex(mini: Mini<Loggedin>) {
 
 `;
 }
-
-const indexStyles = html`<style>
+export const mainStyles = html`<style>
   :root {
     --primary: #5b21b6;
     --secondary: #4c1d95;
@@ -174,10 +151,6 @@ const indexStyles = html`<style>
     --text: #f8fafc;
     --bg: #18181b;
   }
-  input {
-    box-sizing: border-box;
-  }
-
   body {
     margin: 0;
     min-height: 100vh;
@@ -195,47 +168,6 @@ const indexStyles = html`<style>
     width: 100%;
   }
 
-  .sidebar {
-    width: 280px;
-    background: var(--primary);
-    padding: 2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--accent);
-  }
-
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 1rem;
-    margin-bottom: 2rem;
-    color: var(--text);
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    color: var(--text);
-    text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    margin-bottom: 0.5rem;
-  }
-
-  .menu-item:hover {
-    background: rgba(124, 58, 237, 0.2);
-    transform: translateX(4px);
-  }
-
-  .menu-item.active {
-    background: var(--accent);
-  }
-
   .main-content {
     flex: 1;
     padding: 2rem;
@@ -243,6 +175,22 @@ const indexStyles = html`<style>
     justify-content: center;
     align-items: center;
   }
+  @media (max-width: 768px) {
+    .layout-container {
+      flex-direction: column;
+      position: relative;
+    }
+
+    .main-content {
+      padding-bottom: 80px; /* Increase padding to prevent overlap */
+    }
+  }
+</style>`;
+const indexStyles = html`<style>
+  input {
+    box-sizing: border-box;
+  }
+
   .wallets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
@@ -252,7 +200,13 @@ const indexStyles = html`<style>
     margin: 0 auto;
     padding: 1rem;
   }
-
+  @media (max-width: 768px) {
+    .wallets-grid {
+      grid-template-columns: 1fr; /* Single column on mobile */
+      padding: 1rem;
+      padding-bottom: 80px; /* Account for bottom menu */
+    }
+  }
   .wallet-card {
     width: 380px;
     height: 220px;
@@ -748,66 +702,6 @@ const indexStyles = html`<style>
     }
     100% {
       opacity: 0.7;
-    }
-  }
-  .icon {
-    width: 20px !important;
-    height: 20px !important;
-  }
-
-  /* Updated mobile menu styles */
-  @media (max-width: 768px) {
-    .wallets-grid {
-      grid-template-columns: 1fr; /* Single column on mobile */
-      padding: 1rem;
-      padding-bottom: 80px; /* Account for bottom menu */
-    }
-
-    .icon {
-      width: 24px;
-      height: 24px;
-    }
-    .layout-container {
-      flex-direction: column;
-      position: relative;
-    }
-
-    .sidebar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 60px; /* Set fixed height */
-      padding: 0.4rem 0.5rem; /* Reduce padding */
-      flex-direction: row;
-      justify-content: space-around;
-      align-items: center; /* Align items to the center */
-      background: var(--primary);
-      z-index: 100;
-      border-right: none;
-      border-top: 1px solid var(--accent);
-    }
-
-    .sidebar-logo {
-      display: none; /* Hide logo on mobile */
-    }
-
-    .menu-item {
-      flex-direction: row; /* Change from column to row */
-      padding: 0.5rem;
-      margin-bottom: 0;
-      text-align: left; /* Change from center to left */
-      font-weight: 700;
-      width: auto; /* Remove fixed width */
-      gap: 0.2rem; /* Add gap between icon and text */
-    }
-
-    .main-content {
-      padding-bottom: 80px; /* Increase padding to prevent overlap */
-    }
-
-    .add-wallet-btn {
-      bottom: 90px; /* Move button further up to avoid overlap */
     }
   }
 </style>`;
