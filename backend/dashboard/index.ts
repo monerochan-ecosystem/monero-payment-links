@@ -175,11 +175,6 @@ export const mainStyles = html`<style>
     align-items: center;
   }
   @media (max-width: 768px) {
-    .layout-container {
-      flex-direction: column;
-      position: relative;
-    }
-
     .main-content {
       padding-bottom: 80px; /* Increase padding to prevent overlap */
     }
