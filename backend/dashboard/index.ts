@@ -200,7 +200,7 @@ const indexStyles = html`<style>
     margin: 0 auto;
     padding: 1rem;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 1300px) {
     .wallets-grid {
       grid-template-columns: 1fr; /* Single column on mobile */
       padding: 1rem;
