@@ -160,6 +160,12 @@ export const mainStyles = html`<style>
     font-family: "Inter", system-ui, sans-serif;
     color: var(--text);
   }
+  input {
+    box-sizing: border-box;
+  }
+  textarea {
+    box-sizing: border-box;
+  }
 
   .layout-container {
     display: flex;
@@ -181,10 +187,6 @@ export const mainStyles = html`<style>
   }
 </style>`;
 const indexStyles = html`<style>
-  input {
-    box-sizing: border-box;
-  }
-
   .wallets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
