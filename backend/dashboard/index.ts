@@ -166,6 +166,25 @@ export const mainStyles = html`<style>
   textarea {
     box-sizing: border-box;
   }
+  select {
+    background-color: #231c30 !important;
+    color: #fff !important;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  select option {
+    color: #fff !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(124, 58, 237, 0.3) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
+    font-size: 1rem;
+  }
 
   .layout-container {
     display: flex;
