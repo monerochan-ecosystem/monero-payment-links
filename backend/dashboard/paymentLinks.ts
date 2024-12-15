@@ -136,12 +136,12 @@ const paymentLinksStyles = html`<style>
   .payment-links-section {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
   .payment-links-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
   }
 
   .payment-links-header h1 {
