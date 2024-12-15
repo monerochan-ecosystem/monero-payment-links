@@ -343,11 +343,14 @@ const indexStyles = html`<style>
     background: rgba(0, 0, 0, 0.8);
     display: none;
     justify-content: center;
-    align-items: center;
     backdrop-filter: blur(4px);
+    overflow-y: auto;
+    z-index: 101;
+    padding-top: 20px;
   }
 
   .dialog {
+    max-height: fit-content;
     background: var(--bg);
     padding: 2rem;
     border-radius: 20px;
