@@ -24,9 +24,23 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         <form id="edit-wallet-form">
         ${formTabStyles}
           <div class="form-tabs">
-            <button type="button" class="form-tab active" data-step="1">Basic Info</button>
-            <button type="button" class="form-tab" data-step="2">Amount &amp; Settings</button>
+            <button type="button" class="form-tab active" data-step="1" onclick="switchActiveTab()">Basic Info</button>
+            <button type="button" class="form-tab" data-step="2" onclick="switchActiveTab()">Amount &amp; Settings</button>
           </div>
+          <script>
+            function switchActiveTab(){
+                const formTabs = document.querySelectorAll('.form-tab');
+                const formSteps = document.querySelectorAll('.form-step');
+
+                for (const tab of formTabs) {
+                  tab.classList.toggle('active')
+                }
+
+                for (const step of formSteps){
+                  step.classList.toggle('active');
+                }
+            }
+          </script>
 
           <div class="form-step active" data-step="1">
           ${paymentTypeSelectionStyles}
