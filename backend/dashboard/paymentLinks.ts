@@ -137,7 +137,7 @@ const paymentLinksStyles = html`<style>
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    margin: 0 auto;
   }
   .payment-links-header {
     margin-bottom: 1rem;
