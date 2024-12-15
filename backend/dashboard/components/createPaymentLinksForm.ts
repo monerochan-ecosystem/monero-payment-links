@@ -216,39 +216,24 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
             <div class="error-message" id="wallet-error"></div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Payment Type</label>
-            <select class="form-input" name="paymentType" required>
-              <option value="multi-use">Multi-use Payment Link (Product)</option>
-              <option value="one-time">One-time Payment (Invoice)</option>
-            </select>
-          </div>
 
-          <div class="form-group">
-            <label class="form-label">Status</label>
-            <select class="form-input" name="status" required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <div class="form-group invoice-fields" style="display: none;">
+          <div class="form-group invoice-fields">
             <label class="form-label">Due Date (optional)</label>
             <input type="date" class="form-input" name="dueDate">
             <div class="error-message" id="dueDate-error"></div>
           </div>
 
-          <div class=" form-group product-fields" style="display: none;">
-            <div class="form-group">
-              <label class="form-label">Maximum Uses (Product Quantity)</label>
-              <input type="number" class="form-input" name="maxUses" placeholder="Leave blank for unlimited">
-            </div>
+          <div class="form-group product-fields">
+            <label class="form-label">Maximum Uses (Product Quantity)</label>
+            <input type="number" class="form-input" name="maxUses" placeholder="Leave blank for unlimited">
+            <div class="error-message" id="maxUses-error"></div>
           </div>
 
             <div class="form-group">
-              <label class="form-label">Success URL</label>
+              <label class="form-label form-label-optional">Success URL</label>
               <input type="url" class="form-input" name="successUrl" placeholder="https://...">
-            </div>
+              <div class="error-message" id="successUrl-error"></div>
+              </div>
 
           <button type="submit" class="submit-btn">
             <span class="spinner"></span>
@@ -319,6 +304,26 @@ const createPaymentLinkFormStyles = html`<style>
   }
 
   .form-step.active {
+    display: block;
+  }
+  .form-label-optional::after {
+    content: " (optional)";
+    opacity: 0.7;
+    font-weight: normal;
+    font-size: 0.875em;
+  }
+  .product-fields {
+    display: none;
+  }
+
+  .product-fields.active {
+    display: block;
+  }
+  .invoice-fields {
+    display: none;
+  }
+
+  .invoice-fields.active {
     display: block;
   }
 </style> `;
