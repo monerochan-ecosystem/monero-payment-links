@@ -208,6 +208,85 @@ export const mainStyles = html`<style>
       padding-bottom: 80px; /* Increase padding to prevent overlap */
     }
   }
+  .dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+    z-index: 101;
+    padding-top: 20px;
+  }
+
+  .dialog {
+    height: fit-content;
+    background: var(--bg);
+    padding: 2rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid var(--accent);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+  }
+
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .dialog-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1.5rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  .close-btn:hover {
+    opacity: 1;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+  }
 </style>`;
 const indexStyles = html`<style>
   .wallets-grid {
@@ -336,86 +415,6 @@ const indexStyles = html`<style>
   .add-wallet-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
-  }
-
-  .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-    overflow-y: auto;
-    z-index: 101;
-    padding-top: 20px;
-  }
-
-  .dialog {
-    height: fit-content;
-    background: var(--bg);
-    padding: 2rem;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 500px;
-    border: 1px solid var(--accent);
-    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
-  }
-
-  .dialog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .dialog-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text);
-    cursor: pointer;
-    font-size: 1.5rem;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-  }
-
-  .close-btn:hover {
-    opacity: 1;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    opacity: 0.8;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--text);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
   }
 
   .show-more {
