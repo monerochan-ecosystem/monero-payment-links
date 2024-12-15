@@ -69,7 +69,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
             </div>
 
             <div class="payment-type-form active product-form" data-type="multi-use">
-              <div style="background: rgba(124,58,237,0.1); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+              <div style="border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
                 <div class="form-group" style="margin-bottom: 1rem; position: relative;">
                 <label class="form-label" style="
                   font-size: 0.875rem;
@@ -104,21 +104,9 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                     </svg>
                   </div>
               </label>
-          <input type="text" class="form-input" name="title" required="" placeholder="e.g. Exclusive Membership Package" style="
-            border: none;
-            background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(124,58,237,0.1));
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: var(--accent);
-            padding: 0.75rem;
-            border-radius: 16px;
-            text-align: center;
-            letter-spacing: -0.02em;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 1rem;
-            width: 100%;
+          <input type="text" class="form-input product-title" name="title" required="" placeholder="title of your product" style="
+
+            
           ">
         </div>
           <div class="form-group" style="margin-bottom: 0; position: relative;">
@@ -153,15 +141,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         </svg>
         </div>
         </label>
-        <textarea class="form-input" name="description" rows="3" placeholder="Describe your product's value proposition..." style="
-          border-color: var(--accent);
-          background: rgba(124,58,237,0.05);
-          border-radius: 12px;
-          padding: 1rem;
-          width: 100%;
-          color: var(--text);
-          transition: all 0.3s ease;
-        "></textarea>
+        <textarea class="form-input product-details" name="description" rows="3" placeholder="Describe your product's value proposition..."></textarea>
         </div>
         </div>
             </div>
@@ -489,20 +469,6 @@ const paymentTypeSelectionStyles = html`<style>
     letter-spacing: -0.02em;
   }
 
-  .payment-type-form.product-form textarea.form-input {
-    text-align: center;
-    margin-bottom: 3rem;
-    line-height: 1.8;
-    font-size: 1.1rem;
-    color: rgba(248, 250, 252, 0.9);
-    padding: 2rem;
-    background: rgba(124, 58, 237, 0.05);
-    border-radius: 12px;
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    min-height: 120px;
-    resize: vertical;
-  }
-
   .payment-type-form.product-form {
     background: rgba(20, 20, 20, 0.8);
     backdrop-filter: blur(10px);
@@ -510,19 +476,6 @@ const paymentTypeSelectionStyles = html`<style>
     border-radius: 20px;
     padding: 1.5rem;
     margin-top: 1rem;
-  }
-
-  .payment-type-form.product-form .form-input[name="title"] {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    background: rgba(124, 58, 237, 0.05);
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    padding: 0.75rem;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-    width: calc(100% - 2rem);
-    margin-bottom: 1rem;
   }
 
   .payment-type-form.product-form .form-input:hover,
@@ -571,32 +524,40 @@ const paymentTypeSelectionStyles = html`<style>
     opacity: 0.6;
   }
 
-  .payment-type-form.product-form .form-input[name="title"] {
+  .product-title {
     text-align: center;
     font-size: 1.5rem;
     font-weight: 600;
-    background: rgba(124, 58, 237, 0.05);
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    padding: 0.75rem;
     color: var(--accent);
+    margin-bottom: 2rem;
     letter-spacing: -0.02em;
-    width: calc(100% - 2rem);
+    width: 100%;
+    border: none;
+    background: linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.05),
+      rgba(124, 58, 237, 0.1)
+    );
+    padding: 0.75rem;
+    border-radius: 16px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
     margin-bottom: 1rem;
   }
 
-  .payment-type-form.product-form textarea.form-input {
+  .product-details {
     text-align: center;
+    margin-bottom: 3rem;
     line-height: 1.8;
     font-size: 1.1rem;
     color: rgba(248, 250, 252, 0.9);
-    padding: 1rem;
+    padding: 2rem;
     background: rgba(124, 58, 237, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(124, 58, 237, 0.1);
-    min-height: 80px;
-    resize: vertical;
-    width: calc(100% - 3rem);
-    margin-bottom: 1rem;
+    resize: none;
   }
 
   .payment-type-form.product-form .form-group {
@@ -611,7 +572,6 @@ const paymentTypeSelectionStyles = html`<style>
   }
 
   .payment-type-form.product-form > div {
-    background: rgba(124, 58, 237, 0.1);
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
