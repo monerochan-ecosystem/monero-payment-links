@@ -142,7 +142,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                     </svg>
                   </div>
               </label>
-          <input type="text" class="form-input product-title" name="title" required="" placeholder="title of your product" style="
+          <input type="text" class="form-input product-title" name="title"  placeholder="title of your product" style="
 
             
           ">
@@ -183,7 +183,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(124,58,237,0.1);">
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Title</label>
-                  <input type="text" class="form-input" name="invoice_title" required="" placeholder="e.g. Consulting Services - September 2023" style="border-color: rgba(124,58,237,0.2);">
+                  <input type="text" class="form-input" name="invoice_title" placeholder="e.g. Consulting Services - September 2023" style="border-color: rgba(124,58,237,0.2);">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Details</label>
