@@ -26,18 +26,28 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
           <div class="form-tabs">
             <button type="button" class="form-tab active" data-step="1" onclick="switchActiveTab()">Basic Info</button>
             <button type="button" class="form-tab" data-step="2" onclick="switchActiveTab()">Amount &amp; Settings</button>
-          </div>
+          <button type="button" class="nav-btn next-btn" style="margin-left:auto; margin-right: 20px" onclick="switchActiveTab()">Next</button>
+            </div>
           <script>
             function switchActiveTab(){
                 const formTabs = document.querySelectorAll('.form-tab');
                 const formSteps = document.querySelectorAll('.form-step');
-
+                
                 for (const tab of formTabs) {
                   tab.classList.toggle('active')
                 }
 
                 for (const step of formSteps){
                   step.classList.toggle('active');
+                  if(step.dataset.step === "2") {
+                    if(step.classList.contains("active")){
+                      document.querySelector(".next-btn").innerText = "Back"
+                    }
+                  } else {
+                    if(step.classList.contains("active")){
+                      document.querySelector(".next-btn").innerText = "Next"
+                    }
+                  }
                 }
             }
           </script>
@@ -57,6 +67,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                 for (const typeSelectionForm of typeForms){
                   typeSelectionForm.classList.toggle('active');
                 }
+                //TODO: change title according to Paymenttype
               }
             </script>
               <button type="button" class="payment-type-btn selected" data-type="multi-use" onclick="changePaymentType(event)">
