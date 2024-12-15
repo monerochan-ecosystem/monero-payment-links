@@ -17,7 +17,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
 
       <div class="dialog">
         <div class="dialog-header">
-          <h2 class="dialog-title">Create Payment Link</h2>
+          <h2 class="dialog-title">Create Product Payment Link</h2>
           <button class="close-btn" onclick="document.querySelector('.edit-dialog-overlay').style.display = 'none'">&times;</button>
         </div>
         
@@ -59,15 +59,31 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               function changePaymentType(e){
                 const typeButtons = document.querySelectorAll('.payment-type-btn');
                 const typeForms = document.querySelectorAll('.payment-type-form');
-
+                const dialogTitleElement = document.querySelector(
+                  ".dialog-title"
+                )
+                const submitButtonTextElement = document.querySelector(
+                  ".submit-btn .button-text"
+                )
                 for (const btn of typeButtons) {
                   btn.classList.toggle('selected')
+                  if(btn.dataset.type === "multi-use") {
+                    if(btn.classList.contains("selected")){
+                      dialogTitleElement.innerText = "Create Product Payment Link"
+                      submitButtonTextElement.innerText = "Create Product Payment Link"
+                    }
+                  } else {
+                    if(btn.classList.contains("selected")){
+                      dialogTitleElement.innerText = "Create Invoice Payment Link"
+                      submitButtonTextElement.innerText = "Create Invoice Payment Link"
+                    }
+                  }
+
                 }
 
                 for (const typeSelectionForm of typeForms){
                   typeSelectionForm.classList.toggle('active');
                 }
-                //TODO: change title according to Paymenttype
               }
             </script>
               <button type="button" class="payment-type-btn selected" data-type="multi-use" onclick="changePaymentType(event)">
@@ -236,7 +252,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
 
           <button type="submit" class="submit-btn">
             <span class="spinner"></span>
-            <span class="button-text">Create Payment Link</span>
+            <span class="button-text">Create Product Payment Linkk</span>
           </button>
         </div>
           </form>
