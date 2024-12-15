@@ -249,7 +249,7 @@ const createPaymentLinkFormStyles = html`<style>
   }
 
   .dialog {
-    max-height: fit-content;
+    height: fit-content;
     background: var(--bg);
     padding: 2rem;
     border-radius: 20px;
