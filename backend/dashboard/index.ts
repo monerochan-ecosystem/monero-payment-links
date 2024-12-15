@@ -223,7 +223,7 @@ const indexStyles = html`<style>
     }
   }
   .wallet-card {
-    width: 380px;
+    max-width: 380px;
     height: 220px;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     border-radius: 20px;
