@@ -526,6 +526,9 @@ const paymentTypeSelectionStyles = html`<style>
     background-repeat: repeat-x;
     opacity: 0.6;
   }
+  .product-title::placeholder {
+    color: var(--accent);
+  }
 
   .product-title {
     text-align: center;
