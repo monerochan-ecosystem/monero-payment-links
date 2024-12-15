@@ -59,6 +59,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               function changePaymentType(e){
                 const typeButtons = document.querySelectorAll('.payment-type-btn');
                 const typeForms = document.querySelectorAll('.payment-type-form');
+                const specialFields = document.querySelectorAll('.product-invoice-fields')
                 const dialogTitleElement = document.querySelector(
                   ".dialog-title"
                 )
@@ -83,6 +84,9 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
 
                 for (const typeSelectionForm of typeForms){
                   typeSelectionForm.classList.toggle('active');
+                }
+                for (const field of specialFields){
+                  field.classList.toggle('active');
                 }
               }
             </script>
@@ -217,14 +221,14 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
           </div>
 
 
-          <div class="form-group invoice-fields">
-            <label class="form-label">Due Date (optional)</label>
+          <div class="form-group product-invoice-fields">
+            <label class="form-label form-label-optional">Invoice Due Date </label>
             <input type="date" class="form-input" name="dueDate">
             <div class="error-message" id="dueDate-error"></div>
           </div>
 
-          <div class="form-group product-fields">
-            <label class="form-label">Maximum Uses (Product Quantity)</label>
+          <div class="form-group product-invoice-fields active">
+            <label class="form-label form-label-optional">Product Quantity</label>
             <input type="number" class="form-input" name="maxUses" placeholder="Leave blank for unlimited">
             <div class="error-message" id="maxUses-error"></div>
           </div>
@@ -312,18 +316,11 @@ const createPaymentLinkFormStyles = html`<style>
     font-weight: normal;
     font-size: 0.875em;
   }
-  .product-fields {
+  .product-invoice-fields {
     display: none;
   }
 
-  .product-fields.active {
-    display: block;
-  }
-  .invoice-fields {
-    display: none;
-  }
-
-  .invoice-fields.active {
+  .product-invoice-fields.active {
     display: block;
   }
 </style> `;
