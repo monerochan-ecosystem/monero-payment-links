@@ -193,11 +193,15 @@ export const mainStyles = html`<style>
   }
 
   .main-content {
-    flex: 1;
-    padding: 2rem;
     display: flex;
-    justify-content: center;
-    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .main-content {
+      padding: 2rem;
+      justify-content: center;
+      align-items: center;
+    }
   }
   @media (max-width: 768px) {
     .main-content {

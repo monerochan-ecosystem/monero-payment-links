@@ -136,10 +136,6 @@ const paymentLinksStyles = html`<style>
   .payment-links-section {
     display: flex;
     flex-direction: column;
-    padding: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
   }
   .payment-links-header {
     display: flex;
