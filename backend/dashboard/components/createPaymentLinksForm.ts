@@ -72,19 +72,12 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               <div>
                 <div class="form-group" style="margin-bottom: 1rem; position: relative;">
                 <label class="form-label" style="
-                  font-size: 0.875rem;
-                  opacity: 0.9;
-                  font-weight: 500;
-                  color: var(--accent);
+
                   display: inline-flex;
-                  align-items: center;
-                  position: relative;
                   margin-bottom: 1rem;
-                  gap: 0.75rem;
-                  flex-direction: row;
-                  justify-content: flex-start;
+                  gap: 5px;
                   width: 100%;
-              ">Product Title
+              "><span>Product Title</span>
                   <div style="
                     position: relative;
                     display: flex;
@@ -111,18 +104,13 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         </div>
           <div class="form-group" style="margin-bottom: 0; position: relative;">
         <label class="form-label" style="
-          font-size: 0.875rem;
-          color: var(--accent);
-          font-weight: 500;
           display: inline-flex;
-          align-items: center;
           position: relative;
           margin-bottom: 1rem;
-          gap: 0.75rem;
+          gap: 5px;
           flex-direction: row-reverse;
-          justify-content: flex-end;
           width: 100%;
-        ">Product Description <div style="
+        "><span>Product Description</span> <div style="
           position: relative;
           display: flex;
           align-items: center;
@@ -154,7 +142,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Details</label>
-                  <textarea class="form-input" name="invoice_description" rows="3" placeholder="Enter invoice details and terms..." style="border-color: rgba(124,58,237,0.2);"></textarea>
+                  <textarea class="form-input" name="invoice_description" rows="10" placeholder="Enter invoice details and terms..." style="border-color: rgba(124,58,237,0.2);"></textarea>
                 </div>
               </div>
             </div>
@@ -341,6 +329,12 @@ const paymentTypeSelectionStyles = html`<style>
     color: var(--text);
   }
 
+  @media (max-width: 768px) {
+    .payment-type-btn {
+      padding: 0.9rem;
+    }
+  }
+
   .payment-type-btn:hover {
     transform: translateY(-2px);
     border-color: var(--accent);
@@ -421,22 +415,6 @@ const paymentTypeSelectionStyles = html`<style>
     padding-right: 1rem;
   }
 
-  .payment-type-form.product-form .form-label::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: -50px;
-    width: 40px;
-    height: 1px;
-    background-image: linear-gradient(
-      to right,
-      var(--accent) 50%,
-      transparent 50%
-    );
-    background-size: 6px 1px;
-    background-repeat: repeat-x;
-    opacity: 0.6;
-  }
   .product-title::placeholder {
     color: var(--accent);
   }

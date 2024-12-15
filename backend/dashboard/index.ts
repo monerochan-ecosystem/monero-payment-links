@@ -203,11 +203,7 @@ export const mainStyles = html`<style>
       align-items: center;
     }
   }
-  @media (max-width: 768px) {
-    .main-content {
-      padding-bottom: 80px; /* Increase padding to prevent overlap */
-    }
-  }
+
   .dialog-overlay {
     position: fixed;
     top: 0;
@@ -244,6 +240,20 @@ export const mainStyles = html`<style>
   .dialog-title {
     font-size: 1.5rem;
     font-weight: 600;
+  }
+  @media (max-width: 768px) {
+    .main-content {
+      padding-bottom: 80px; /* Increase padding to prevent overlap */
+    }
+    .dialog {
+      padding: 1rem;
+    }
+    .dialog-title {
+      font-size: 1.2rem;
+    }
+    .dialog-header {
+      margin-bottom: 1rem;
+    }
   }
 
   .close-btn {
