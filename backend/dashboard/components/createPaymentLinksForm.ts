@@ -69,7 +69,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
             </div>
 
             <div class="payment-type-form active product-form" data-type="multi-use">
-              <div style="border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+              <div>
                 <div class="form-group" style="margin-bottom: 1rem; position: relative;">
                 <label class="form-label" style="
                   font-size: 0.875rem;
@@ -141,7 +141,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         </svg>
         </div>
         </label>
-        <textarea class="form-input product-details" name="description" rows="3" placeholder="Describe your product's value proposition..."></textarea>
+        <textarea class="form-input product-details" name="description" rows="6" placeholder="Describe your product's value proposition..."></textarea>
         </div>
         </div>
             </div>
@@ -477,8 +477,7 @@ const paymentTypeSelectionStyles = html`<style>
     backdrop-filter: blur(10px);
     border: 1px solid rgba(124, 58, 237, 0.2);
     border-radius: 20px;
-    padding: 1.5rem;
-    margin-top: 1rem;
+    padding: 1.2rem;
   }
 
   .payment-type-form.product-form .form-input:hover,
@@ -489,15 +488,6 @@ const paymentTypeSelectionStyles = html`<style>
 
   .payment-type-form.product-form .form-input {
     transition: all 0.3s ease;
-  }
-
-  .payment-type-form.product-form {
-    background: rgba(20, 20, 20, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 20px;
-    padding: 1.5rem;
-    margin-top: 1rem;
   }
 
   .payment-type-form.product-form .form-label {
@@ -555,11 +545,9 @@ const paymentTypeSelectionStyles = html`<style>
 
   .product-details {
     text-align: center;
-    margin-bottom: 3rem;
     line-height: 1.8;
     font-size: 1.1rem;
     color: rgba(248, 250, 252, 0.9);
-    padding: 2rem;
     background: rgba(124, 58, 237, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(124, 58, 237, 0.1);
@@ -580,7 +568,6 @@ const paymentTypeSelectionStyles = html`<style>
   .payment-type-form.product-form > div {
     border-radius: 12px;
     padding: 1.5rem;
-    margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
   }
