@@ -21,7 +21,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
           <button class="close-btn" onclick="document.querySelector('.edit-dialog-overlay').style.display = 'none'">&times;</button>
         </div>
         
-        <form id="edit-wallet-form">
+        <form id="payment-link-form">
         ${formTabStyles}
           <div class="form-tabs">
             <button type="button" class="form-tab active" data-step="1" onclick="switchActiveTab()">Basic Info</button>
@@ -142,11 +142,9 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                     </svg>
                   </div>
               </label>
-          <input type="text" class="form-input product-title" name="title"  placeholder="title of your product" style="
-
-            
-          ">
-        </div>
+          <input type="text" class="form-input product-title" name="productTitle"  placeholder="title of your product">
+          <div class="error-message" id="productTitle-error"></div>
+          </div>
           <div class="form-group" style="margin-bottom: 0; position: relative;">
         <label class="form-label" style="
           display: inline-flex;
@@ -174,7 +172,8 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         </svg>
         </div>
         </label>
-        <textarea class="form-input product-details" name="description" rows="6" placeholder="Describe your product's value proposition..."></textarea>
+        <textarea class="form-input product-details" name="productDescription" rows="6" placeholder="Describe your product's value proposition..."></textarea>
+        <div class="error-message" id="productDescription-error"></div>
         </div>
         </div>
             </div>
@@ -183,12 +182,14 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(124,58,237,0.1);">
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Title</label>
-                  <input type="text" class="form-input" name="invoice_title" placeholder="e.g. Consulting Services - September 2023" style="border-color: rgba(124,58,237,0.2);">
-                </div>
+                  <input type="text" class="form-input" name="invoiceTitle" placeholder="e.g. Consulting Services - September 2023" style="border-color: rgba(124,58,237,0.2);">
+                  <div class="error-message" id="invoiceTitle-error"></div>
+                  </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Details</label>
-                  <textarea class="form-input" name="invoice_description" rows="10" placeholder="Enter invoice details and terms..." style="border-color: rgba(124,58,237,0.2);"></textarea>
-                </div>
+                  <textarea class="form-input" name="invoiceDescription" rows="10" placeholder="Enter invoice details and terms..." style="border-color: rgba(124,58,237,0.2);"></textarea>
+                  <div class="error-message" id="invoiceDescription-error"></div>
+                  </div>
               </div>
             </div>
           </div>
@@ -203,7 +204,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
 
           <div class="form-group">
             <label class="form-label">Receiving Wallet</label>
-            <select class="form-input" name="wallet" required>
+            <select class="form-input" name="walletId" required>
             ${() => {
               const options: BasedHtml[] = [];
 

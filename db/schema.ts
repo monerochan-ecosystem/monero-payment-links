@@ -69,7 +69,7 @@ export const PaymentLinkSchema = z.object({
   walletId: z.number().int(),
   dueDate: z.string().nullish(),
   maxUses: z.number().int().nullish(),
-  successUrl: z.string().url().nullish(),
+  successUrl: z.string().url().max(500).nullish(),
   status: z.enum(["active", "inactive"]).optional(),
   linkType: z.enum(["product", "invoice"]).optional(),
 });
