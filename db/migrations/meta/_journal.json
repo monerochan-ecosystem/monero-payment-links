@@ -8,6 +8,13 @@
       "when": 1733844810368,
       "tag": "0000_clever_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1734377845782,
+      "tag": "0001_bitter_bastion",
+      "breakpoints": true
     }
   ]
 }

@@ -38,3 +38,38 @@ export const WalletSchema = z.object({
 });
 export type NewWallet = typeof wallets.$inferInsert;
 export type Wallet = typeof wallets.$inferSelect;
+
+export const paymentLinks = sqliteTable("payment_links", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  productTitle: text("productTitle"),
+  productDescription: text("productDescription"),
+  invoiceTitle: text("invoiceTitle"),
+  invoiceDescription: text("invoiceDescription"),
+  amount: text("amount"),
+  walletId: integer("walletId").references(() => wallets.id),
+  dueDate: text("dueDate"),
+  maxUses: integer("maxUses"),
+  currentUses: integer("currentUses"),
+  successUrl: text("successUrl"),
+  status: text("status", {
+    enum: ["active", "inactive"],
+  }).default("active"),
+  timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
+});
+export const PaymentLinkSchema = z.object({
+  id: z.number().int(),
+  productTitle: z.string().max(100).optional(),
+  productDescription: z.string().max(500).optional(),
+  invoiceTitle: z.string().max(100).optional(),
+  invoiceDescription: z.string().max(500).optional(),
+  amount: z.string(),
+  walletId: z.number().int(),
+  dueDate: z.string().nullish(),
+  maxUses: z.number().int().nullish(),
+  successUrl: z.string().url().nullish(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export type NewPaymentLink = typeof paymentLinks.$inferInsert;
+
+export type PaymentLink = typeof paymentLinks.$inferSelect;
