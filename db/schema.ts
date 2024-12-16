@@ -60,7 +60,7 @@ export const paymentLinks = sqliteTable("payment_links", {
   timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
 });
 export const PaymentLinkSchema = z.object({
-  id: z.number().int(),
+  id: z.number().int().optional(),
   productTitle: z.string().max(100).optional(),
   productDescription: z.string().max(500).optional(),
   invoiceTitle: z.string().max(100).optional(),
