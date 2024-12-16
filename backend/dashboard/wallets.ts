@@ -8,6 +8,17 @@ export function editWalletEndpoint(mini: Mini<Loggedin>) {
   console.log(mini.form.formJson);
   const result = WalletSchema.safeParse(mini.form.formJson);
   if (result.data) {
+    if (
+      !result.data.id &&
+      (!result.data.primaryAddress || !result.data.secretViewKey)
+    ) {
+      return mini.json`{"success":false,
+        "error":{"issues":[{
+          "code":"id_or_primaryAdrress_plus_viewkey",
+          "type":"string",
+          "message":"if there is no id in the request, primary key and secretviewkey need to be set",
+          "path":["primaryAddress"]}],"name":"logic error"}}`;
+    }
     const insertedRow = db
       .insert(wallets)
       .values(result.data)
