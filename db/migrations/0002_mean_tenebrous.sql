@@ -1,0 +1,1 @@
+ALTER TABLE `payment_links` ADD `linkType` text DEFAULT 'product';

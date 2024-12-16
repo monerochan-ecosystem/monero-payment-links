@@ -54,6 +54,9 @@ export const paymentLinks = sqliteTable("payment_links", {
   status: text("status", {
     enum: ["active", "inactive"],
   }).default("active"),
+  linkType: text("linkType", {
+    enum: ["product", "invoice"],
+  }).default("product"),
   timestamp: text("timestamp").default(sql`(CURRENT_TIMESTAMP)`),
 });
 export const PaymentLinkSchema = z.object({
@@ -68,6 +71,7 @@ export const PaymentLinkSchema = z.object({
   maxUses: z.number().int().nullish(),
   successUrl: z.string().url().nullish(),
   status: z.enum(["active", "inactive"]).optional(),
+  linkType: z.enum(["product", "invoice"]).optional(),
 });
 
 export type NewPaymentLink = typeof paymentLinks.$inferInsert;

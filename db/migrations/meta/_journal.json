@@ -15,6 +15,13 @@
       "when": 1734377845782,
       "tag": "0001_bitter_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1734382535446,
+      "tag": "0002_mean_tenebrous",
+      "breakpoints": true
     }
   ]
 }
