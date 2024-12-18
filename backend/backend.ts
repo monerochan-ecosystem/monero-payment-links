@@ -2,7 +2,7 @@ import { url, head, commonHead, cssReset } from "@spirobel/mininext";
 import { LoginCheck, LoginCheckPostJson } from "./users/loginLogout";
 import { dashBoardIndex } from "./dashboard";
 import { deleteWalletEndpoint, editWalletEndpoint } from "./dashboard/wallets";
-import { paymentLinks } from "./dashboard/paymentLinks";
+import { paymentLinksEndpoint } from "./dashboard/paymentLinks";
 import { transactions } from "./dashboard/transactions";
 import {
   deletePaymentLinkEndpoint,
@@ -14,7 +14,7 @@ url.set("editWallet", LoginCheckPostJson(editWalletEndpoint));
 url.set("deleteWallet", LoginCheckPostJson(deleteWalletEndpoint));
 
 url.set("transactions", LoginCheck(transactions));
-url.set("payment-links", LoginCheck(paymentLinks));
+url.set("payment-links", LoginCheck(paymentLinksEndpoint));
 
 url.set("editPaymentLink", LoginCheckPostJson(editPaymentLinkEndpoint));
 url.set("deletePaymentLink", LoginCheckPostJson(deletePaymentLinkEndpoint));
