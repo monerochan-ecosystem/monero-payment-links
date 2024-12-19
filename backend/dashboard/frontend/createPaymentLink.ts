@@ -44,6 +44,11 @@ function createPaymentLink(walletId: number | null) {
         input[key] = Number(input[key]);
       }
     }
+    // get paymenttype select status and set it here
+    const selectedTypeElement = document.querySelector(
+      ".payment-type-btn.selected"
+    ) as HTMLDivElement;
+    input["linkType"] = selectedTypeElement.dataset["type"];
 
     fetch("editPaymentLink", {
       method: "POST",

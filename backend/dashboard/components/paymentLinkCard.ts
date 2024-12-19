@@ -8,10 +8,12 @@ export function paymentLinkCardInList(
 ) {
   if (paymentLink.linkType === "invoice") {
     return mini.html`
-     <div class="payment-link-card">
+      <a class="payment-link-card" href="/payment-link?id=${paymentLink.id}">
         <div class="payment-link-status invoice"></div>
         <div class="payment-link-info">
-          <h3>Product Launch Package <span class="invoice-badge">Invoice</span></h3>
+          <h3>${
+            paymentLink.invoiceTitle || "Unnamed Invoice"
+          } <span class="invoice-badge">Invoice</span></h3>
           <p class="payment-link-url">https://pay.example.com/launch-package</p>
           <div class="payment-link-details">
             <span>2.5 XMR</span>
@@ -26,9 +28,10 @@ export function paymentLinkCardInList(
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
         </button>
-      </div>`;
+      </a>`;
   }
-  return mini.html`      <div class="payment-link-card">
+  return mini.html`
+  <a class="payment-link-card" href="/payment-link?id=${paymentLink.id}">
         <div class="payment-link-status active"></div>
         <div class="payment-link-info">
           <h3>${
@@ -47,7 +50,7 @@ export function paymentLinkCardInList(
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
         </button>
-      </div>`;
+      </a>`;
 }
 
 export const paymentLinksCardStyles = html`<style>
@@ -60,6 +63,8 @@ export const paymentLinksCardStyles = html`<style>
     align-items: center;
     gap: 1rem;
     transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
   }
 
   .payment-link-card:hover {

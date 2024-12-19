@@ -68,7 +68,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                 )
                 for (const btn of typeButtons) {
                   btn.classList.toggle('selected')
-                  if(btn.dataset.type === "multi-use") {
+                  if(btn.dataset.type === "product") {
                     if(btn.classList.contains("selected")){
                       dialogTitleElement.innerText = "Create Product Payment Link"
                       submitButtonTextElement.innerText = "Create Product Payment Link"
@@ -90,7 +90,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                 }
               }
             </script>
-              <button type="button" class="payment-type-btn selected" data-type="multi-use" onclick="changePaymentType(event)">
+              <button type="button" class="payment-type-btn selected" data-type="product" onclick="changePaymentType(event)">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"></path>
                   <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
@@ -100,7 +100,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
                 <p>Create a reusable payment link for products, memberships, or services</p>
               </button>
               
-              <button type="button" class="payment-type-btn" data-type="one-time" onclick="changePaymentType(event)">
+              <button type="button" class="payment-type-btn" data-type="invoice" onclick="changePaymentType(event)">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -113,7 +113,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
               </button>
             </div>
 
-            <div class="payment-type-form active product-form" data-type="multi-use">
+            <div class="payment-type-form active product-form" data-type="product">
               <div>
                 <div class="form-group" style="margin-bottom: 1rem; position: relative;">
                 <label class="form-label" style="
@@ -178,7 +178,7 @@ export function createPaymentLinkForm(mini: Mini<Loggedin>, wallets: Wallet[]) {
         </div>
             </div>
 
-            <div class="payment-type-form invoice-form" data-type="one-time">
+            <div class="payment-type-form invoice-form" data-type="invoice">
               <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(124,58,237,0.1);">
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label class="form-label" style="font-size: 0.875rem; opacity: 0.8;">Invoice Title</label>
