@@ -8,6 +8,7 @@ import {
   deletePaymentLinkEndpoint,
   editPaymentLinkEndpoint,
 } from "./dashboard/editPaymentLinks";
+import { paymentLinkDetailEndpoint } from "./dashboard/paymentLinkDetail";
 head((mini) => mini.html`<title>Monero Payment Links</title>${commonHead}`);
 url.set("wallets", LoginCheck(dashBoardIndex));
 url.set("editWallet", LoginCheckPostJson(editWalletEndpoint));
@@ -15,6 +16,7 @@ url.set("deleteWallet", LoginCheckPostJson(deleteWalletEndpoint));
 
 url.set("transactions", LoginCheck(transactions));
 url.set("payment-links", LoginCheck(paymentLinksEndpoint));
+url.set("payment-link", LoginCheck(paymentLinkDetailEndpoint));
 
 url.set("editPaymentLink", LoginCheckPostJson(editPaymentLinkEndpoint));
 url.set("deletePaymentLink", LoginCheckPostJson(deletePaymentLinkEndpoint));

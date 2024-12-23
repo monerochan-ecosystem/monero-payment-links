@@ -53,7 +53,7 @@ export function paymentLinkCardInList(
       </a>`;
 }
 
-export const paymentLinksCardStyles = html`<style>
+export const paymentLinksCardInListStyles = html`<style>
   .payment-link-card {
     background: rgba(124, 58, 237, 0.1);
     border: 1px solid rgba(124, 58, 237, 0.2);

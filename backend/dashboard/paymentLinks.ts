@@ -170,7 +170,7 @@ const paymentLinksStyles = html`<style>
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 auto;
+    margin: 20 auto;
   }
   .payment-links-header {
     margin-bottom: 1rem;
@@ -221,7 +221,6 @@ const noWalletsPaymentsCardStyles = html`<style>
     border-radius: 20px;
     padding: 2rem;
     max-width: 500px;
-    width: 90%;
     margin: 0 auto;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);

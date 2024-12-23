@@ -193,6 +193,7 @@ export const mainStyles = html`<style>
   }
 
   .main-content {
+    margin: 20px auto;
     display: flex;
   }
 
@@ -341,7 +342,7 @@ const indexStyles = html`<style>
     }
   }
   .empty-wallet-card {
-    width: 380px;
+    max-width: 380px;
     height: 220px;
     background: rgba(91, 33, 182, 0.1);
     border: 2px dashed var(--accent);
