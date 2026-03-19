@@ -2,27 +2,14 @@
   "name": "monero-payment-links",
   "module": "index.ts",
   "type": "module",
-  "scripts": {
-    "start": "bun run start.ts",
-    "dev": "bun --hot dev.ts",
-    "build": "bun run build.ts",
-    "db:mm": "bunx drizzle-kit generate --dialect sqlite --schema ./db/schema.ts --out ./db/migrations",
-    "db:migrate": "bun db/migrate.ts",
-    "ft": "bunx ts-simplify ./backend/frontendTypes.ts ./frontend/backendTypes.ts -f"
-  },
+  "private": true,
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/cookie": "^1.0.0",
-    "@types/web": "^0.0.183",
-    "drizzle-kit": "^0.28.1"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5"
   },
   "dependencies": {
-    "@spirobel/mininext": "^0.6.1",
-    "@spirobel/monero-wallet-api": "../monero-wallet-api/typescript",
-    "drizzle-orm": "^0.36.4",
-    "zod": "^3.23.8"
+    "@spirobel/mininext": "^0.8.0"
   }
 }
