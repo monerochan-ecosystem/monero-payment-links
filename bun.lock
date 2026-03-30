@@ -6,6 +6,7 @@
       "name": "monero-payment-links",
       "dependencies": {
         "@spirobel/mininext": "^0.8.0",
+        "@spirobel/monero-wallet-api": "^0.3.0",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -18,6 +19,8 @@
   "packages": {
     "@spirobel/mininext": ["@spirobel/mininext@0.8.0", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-5cODKBMu1X1VuO26j6uJ43809CA2qDmuOY+ZZ/UEsL1A61Jou71YYEpm0CTjXOUkfMhj3xe5Gy3QLFB8hlFS8g=="],
 
+    "@spirobel/monero-wallet-api": ["@spirobel/monero-wallet-api@0.3.0", "", { "dependencies": { "zod": "4.3.6" }, "peerDependencies": { "typescript": "5.9.3" } }, "sha512-dRi4GfQzUiwk5JWNSQo7ww6IHu8SFWVqCRRtw1M4/sBcvHCkJYAI/ZTrv7/95p62UvUkkjZYYbLch9RyHrRsSw=="],
+
     "@types/bun": ["@types/bun@1.3.11", "", { "dependencies": { "bun-types": "1.3.11" } }, "sha512-5vPne5QvtpjGpsGYXiFyycfpDF2ECyPcTSsFBMa0fraoxiQyMJ3SmuQIGhzPg2WJuWxVBoxWJ2kClYTcw/4fAg=="],
 
     "@types/node": ["@types/node@25.5.0", "", { "dependencies": { "undici-types": "~7.18.0" } }, "sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw=="],
@@ -27,5 +30,7 @@
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.18.2", "", {}, "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w=="],
+
+    "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
   }
 }

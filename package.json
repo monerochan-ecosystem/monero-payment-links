@@ -3,6 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "production": "NODE_ENV=production bun run server.ts",
+    "dev": "bun run --hot server.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -10,6 +14,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@spirobel/mininext": "^0.8.0"
+    "@spirobel/mininext": "^0.8.0",
+    "@spirobel/monero-wallet-api": "^0.3.0"
   }
 }
