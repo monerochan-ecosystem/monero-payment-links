@@ -1,6 +1,6 @@
 # dependencies (bun install)
 node_modules
-
+monero_payments.db
 # output
 out
 dist
