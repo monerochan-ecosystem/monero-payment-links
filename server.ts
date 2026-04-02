@@ -61,8 +61,15 @@ const loginSkeleton = await html`<!DOCTYPE html>
     </body>
   </html>`.build();
 
-export async function loginGet() {
-  const filled = loginSkeleton.fill("");
+export async function loginGet(req: Request) {
+  const url = new URL(req.url);
+  const hasError = url.searchParams.get("error") === "1";
+  const errorHtml = hasError
+    ? html`<div id="error">
+        <p class="error">Incorrect password. Try again.</p>
+      </div>`
+    : html`<div id="error"></div>`;
+  const filled = loginSkeleton.fill(errorHtml);
   return new Response(filled);
 }
 
@@ -70,10 +77,9 @@ export async function loginPost(req: Request) {
   const formData = await req.formData();
   const password = formData.get("password") as string;
   if (!password || password !== (await getAdminSecret())) {
-    const filled = loginSkeleton.fill(html`
-      <div id="error"><p class="error">Incorrect password. Try again.</p></div>
-    `);
-    return new Response(filled, { status: 401 });
+    const headers = new Headers();
+    headers.set("Location", "/login?error=1");
+    return new Response(null, { status: 303, headers });
   }
 
   const token = crypto.randomUUID();
