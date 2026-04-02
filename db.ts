@@ -5,18 +5,11 @@ const sql = new SQL({
   filename: "monero_payments.db",
   create: true,
 });
-await sql`CREATE TABLE IF NOT EXISTS session_cookies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    cookie TEXT,
-    accountType TEXT DEFAULT 'user' CHECK (accountType IN ('admin', 'user')),
-    timestamp TEXT DEFAULT CURRENT_TIMESTAMP
-  );`.execute();
 
 await sql`
-  CREATE TABLE IF NOT EXISTS session_cookies (
+  CREATE TABLE IF NOT EXISTS admin_session_cookies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     cookie TEXT,
-    accountType TEXT DEFAULT 'user' CHECK (accountType IN ('admin', 'user')),
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
   );
 `.execute();
@@ -40,10 +33,9 @@ await sql`
   );
 `.execute();
 
-type SessionCookieRow = {
+type AdminSessionCookieRow = {
   id: number;
   cookie: string;
-  accountType: "admin" | "user";
   timestamp: string;
 };
 
@@ -68,29 +60,30 @@ type InsertIdRow = {
   id: number;
 };
 
-export function insertSessionCookie(
+export function insertAdminSessionCookie(
   cookie: string,
-  accountType: "admin" | "user" = "user",
 ): SQL.Query<InsertIdRow[]> {
   return sql`
-    INSERT INTO session_cookies (cookie, accountType)
-    VALUES (${cookie}, ${accountType})
+    INSERT INTO admin_session_cookies (cookie)
+    VALUES (${cookie})
     RETURNING id
   `.execute();
 }
 
-export function getSessionCookieById(id: number): SQL.Query<SessionCookieRow> {
+export function getSessionCookieById(
+  id: number,
+): SQL.Query<AdminSessionCookieRow> {
   return sql`
-    SELECT * FROM session_cookies 
+    SELECT * FROM admin_session_cookies 
     WHERE id = ${id}
   `.execute();
 }
 
 export function getSessionCookieByValue(
   cookie: string,
-): SQL.Query<SessionCookieRow[]> {
+): SQL.Query<AdminSessionCookieRow[]> {
   return sql`
-    SELECT * FROM session_cookies 
+    SELECT * FROM admin_session_cookies 
     WHERE cookie = ${cookie}
   `.execute();
 }

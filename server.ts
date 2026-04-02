@@ -1,5 +1,5 @@
 import { html } from "@spirobel/mininext";
-import { insertSessionCookie } from "./db";
+import { insertAdminSessionCookie } from "./db";
 import { getAdminSecret } from "./dashboard/adminSecret";
 
 const loginSkeleton = await html`<!DOCTYPE html>
@@ -78,7 +78,7 @@ export async function loginPost(req: Request) {
 
   const token = crypto.randomUUID();
 
-  const insertResult = insertSessionCookie(token, "admin");
+  const insertResult = insertAdminSessionCookie(token);
   const result = await insertResult;
   const id = result.at(0)?.id;
 
