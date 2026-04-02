@@ -14,7 +14,6 @@ async function ensureAdminSecret(): Promise<string> {
 let adminSecret = Bun.env.ADMIN_SECRET;
 
 export async function getAdminSecret(): Promise<string> {
-  console.log("getAdminSecret", adminSecret);
   if (!adminSecret) {
     adminSecret = await ensureAdminSecret();
   }
