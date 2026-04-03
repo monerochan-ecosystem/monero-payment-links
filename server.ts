@@ -4,26 +4,31 @@ import {
   adminLoginPost,
   loginSkeleton,
 } from "./dashboard/login";
+export function makeRoutes() {
+  const routes = {
+    ...dashboardSkeleton.static_routes,
+    ...loginSkeleton.static_routes,
+    "/login": {
+      GET: adminLoginGet,
+      POST: adminLoginPost,
+    },
+    "/dashboard": {
+      GET: dashBoardRoute,
+    },
+  };
+  return routes;
+}
 
-const routes = {
-  ...dashboardSkeleton.static_routes,
-  ...loginSkeleton.static_routes,
-  "/login": {
-    GET: adminLoginGet,
-    POST: adminLoginPost,
-  },
-  "/dashboard": {
-    GET: dashBoardRoute,
-  },
-};
 const server = Bun.serve({
-  routes,
+  port: 3003,
+  routes: makeRoutes(),
 });
 
 globalThis.minireload = () => {
   server.reload({
-    routes,
+    routes: makeRoutes(),
+    port: 3003,
   });
 };
 
-console.log("Server running at http://localhost:3000");
+console.log("Server running at http://localhost:3003");
