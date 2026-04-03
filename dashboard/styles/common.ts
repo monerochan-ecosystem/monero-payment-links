@@ -12,8 +12,6 @@ export const mainStyles = html`<style>
     margin: 0;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
     background: var(--bg);
     font-family: "Inter", system-ui, sans-serif;
     color: var(--text);
