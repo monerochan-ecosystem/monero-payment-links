@@ -1,10 +1,19 @@
-import { loginGet, loginPost, loginSkeleton } from "./dashboard/login";
+import { dashBoardRoute, dashboardSkeleton } from "./dashboard/dashboard";
+import {
+  adminLoginGet,
+  adminLoginPost,
+  loginSkeleton,
+} from "./dashboard/login";
 
 const routes = {
+  ...dashboardSkeleton.static_routes,
   ...loginSkeleton.static_routes,
   "/login": {
-    GET: loginGet,
-    POST: loginPost,
+    GET: adminLoginGet,
+    POST: adminLoginPost,
+  },
+  "/dashboard": {
+    GET: dashBoardRoute,
   },
 };
 const server = Bun.serve({
