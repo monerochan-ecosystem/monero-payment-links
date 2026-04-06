@@ -89,7 +89,7 @@ export const sidebarStyles = html`<style>
     }
 
     .add-wallet-btn {
-      bottom: 90px;
+      bottom: 90px !important;
     }
   }
 </style>`;
