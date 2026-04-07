@@ -1,8 +1,15 @@
-import { createRouter, html, type MiniHtmlString } from "@spirobel/mininext";
+import {
+  createRouter,
+  html,
+  type MiniHtmlString,
+  type Params,
+} from "@spirobel/mininext";
 import { sidebar } from "./sidebar";
 import { walletGrid } from "./wallets";
 
-export function dashboardFrontendRoute(): MiniHtmlString {
+export function dashboardFrontendRoute(
+  params?: Params<"/wallets/new/:wallet_creation_tool">,
+): MiniHtmlString {
   const current_path = router.getCurrentPath();
 
   const mainContent = current_path.startsWith("/wallets") ? walletGrid() : "";
@@ -13,6 +20,9 @@ export function dashboardFrontendRoute(): MiniHtmlString {
 }
 
 const routes = {
+  "/wallets/new/:wallet_creation_tool": (
+    params: Params<"/wallets/new/:wallet_creation_tool">,
+  ) => dashboardFrontendRoute(params),
   "/wallets": dashboardFrontendRoute,
   "/transactions": dashboardFrontendRoute,
   "/payment-links": dashboardFrontendRoute,

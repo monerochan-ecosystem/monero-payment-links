@@ -1,4 +1,12 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
+import { make002ToolLink } from "@spirobel/monero-wallet-api";
+import { router } from "./dashboard_router";
+console.log(router);
+
+function makeWalletCreationLink() {
+  const makeWalletLink = make002ToolLink(0);
+  return router.link("/wallets/new/") + makeWalletLink;
+}
 export type Wallet = {
   id: number;
   timestamp: string | null;
@@ -9,6 +17,8 @@ export type Wallet = {
   start_height: number | null;
 };
 export function walletGrid() {
+  const makeWalletHref = makeWalletCreationLink();
+
   const walletList: Wallet[] = [];
   return html`<div>
     ${() => {
@@ -25,12 +35,14 @@ export function walletGrid() {
       );
     }}
 
-    <button class="add-wallet-btn" onclick="editWallet()">+ Add Wallet</button>
+    <a class="add-wallet-btn" href="${makeWalletHref}">+ Add Wallet</a>
     ${walletStyles}
   </div>`;
 }
 export function emptyWalletCard() {
-  return html` <div class="empty-wallet-card" onclick="editWallet()">
+  const makeWalletHref = makeWalletCreationLink();
+
+  return html` <a class="empty-wallet-card" href="${makeWalletHref}">
     <svg
       class="empty-state-icon floating"
       width="38"
@@ -48,7 +60,7 @@ export function emptyWalletCard() {
     <div class="empty-state-subtext">
       Click the button below to add your first wallet
     </div>
-  </div>`;
+  </a>`;
 }
 
 export function filledWalletCard(wallet: Wallet) {
@@ -139,6 +151,7 @@ export const walletStyles = html`<style>
     }
   }
   .empty-wallet-card {
+    text-decoration: none;
     max-width: 380px;
     height: 220px;
     background: rgba(91, 33, 182, 0.1);
@@ -206,6 +219,8 @@ export const walletStyles = html`<style>
   }
 
   .add-wallet-btn {
+    text-decoration: none;
+    outline: none;
     position: fixed;
     bottom: 2rem;
     right: 2rem;
