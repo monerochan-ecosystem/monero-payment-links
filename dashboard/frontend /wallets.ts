@@ -34,6 +34,7 @@ export function walletGrid() {
         (l) => html` <div class="wallets-grid">${l}</div>`,
       );
     }}
+    <button class="set-nodeurl-btn">Set Node URL</button>
 
     <a class="add-wallet-btn" href="${makeWalletHref}">+ Add Wallet</a>
     ${walletStyles}
@@ -236,6 +237,27 @@ export const walletStyles = html`<style>
   }
 
   .add-wallet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+  }
+  .set-nodeurl-btn {
+    text-decoration: none;
+    outline: none;
+    position: fixed;
+    bottom: 2rem;
+    left: 360px;
+    background: var(--accent);
+    border: none;
+    color: var(--text);
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .set-nodeurl-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
   }

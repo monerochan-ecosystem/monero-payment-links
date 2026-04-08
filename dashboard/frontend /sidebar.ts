@@ -91,6 +91,10 @@ export const sidebarStyles = html`<style>
     .add-wallet-btn {
       bottom: 90px !important;
     }
+    .set-nodeurl-btn {
+      bottom: 90px !important;
+      left: 2rem !important;
+    }
   }
 </style>`;
 
