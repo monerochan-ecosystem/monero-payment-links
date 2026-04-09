@@ -62,6 +62,46 @@ export function paymentLinksList() {
 }
 
 const paymentLinksStyles = html`<style>
+  .payment-links-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20 auto;
+  }
+  .payment-links-header {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
+  .payment-links-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .create-link-btn {
+    background: var(--accent);
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    border-radius: 10px;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .create-link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+  }
+  @media (max-width: 768px) {
+    .create-link-btn {
+      bottom: 90px;
+    }
+  }
   .payment-link-card {
     background: rgba(124, 58, 237, 0.1);
     border: 1px solid rgba(124, 58, 237, 0.2);
@@ -103,13 +143,6 @@ const paymentLinksStyles = html`<style>
   .payment-link-info h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.125rem;
-  }
-
-  .payment-link-details {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: rgba(248, 250, 252, 0.8);
   }
 
   .copy-link-btn {
@@ -166,10 +199,8 @@ const paymentLinksStyles = html`<style>
 
   .payment-link-url {
     color: var(--accent);
-    margin: 0 0 0.8rem 0;
+    margin: 0 0 0.5rem 0;
     font-size: 0.875rem;
-    text-decoration: none;
-    display: block;
   }
 
   .payment-link-details {
@@ -188,15 +219,6 @@ const paymentLinksStyles = html`<style>
       flex-direction: column;
       gap: 1rem;
       align-items: flex-start;
-    }
-
-    .payment-link-card {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .copy-link-btn {
-      align-self: flex-end;
     }
   }
 

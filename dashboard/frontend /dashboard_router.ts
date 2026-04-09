@@ -22,7 +22,16 @@ export function dashboardFrontendRoute(
 export function paymentLinksRoute(): MiniHtmlString {
   return html` <div class="layout-container">
     ${sidebar}
-    <main class="main-content">${paymentLinksList}</main>
+    <main class="main-content payment-links-section">
+      <div class="payment-links-header">
+        <h1>Payment Links</h1>
+      </div>
+      <button class="create-link-btn" onclick="createPaymentLink()">
+        + Create Payment Link
+      </button>
+
+      ${paymentLinksList}
+    </main>
   </div>`;
 }
 
