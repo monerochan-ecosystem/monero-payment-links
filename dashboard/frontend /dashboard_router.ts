@@ -7,6 +7,7 @@ import {
 import { sidebar } from "./sidebar";
 import { walletGrid } from "./wallets";
 import { paymentLinksList } from "./payment_links";
+import { createPaymentLinkForm } from "./payment_link_form";
 
 export function dashboardFrontendRoute(
   params?: Params<"/wallets/new/:wallet_creation_tool">,
@@ -26,11 +27,8 @@ export function paymentLinksRoute(): MiniHtmlString {
       <div class="payment-links-header">
         <h1>Payment Links</h1>
       </div>
-      <button class="create-link-btn" onclick="createPaymentLink()">
-        + Create Payment Link
-      </button>
 
-      ${paymentLinksList}
+      ${createPaymentLinkForm} ${paymentLinksList}
     </main>
   </div>`;
 }
