@@ -1,5 +1,6 @@
 import { html, type MiniHtmlString } from "@spirobel/mininext";
 import { paymentLinksStyles } from "./payment_links_list";
+import { router } from "../dashboard_router";
 
 export function paymentLinksEmpty(): MiniHtmlString {
   return html` <div class="empty-payment-links-card">
@@ -39,6 +40,44 @@ export function paymentLinksEmpty(): MiniHtmlString {
       </svg>
       Create Payment Link
     </button>
+  </div>`;
+}
+export function noWalletsGuidance() {
+  return html`<div class="guidance-card" id="no-wallets-guidance">
+    ${noWalletsPaymentsCardStyles}${paymentLinksStyles}
+    <div class="guidance-icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="38"
+        height="38"
+        stroke-width="2"
+        fill="white"
+        class="bi bi-wallet"
+        viewBox="0 0 16 16"
+      >
+        <path
+          d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
+        />
+      </svg>
+    </div>
+    <h2 class="guidance-title">Connect a Wallet First</h2>
+    <p class="guidance-text">
+      To create and manage payment links, you'll need to connect a wallet. Head
+      over to the Wallets section to get started.
+    </p>
+    <a href="${router.link("/wallets")}" class="guidance-cta">
+      Go to Wallets
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M5 12h14M12 5l7 7-7 7" />
+      </svg>
+    </a>
   </div>`;
 }
 
@@ -119,6 +158,69 @@ const emptyPaymentLinksStyles = html`<style>
     }
     100% {
       transform: translateY(0px);
+    }
+  }
+</style>`;
+const noWalletsPaymentsCardStyles = html`<style>
+  .guidance-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .guidance-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .guidance-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .guidance-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .guidance-cta {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .guidance-cta:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 </style>`;

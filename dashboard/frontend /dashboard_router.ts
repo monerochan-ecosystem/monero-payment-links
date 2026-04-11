@@ -9,7 +9,10 @@ import { walletGrid } from "./wallets";
 import { paymentLinksList } from "./payment_links/payment_links_list";
 import { createPaymentLinkForm } from "./payment_links/payment_link_form";
 //import { getAllActivePaymentLinks } from "../../db";
-import { paymentLinksEmpty } from "./payment_links/payment_links_empty";
+import {
+  noWalletsGuidance,
+  paymentLinksEmpty,
+} from "./payment_links/payment_links_empty";
 
 export function dashboardFrontendRoute(
   params?: Params<"/wallets/new/:wallet_creation_tool">,
@@ -24,6 +27,10 @@ export function dashboardFrontendRoute(
 }
 export function paymentLinksRoute(): MiniHtmlString {
   //const paymentLinks = getAllActivePaymentLinks();
+  return html` <div class="layout-container">
+    ${sidebar}
+    <main class="main-content payment-links-section">${noWalletsGuidance}</main>
+  </div>`;
   return html` <div class="layout-container">
     ${sidebar}
     <main class="main-content payment-links-section">
