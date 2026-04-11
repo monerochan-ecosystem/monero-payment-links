@@ -6,8 +6,10 @@ import {
 } from "@spirobel/mininext";
 import { sidebar } from "./sidebar";
 import { walletGrid } from "./wallets";
-import { paymentLinksList } from "./payment_links";
-import { createPaymentLinkForm } from "./payment_link_form";
+import { paymentLinksList } from "./payment_links/payment_links_list";
+import { createPaymentLinkForm } from "./payment_links/payment_link_form";
+//import { getAllActivePaymentLinks } from "../../db";
+import { paymentLinksEmpty } from "./payment_links/payment_links_empty";
 
 export function dashboardFrontendRoute(
   params?: Params<"/wallets/new/:wallet_creation_tool">,
@@ -21,6 +23,13 @@ export function dashboardFrontendRoute(
   </div>`;
 }
 export function paymentLinksRoute(): MiniHtmlString {
+  //const paymentLinks = getAllActivePaymentLinks();
+  return html` <div class="layout-container">
+    ${sidebar}
+    <main class="main-content payment-links-section">
+      ${createPaymentLinkForm} ${paymentLinksEmpty}
+    </main>
+  </div>`;
   return html` <div class="layout-container">
     ${sidebar}
     <main class="main-content payment-links-section">

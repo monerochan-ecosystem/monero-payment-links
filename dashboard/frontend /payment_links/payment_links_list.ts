@@ -61,7 +61,7 @@ export function paymentLinksList() {
   </div>`;
 }
 
-const paymentLinksStyles = html`<style>
+export const paymentLinksStyles = html`<style>
   .payment-links-section {
     display: flex;
     flex-direction: column;
