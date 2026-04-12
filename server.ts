@@ -1,3 +1,4 @@
+import { editPaymentLinkRoute } from "./dashboard/backend/payment_links";
 import { dashBoardRoute, dashboardSkeleton } from "./dashboard/dashboard";
 import {
   adminLoginGet,
@@ -14,6 +15,9 @@ export function makeRoutes() {
     },
     "/dashboard": {
       GET: dashBoardRoute,
+    },
+    "/editPaymentLink": {
+      POST: editPaymentLinkRoute,
     },
   };
   return routes;
