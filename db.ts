@@ -169,7 +169,7 @@ export function insertInvoicePaymentLink(data: {
   `.execute();
 }
 
-type CombinedPaymentLinkRow = {
+export type CombinedPaymentLinkRow = {
   id: number;
   payment_link_id: string;
   title: string | null; // productTitle or invoiceTitle

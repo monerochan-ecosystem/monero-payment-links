@@ -1,8 +1,11 @@
 import { html } from "@spirobel/mininext";
 import { checkAdminAndRedirect } from "./login";
 import { mainStyles } from "./styles/common";
-import { readScanSettings } from "@spirobel/monero-wallet-api";
-import { getAllActivePaymentLinks } from "../db";
+import {
+  readScanSettings,
+  type ScanSettingsOpened,
+} from "@spirobel/monero-wallet-api";
+import { getAllActivePaymentLinks, type CombinedPaymentLinkRow } from "../db";
 
 export const dashboardSkeleton = await html`<!DOCTYPE html>
   <html>
@@ -24,3 +27,7 @@ export async function dashBoardRoute(req: Request) {
   const hydrate = btoa(JSON.stringify({ scan_settings, payment_links }));
   return new Response(dashboardSkeleton.fill(hydrate));
 }
+export type DashboadData = {
+  scan_settings?: ScanSettingsOpened;
+  payment_links: CombinedPaymentLinkRow[];
+};
