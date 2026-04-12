@@ -230,7 +230,7 @@ export function getAllActivePaymentLinks(): SQL.Query<
   CombinedPaymentLinkRow[]
 > {
   return sql`
-    (SELECT 
+    SELECT
       id,
       payment_link_id,
       productTitle AS title,
@@ -244,12 +244,12 @@ export function getAllActivePaymentLinks(): SQL.Query<
       status,
       'product' AS linkType,
       timestamp
-     FROM product_payment_links 
-     WHERE status = 'active')
-    
+    FROM product_payment_links
+    WHERE status = 'active'
+
     UNION ALL
-    
-    (SELECT 
+
+    SELECT
       id,
       payment_link_id,
       invoiceTitle AS title,
@@ -263,9 +263,9 @@ export function getAllActivePaymentLinks(): SQL.Query<
       status,
       'invoice' AS linkType,
       timestamp
-     FROM invoice_payment_links 
-     WHERE status = 'active')
-    
+    FROM invoice_payment_links
+    WHERE status = 'active'
+
     ORDER BY timestamp DESC
   `.execute();
 }
