@@ -1,6 +1,6 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
 import { make002ToolLink } from "@spirobel/monero-wallet-api";
-import { router } from "./dashboard_router";
+import { router } from "../dashboard_router";
 
 function makeWalletCreationLink() {
   const makeWalletLink = make002ToolLink(0);
@@ -120,9 +120,9 @@ export const walletStyles = html`<style>
   }
   @media (max-width: 1300px) {
     .wallets-grid {
-      grid-template-columns: 1fr; /* Single column on mobile */
+      grid-template-columns: 1fr;
       padding: 1rem;
-      padding-bottom: 80px; /* Account for bottom menu */
+      padding-bottom: 80px;
     }
   }
   .wallet-card {
@@ -195,7 +195,7 @@ export const walletStyles = html`<style>
   }
   .wallet-actions {
     position: absolute;
-    bottom: 1rem; /* Change from top to bottom */
+    bottom: 1rem;
     right: 1rem;
   }
 
@@ -317,7 +317,6 @@ export const walletStyles = html`<style>
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
   }
 
-  /* Add these styles to the existing CSS */
   .delete-btn {
     cursor: pointer;
     width: 100%;
@@ -382,7 +381,6 @@ export const walletStyles = html`<style>
     background: #b91c1c;
   }
 
-  /* Add styles for edit dialog */
   .edit-dialog-overlay {
     display: none;
   }

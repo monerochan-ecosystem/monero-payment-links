@@ -148,13 +148,9 @@ function changePaymentTypeCB() {
     field.classList.toggle("active");
   }
 }
-// @ts-ignore
 window.changePaymentType = changePaymentTypeCB;
-// @ts-ignore
 window.switchActiveTab = switchActiveTabCB;
-// @ts-ignore
 window.createPaymentLink = createPaymentLinkCB;
-// @ts-ignore
 window.clickOutsideClose = clickOutsideCloseCB;
 export function createPaymentLinkForm() {
   return html`<div>
