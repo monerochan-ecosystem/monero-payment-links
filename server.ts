@@ -1,4 +1,8 @@
 import { editPaymentLinkRoute } from "./dashboard/backend/payment_links";
+import {
+  editWalletRoute,
+  deleteWalletRoute,
+} from "./dashboard/backend/wallets";
 import { dashBoardRoute, dashboardSkeleton } from "./dashboard/dashboard";
 import {
   adminLoginGet,
@@ -18,6 +22,12 @@ export function makeRoutes() {
     },
     "/editPaymentLink": {
       POST: editPaymentLinkRoute,
+    },
+    "/editWallet": {
+      POST: editWalletRoute,
+    },
+    "/deleteWallet": {
+      POST: deleteWalletRoute,
     },
   };
   return routes;
