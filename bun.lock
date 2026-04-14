@@ -6,7 +6,7 @@
       "name": "monero-payment-links",
       "dependencies": {
         "@spirobel/mininext": "^0.8.1",
-        "@spirobel/monero-wallet-api": "^0.3.0",
+        "@spirobel/monero-wallet-api": "0.3.1",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -19,7 +19,7 @@
   "packages": {
     "@spirobel/mininext": ["@spirobel/mininext@0.8.1", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-Jt9rHHQv0Lf2NC/EBvXpOEhNdQXufBtgpXiK0T+m4SAmoWQRd9pDCZndQDELxD7c7ntXBsqeNny+tgXN8En37A=="],
 
-    "@spirobel/monero-wallet-api": ["@spirobel/monero-wallet-api@0.3.0", "", { "dependencies": { "zod": "4.3.6" }, "peerDependencies": { "typescript": "5.9.3" } }, "sha512-dRi4GfQzUiwk5JWNSQo7ww6IHu8SFWVqCRRtw1M4/sBcvHCkJYAI/ZTrv7/95p62UvUkkjZYYbLch9RyHrRsSw=="],
+    "@spirobel/monero-wallet-api": ["@spirobel/monero-wallet-api@0.3.1", "", { "dependencies": { "zod": "4.3.6" }, "peerDependencies": { "typescript": "5.9.3" } }, "sha512-amcDiwBgMZETvBTD0HgZMaA4i+eo/ya5xZFLkZz3AbxrgEJ4xMUJ9VlRtq4tC9GtxHNrqcno/MvUmUjVEpTQ8A=="],
 
     "@types/bun": ["@types/bun@1.3.11", "", { "dependencies": { "bun-types": "1.3.11" } }, "sha512-5vPne5QvtpjGpsGYXiFyycfpDF2ECyPcTSsFBMa0fraoxiQyMJ3SmuQIGhzPg2WJuWxVBoxWJ2kClYTcw/4fAg=="],
 
