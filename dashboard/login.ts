@@ -62,7 +62,11 @@ export const loginSkeleton = await html`<!DOCTYPE html>
   </html>`.build();
 
 export async function adminLoginGet(req: Request) {
-  const adminRedirect = await checkAdminAndRedirect(req);
+  const adminRedirect = await checkAdminAndRedirect(req).catch((e) => {
+    if (e.message !== "Not admin, but on /login route") {
+      throw e;
+    }
+  });
   if (adminRedirect) return adminRedirect;
   const url = new URL(req.url);
   const hasError = url.searchParams.get("error") === "1";
@@ -76,7 +80,11 @@ export async function adminLoginGet(req: Request) {
 }
 
 export async function adminLoginPost(req: Request) {
-  const adminRedirect = await checkAdminAndRedirect(req);
+  const adminRedirect = await checkAdminAndRedirect(req).catch((e) => {
+    if (e.message !== "Not admin, but on /login route") {
+      throw e;
+    }
+  });
   if (adminRedirect) return adminRedirect;
   const formData = await req.formData();
   const password = formData.get("password") as string;
@@ -134,6 +142,8 @@ export async function checkAdminAndRedirect(
     return Response.redirect("/login", 303);
 
   if (isAdmin) return null; // if we are admin and not on the login page we don't want to redirect
+  if (!isAdmin && url.pathname === "/login")
+    throw new Error("Not admin, but on /login route");
   throw new Error("Not admin, not on /login route, not redirected");
 }
 
