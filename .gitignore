@@ -1,6 +1,7 @@
 # dependencies (bun install)
 node_modules
 monero_payments.db
+ScanSettings.json
 # output
 out
 dist
