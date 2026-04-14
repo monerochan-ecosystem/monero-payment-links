@@ -123,20 +123,22 @@ export async function checkAdminAndRedirect(
   const url = new URL(req.url);
 
   const adminCookie = getCookieValue(req, "admin_session");
-  // if there is no admin cookie and we are not already on "/login", we redirect to login
-  if (!adminCookie && url.pathname !== "/login")
+
+  const isAdmin = await checkLoggedin(adminCookie);
+  // in case we are admin and still on the login page we want to redirect to /dashboard
+  if (isAdmin && url.pathname === "/login")
+    return Response.redirect("/dashboard", 303);
+
+  // in case we are not admin and not on the login page we want to redirect to /login
+  if (!isAdmin && url.pathname !== "/login")
     return Response.redirect("/login", 303);
 
-  if (!adminCookie && url.pathname === "/login") return null; // not logged in and on /login
-  if (!adminCookie)
-    throw new Error("No admin cookie, not on /login route, not redirected");
+  if (isAdmin) return null; // if we are admin and not on the login page we don't want to redirect
+  throw new Error("Not admin, not on /login route, not redirected");
+}
 
+export async function checkLoggedin(adminCookie: string | null) {
+  if (!adminCookie) return false;
   const rows = await getSessionCookieByValue(adminCookie);
-  if (rows.length > 0) {
-    if (url.pathname === "/dashboard") return null; // successfully logged in and on /dashboard
-    return Response.redirect("/dashboard", 303); // successfully logged in and not on /dashboard
-  } else {
-    if (url.pathname === "/dashboard") return Response.redirect("/login", 303); // not logged in and on /dashboard
-  }
-  throw new Error("No admin cookie, not on /login route, not redirected");
+  return rows.length > 0;
 }
