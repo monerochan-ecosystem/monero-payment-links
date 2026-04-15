@@ -6,19 +6,11 @@ function makeWalletCreationLink() {
   const makeWalletLink = make002ToolLink(0);
   return router.link("/wallets/new/") + makeWalletLink;
 }
-export type Wallet = {
-  id: number;
-  timestamp: string | null;
-  walletName: string | null;
-  primaryAddress: string | null;
-  secretViewKey: string | null;
-  daemonURL: string | null;
-  start_height: number | null;
-};
 export function walletGrid() {
   const makeWalletHref = makeWalletCreationLink();
 
-  const walletList: Wallet[] = [];
+  const scanSettings = window.dashboardData.scan_settings;
+  const walletList = scanSettings?.wallets || [];
   return html`<div>
     ${() => {
       if (walletList.length < 1) {
@@ -63,11 +55,13 @@ export function emptyWalletCard() {
   </a>`;
 }
 
-export function filledWalletCard(wallet: Wallet) {
+export function filledWalletCard(wallet: any) {
   return html` <div class="wallet-card">
-    $.{url.deliver("wallet-" + wallet.id, wallet)}
     <div class="wallet-actions">
-      <button class="edit-wallet-btn" onclick="editWallet($.{wallet.id})">
+      <button
+        class="edit-wallet-btn"
+        onclick="editWallet($.{wallet.primary_address})"
+      >
         <svg
           width="16"
           height="16"
@@ -100,8 +94,8 @@ export function filledWalletCard(wallet: Wallet) {
       <div class="wallet-balance">2.4389 XMR</div>
     </div>
 
-    <div class="wallet-address">${wallet.primaryAddress!}</div>
-    <div class="wallet-name">${wallet.walletName || " "}</div>
+    <div class="wallet-address">${wallet.primary_address}</div>
+    <div class="wallet-name">${wallet.wallet_name || " "}</div>
     <div class="sync-progress">
       <div class="sync-bar"></div>
     </div>

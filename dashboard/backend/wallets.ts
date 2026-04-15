@@ -1,9 +1,14 @@
-export async function saveWallet(primary_address: string, view_key: string) {
+export async function saveWallet(
+  primary_address: string,
+  view_key: string,
+  wallet_name: string,
+) {
   primary_address = primary_address.trim();
   view_key = view_key.trim();
   await writeViewKeyToDotEnv(primary_address, view_key);
   await writeWalletToScanSettings({
     primary_address,
+    wallet_name,
   });
 }
 
@@ -36,7 +41,7 @@ export async function editWalletRoute(req: Request) {
       return Response.json({ success: false, error: validation.error });
     }
 
-    await saveWallet(body.primaryAddress, body.secretViewKey);
+    await saveWallet(body.primaryAddress, body.secretViewKey, body.walletName);
     return Response.json({ success: true });
   } catch (error) {
     console.error("Error parsing wallet request:", error);
