@@ -1,4 +1,16 @@
 import { flatten, html, type MiniHtmlString } from "@spirobel/mininext";
+
+declare global {
+  interface Window {
+    changePaymentType: (event?: Event) => void;
+    switchActiveTab: () => void;
+    createPaymentLink: () => void;
+    clickOutsideClose: (e: Event) => void;
+    toggleWalletDropdown: (event: Event) => void;
+    selectWallet: (event: Event) => void;
+  }
+}
+
 function createPaymentLinkCB() {
   // Reset previous errors
   document.querySelectorAll(".form-input").forEach((input) => {
@@ -32,14 +44,27 @@ function createPaymentLinkCB() {
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
-    // Trim all string fields
-    for (const key in input) {
-      input[key] = input[key].trim();
-      if (input[key] === "") delete input[key];
+
+    // Verify walletId is set before trimming
+    if (!input["walletId"]) {
+      const hiddenInput = form.querySelector(
+        'input[name="walletId"]',
+      ) as HTMLInputElement;
+      if (hiddenInput && hiddenInput.value) {
+        input["walletId"] = hiddenInput.value;
+      }
     }
 
-    // Convert number fields to integers
-    for (const key of ["maxUses", "walletId"]) {
+    // Trim all string fields except walletId (which is a wallet address)
+    for (const key in input) {
+      if (key !== "walletId" && typeof input[key] === "string") {
+        input[key] = input[key].trim();
+        if (input[key] === "") delete input[key];
+      }
+    }
+
+    // Convert number fields to integers (but NOT walletId, which is a wallet address string)
+    for (const key of ["maxUses"]) {
       if (input[key]) {
         input[key] = Number(input[key]);
       }
@@ -148,10 +173,123 @@ function changePaymentTypeCB() {
     field.classList.toggle("active");
   }
 }
+function toggleWalletDropdownCB(event: Event) {
+  event.stopPropagation();
+  event.preventDefault();
+  const dropdown = document.querySelector(
+    ".custom-dropdown-menu",
+  ) as HTMLDivElement;
+  const menu = dropdown?.querySelector(".dropdown-list") as HTMLDivElement;
+  if (menu) {
+    menu.classList.toggle("open");
+  }
+}
+
+function selectWalletCB(event: Event) {
+  event.stopPropagation();
+  event.preventDefault();
+
+  const target = event.target as HTMLElement;
+  const listItem = target.closest(".dropdown-item") as HTMLLIElement;
+
+  if (!listItem) return;
+
+  const address = listItem.dataset.address || "";
+  const name = listItem.dataset.name || "";
+
+  const dropdown = document.querySelector(
+    ".custom-dropdown-menu",
+  ) as HTMLDivElement;
+  const display = dropdown?.querySelector(
+    ".dropdown-display",
+  ) as HTMLDivElement;
+  const hiddenInput = document.querySelector(
+    'input[name="walletId"]',
+  ) as HTMLInputElement;
+  const menu = dropdown?.querySelector(".dropdown-list") as HTMLDivElement;
+
+  if (display && hiddenInput && address && name) {
+    display.textContent = name;
+    display.dataset.selectedWallet = address;
+    hiddenInput.value = address;
+    hiddenInput.dataset.selected = "true";
+  } else {
+    console.warn("Failed to set wallet selection", {
+      display: !!display,
+      hiddenInput: !!hiddenInput,
+      address,
+      name,
+    });
+  }
+
+  if (menu) {
+    menu.classList.remove("open");
+  }
+}
+
+function closeWalletDropdownCB() {
+  const menu = document.querySelector(".dropdown-list") as HTMLDivElement;
+  if (menu) {
+    menu.classList.remove("open");
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener("click", closeWalletDropdownCB);
+
 window.changePaymentType = changePaymentTypeCB;
 window.switchActiveTab = switchActiveTabCB;
 window.createPaymentLink = createPaymentLinkCB;
 window.clickOutsideClose = clickOutsideCloseCB;
+window.toggleWalletDropdown = toggleWalletDropdownCB;
+window.selectWallet = selectWalletCB;
+
+export function getWalletOptions(): MiniHtmlString {
+  const scanSettings = window.dashboardData?.scan_settings;
+  const wallets = scanSettings?.wallets || [];
+  const items: MiniHtmlString[] = [];
+
+  if (wallets.length === 0) {
+    items.push(
+      html`<li class="dropdown-item disabled">No wallets available</li>`,
+    );
+  } else {
+    for (const wallet of wallets) {
+      if (!wallet?.primary_address) continue;
+      const walletName = wallet.wallet_name || "Unnamed Wallet";
+      const walletAddress = wallet.primary_address || "";
+      let truncatedAddress = walletAddress;
+      if (walletAddress.length > 6) {
+        truncatedAddress = `${walletAddress.slice(0, 3)}...${walletAddress.slice(-3)}`;
+      }
+      const displayName = `${walletName} (${truncatedAddress})`;
+      items.push(
+        html`<li
+          class="dropdown-item"
+          onclick="selectWallet(event)"
+          data-address="${walletAddress}"
+          data-name="${displayName}"
+        >
+          ${displayName}
+        </li>`,
+      );
+    }
+  }
+
+  return flatten(
+    items,
+    (walletItems) =>
+      html`<div class="custom-dropdown-menu">
+        <input type="hidden" name="walletId" required />
+        <div class="dropdown-display" onclick="toggleWalletDropdown(event)">
+          Select a wallet
+        </div>
+        <ul class="dropdown-list">
+          ${walletItems}
+        </ul>
+      </div>`,
+  );
+}
 export function createPaymentLinkForm() {
   return html`<div>
     <button class="create-link-btn" onclick="createPaymentLink()">
@@ -434,21 +572,8 @@ export function createPaymentLinkForm() {
 
             <div class="form-group">
               <label class="form-label">Receiving Wallet</label>
-              <select class="form-input" name="walletId" required>
-                ${() => {
-                  const options: MiniHtmlString[] = [];
-                  const wallets: any = [{ id: 1, walletName: "test" }];
-                  for (const wallet of wallets) {
-                    options.push(
-                      html`<option value="${wallet.id}">
-                        ${wallet.walletName || ""} (TODO:VALUE XMR)
-                      </option>`,
-                    );
-                  }
-                  return flatten(options);
-                }}
-              </select>
-              <div class="error-message" id="wallet-error"></div>
+              ${getWalletOptions()}
+              <div class="error-message" id="walletId-error"></div>
             </div>
 
             <div class="form-group product-invoice-fields">
@@ -566,6 +691,103 @@ const createPaymentLinkFormStyles = html`<style>
 
   .product-invoice-fields.active {
     display: block;
+  }
+
+  .wallet-address {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--accent);
+    opacity: 0.8;
+    margin-top: 0.25rem;
+  }
+
+  .custom-dropdown-menu {
+    position: relative;
+    width: 100%;
+  }
+
+  .dropdown-display {
+    padding: 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .dropdown-display:empty::before {
+    content: "Select a wallet";
+    color: rgba(248, 250, 252, 0.5);
+  }
+
+  .dropdown-display:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.1);
+  }
+
+  .dropdown-display::after {
+    content: "▼";
+    margin-left: auto;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+
+  .dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0.25rem 0 0 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 8px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+  }
+
+  .dropdown-list.open {
+    max-height: 300px;
+    opacity: 1;
+    transform: translateY(0);
+    overflow-y: auto;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dropdown-item:not(.disabled):hover {
+    background: rgba(124, 58, 237, 0.2);
+    color: var(--accent);
+    padding-left: 1.25rem;
+  }
+
+  .dropdown-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style> `;
 
@@ -759,6 +981,21 @@ const paymentTypeSelectionStyles = html`<style>
   }
 </style>`;
 const formTabStyles = html`<style>
+  .error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  .form-input.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .form-input.error:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  }
   .form-tabs {
     display: flex;
     gap: 1rem;
