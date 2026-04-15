@@ -1,5 +1,7 @@
 import { html } from "@spirobel/mininext";
-
+// <div class="payment-links-header">
+//   <h1>Payment Links</h1>
+// </div>
 export function paymentLinksList() {
   return html`<div class="payment-links-list">
     ${paymentLinksStyles}

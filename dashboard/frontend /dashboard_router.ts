@@ -29,25 +29,22 @@ export function dashboardFrontendRoute(
   </div>`;
 }
 export function paymentLinksRoute(): MiniHtmlString {
-  //const paymentLinks = getAllActivePaymentLinks();
-  return html` <div class="layout-container">
-    ${sidebar}
-    <main class="main-content payment-links-section">${noWalletsGuidance}</main>
-  </div>`;
-  return html` <div class="layout-container">
-    ${sidebar}
-    <main class="main-content payment-links-section">
-      ${createPaymentLinkForm} ${paymentLinksEmpty}
-    </main>
-  </div>`;
-  return html` <div class="layout-container">
-    ${sidebar}
-    <main class="main-content payment-links-section">
-      <div class="payment-links-header">
-        <h1>Payment Links</h1>
-      </div>
+  // Check dashboard data
+  const scanSettings = window.dashboardData.scan_settings;
+  const walletList = scanSettings?.wallets || [];
+  const paymentLinks = window.dashboardData.payment_links || [];
+  const hasWallets = walletList.length > 0;
+  const hasPaymentLinks = paymentLinks.length > 0;
 
-      ${createPaymentLinkForm} ${paymentLinksList}
+  const paymentLinksContent = html`<div>
+    ${createPaymentLinkForm}
+    ${hasPaymentLinks ? paymentLinksList : paymentLinksEmpty}
+  </div> `;
+
+  return html` <div class="layout-container">
+    ${sidebar}
+    <main class="main-content payment-links-section">
+      ${!hasWallets ? noWalletsGuidance : paymentLinksContent}
     </main>
   </div>`;
 }
