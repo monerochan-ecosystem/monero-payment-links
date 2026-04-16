@@ -105,6 +105,7 @@ export const paymentLinksStyles = html`<style>
     margin: 0;
   }
   .create-link-btn {
+    z-index: 100;
     background: var(--accent);
     border: none;
     color: var(--text);

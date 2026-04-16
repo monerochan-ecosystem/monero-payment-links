@@ -213,6 +213,7 @@ export const walletStyles = html`<style>
   }
 
   .add-wallet-btn {
+    z-index: 100;
     text-decoration: none;
     outline: none;
     position: fixed;
