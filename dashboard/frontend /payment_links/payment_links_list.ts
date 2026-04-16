@@ -55,7 +55,7 @@ export function paymentLinksList() {
       </div>
       <button
         class="copy-link-btn"
-        onclick="event.preventDefault(); navigator.clipboard.writeText('https://pay.example.com/${link.payment_link_id}'); this.textContent='Copied!'; setTimeout(() => this.textContent='', 2000);"
+        onclick="event.preventDefault(); const btn=this; const original=btn.innerHTML; navigator.clipboard.writeText('https://pay.example.com/${link.payment_link_id}'); btn.textContent='Copied!'; setTimeout(() => { btn.innerHTML=original; }, 2000);"
       >
         <svg
           width="16"
@@ -152,7 +152,7 @@ export const paymentLinksStyles = html`<style>
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #6b7280; /* Default grey for inactive */
+    background: #6b7280;
   }
 
   .payment-link-status.active {
