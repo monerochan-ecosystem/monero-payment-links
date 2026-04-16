@@ -330,6 +330,31 @@ export function upsertPaymentLink(data: {
   }
 }
 
+export function deleteProductPaymentLink(paymentLinkId: string): SQL.Query<{}> {
+  return sql`
+    DELETE FROM product_payment_links
+    WHERE payment_link_id = ${paymentLinkId}
+  `.execute();
+}
+
+export function deleteInvoicePaymentLink(paymentLinkId: string): SQL.Query<{}> {
+  return sql`
+    DELETE FROM invoice_payment_links
+    WHERE payment_link_id = ${paymentLinkId}
+  `.execute();
+}
+
+export function deletePaymentLink(
+  paymentLinkId: string,
+  linkType: "product" | "invoice",
+): SQL.Query<{}> {
+  if (linkType === "product") {
+    return deleteProductPaymentLink(paymentLinkId);
+  } else {
+    return deleteInvoicePaymentLink(paymentLinkId);
+  }
+}
+
 export function incrementPaymentLinkUses(id: number): SQL.Query<{}> {
   return sql`
     UPDATE payment_links 

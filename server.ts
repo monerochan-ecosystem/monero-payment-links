@@ -1,4 +1,7 @@
-import { editPaymentLinkRoute } from "./dashboard/backend/payment_links";
+import {
+  editPaymentLinkRoute,
+  deletePaymentLinkRoute,
+} from "./dashboard/backend/payment_links";
 import {
   editWalletRoute,
   deleteWalletRoute,
@@ -22,6 +25,9 @@ export function makeRoutes() {
     },
     "/editPaymentLink": {
       POST: editPaymentLinkRoute,
+    },
+    "/deletePaymentLink": {
+      POST: deletePaymentLinkRoute,
     },
     "/editWallet": {
       POST: editWalletRoute,

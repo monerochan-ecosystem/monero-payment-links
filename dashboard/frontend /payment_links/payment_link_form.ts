@@ -9,6 +9,9 @@ declare global {
     clickOutsideClose: (e: Event) => void;
     toggleWalletDropdown: (event: Event) => void;
     selectWallet: (event: Event) => void;
+    showDeletePaymentLinkFormDialog: () => void;
+    hideDeletePaymentLinkFormDialog: () => void;
+    confirmDeletePaymentLinkForm: () => void;
   }
 }
 
@@ -212,11 +215,37 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       if (paymentTypeSelector) {
         paymentTypeSelector.style.display = "none";
       }
+
+      // Show delete button in edit mode
+      const deleteBtn = form.querySelector(".delete-btn") as HTMLButtonElement;
+      if (deleteBtn) {
+        deleteBtn.style.display = "block";
+      }
+      // Reset delete warning state
+      const deleteWarning = form.querySelector(
+        ".delete-warning",
+      ) as HTMLDivElement;
+      if (deleteWarning) {
+        deleteWarning.classList.remove("show");
+      }
     }
   } else {
     // create mode, clear form and reset to defaults
     form.reset();
     paymentLinkIdInput.value = "";
+
+    // Hide delete button in create mode
+    const deleteBtn = form.querySelector(".delete-btn") as HTMLButtonElement;
+    if (deleteBtn) {
+      deleteBtn.style.display = "none";
+    }
+    // Reset delete warning state
+    const deleteWarning = form.querySelector(
+      ".delete-warning",
+    ) as HTMLDivElement;
+    if (deleteWarning) {
+      deleteWarning.classList.remove("show");
+    }
 
     // reset to product type
     const selectedButton = document.querySelector(
@@ -395,13 +424,13 @@ function setupFormSubmitHandler(
         // Handle success case
         editDialog.style.display = "none";
         form.reset();
-        
+
         // Navigate to the detail route of the created/edited payment link
         const paymentLinkId = response.paymentLinkId;
         if (paymentLinkId) {
           router.navigate(`/payment-links/${paymentLinkId}`);
         }
-        
+
         // Reload the page to refresh data
         window.location.reload();
       }
@@ -548,12 +577,72 @@ function closeWalletDropdownCB() {
 // Close dropdown when clicking outside
 document.addEventListener("click", closeWalletDropdownCB);
 
+function showDeletePaymentLinkFormDialogCB() {
+  const deleteWarning = document.querySelector(
+    ".delete-warning",
+  ) as HTMLDivElement;
+  const deleteBtn = document.querySelector(".delete-btn") as HTMLButtonElement;
+
+  deleteWarning.classList.add("show");
+  deleteBtn.style.display = "none";
+}
+
+function hideDeletePaymentLinkFormDialogCB() {
+  const deleteWarning = document.querySelector(
+    ".delete-warning",
+  ) as HTMLDivElement;
+  const deleteBtn = document.querySelector(".delete-btn") as HTMLButtonElement;
+
+  deleteWarning.classList.remove("show");
+  deleteBtn.style.display = "block";
+}
+
+function confirmDeletePaymentLinkFormCB() {
+  const form = document.querySelector("#payment-link-form") as HTMLFormElement;
+  const paymentLinkIdInput = form.querySelector(
+    'input[name="paymentLinkId"]',
+  ) as HTMLInputElement;
+  const paymentLinkId = paymentLinkIdInput?.value;
+
+  if (!paymentLinkId) return;
+
+  // Determine link type from selected button
+  const selectedTypeElement = document.querySelector(
+    ".payment-type-btn.selected",
+  ) as HTMLDivElement;
+  const linkType = selectedTypeElement?.dataset["type"] || "product";
+
+  fetch("deletePaymentLink", {
+    method: "POST",
+    body: JSON.stringify({
+      paymentLinkId: paymentLinkId,
+      linkType: linkType,
+    }),
+  }).then(async (result) => {
+    const response = await result.json();
+    if (response.success) {
+      const editDialog = document.querySelector(
+        ".edit-dialog-overlay",
+      ) as HTMLDivElement;
+      editDialog.style.display = "none";
+      router.navigate("/payment-links");
+      window.location.reload();
+    } else {
+      console.error("Error deleting payment link:", response.error);
+      hideDeletePaymentLinkFormDialogCB();
+    }
+  });
+}
+
 window.changePaymentType = changePaymentTypeCB;
 window.switchActiveTab = switchActiveTabCB;
 window.openPaymentLinkForm = openPaymentLinkFormCB;
 window.clickOutsideClose = clickOutsideCloseCB;
 window.toggleWalletDropdown = toggleWalletDropdownCB;
 window.selectWallet = selectWalletCB;
+window.showDeletePaymentLinkFormDialog = showDeletePaymentLinkFormDialogCB;
+window.hideDeletePaymentLinkFormDialog = hideDeletePaymentLinkFormDialogCB;
+window.confirmDeletePaymentLinkForm = confirmDeletePaymentLinkFormCB;
 
 export function getWalletOptions(): MiniHtmlString {
   const scanSettings = window.dashboardData?.scan_settings;
@@ -924,6 +1013,38 @@ export function createPaymentLinkForm() {
               <span class="spinner"></span>
               <span class="button-text">Create Product Payment Linkk</span>
             </button>
+
+            <button
+              type="button"
+              class="delete-btn"
+              onclick="showDeletePaymentLinkFormDialog()"
+            >
+              Delete Payment Link
+            </button>
+
+            <div class="delete-warning">
+              <p>
+                <strong>Warning:</strong> This action cannot be undone. Deleting
+                this payment link will permanently remove it and all associated
+                data.
+              </p>
+              <div class="warning-actions">
+                <button
+                  type="button"
+                  class="cancel-delete"
+                  onclick="hideDeletePaymentLinkFormDialog()"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="confirm-delete"
+                  onclick="confirmDeletePaymentLinkForm()"
+                >
+                  Delete Permanently
+                </button>
+              </div>
+            </div>
           </div>
         </form>
       </div>
@@ -984,6 +1105,84 @@ const createPaymentLinkFormStyles = html`<style>
     background: var(--primary);
     transform: translateY(-2px);
   }
+
+  .delete-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.75rem;
+  }
+
+  .delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  .delete-warning {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+  }
+
+  .delete-warning.show {
+    display: block;
+  }
+
+  .delete-warning p {
+    color: rgba(248, 250, 252, 0.9);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+  }
+
+  .warning-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .cancel-delete {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+  }
+
+  .cancel-delete:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .confirm-delete {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .confirm-delete:hover {
+    background: #dc2626;
+  }
+
   .form-step {
     display: none;
   }

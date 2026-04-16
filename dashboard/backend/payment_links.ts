@@ -1,5 +1,5 @@
 import { checkAdminAndRedirect } from "../login";
-import { upsertPaymentLink } from "../../db";
+import { upsertPaymentLink, deletePaymentLink } from "../../db";
 import { readScanSettings } from "@spirobel/monero-wallet-api";
 
 export async function editPaymentLinkRoute(req: Request) {
@@ -93,6 +93,64 @@ export async function editPaymentLinkRoute(req: Request) {
       error: {
         issues: [
           { path: ["_form"], message: "An error occurred while saving" },
+        ],
+      },
+    });
+  }
+}
+
+export async function deletePaymentLinkRoute(req: Request) {
+  const adminRedirect = await checkAdminAndRedirect(req);
+  if (adminRedirect) return adminRedirect;
+
+  try {
+    const body = await req.json();
+
+    // Validate required fields
+    if (
+      typeof body.paymentLinkId !== "string" ||
+      body.paymentLinkId.trim().length === 0
+    ) {
+      return Response.json({
+        success: false,
+        error: {
+          issues: [
+            {
+              path: ["paymentLinkId"],
+              message: "Payment link ID is required",
+            },
+          ],
+        },
+      });
+    }
+
+    if (!body.linkType || !["product", "invoice"].includes(body.linkType)) {
+      return Response.json({
+        success: false,
+        error: {
+          issues: [
+            {
+              path: ["linkType"],
+              message: "Link type must be 'product' or 'invoice'",
+            },
+          ],
+        },
+      });
+    }
+
+    await deletePaymentLink(body.paymentLinkId, body.linkType);
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting payment link:", error);
+    return Response.json({
+      success: false,
+      error: {
+        issues: [
+          {
+            path: ["_form"],
+            message: "An error occurred while deleting",
+          },
         ],
       },
     });

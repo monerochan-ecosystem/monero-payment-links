@@ -2,6 +2,70 @@ import { html, type MiniHtmlString, type Params } from "@spirobel/mininext";
 import { paymentLinksStyles } from "./payment_links_list";
 import { router } from "../dashboard_router";
 
+declare global {
+  interface Window {
+    showDeletePaymentLinkDialog: (
+      paymentLinkId: string,
+      linkType: string,
+    ) => void;
+    hideDeletePaymentLinkDialog: () => void;
+    confirmDeletePaymentLink: () => void;
+  }
+}
+
+let pendingDeletePaymentLinkId: string | null = null;
+let pendingDeleteLinkType: string | null = null;
+
+function showDeletePaymentLinkDialogCB(
+  paymentLinkId: string,
+  linkType: string,
+) {
+  pendingDeletePaymentLinkId = paymentLinkId;
+  pendingDeleteLinkType = linkType;
+  const overlay = document.getElementById(
+    "delete-dialog-overlay",
+  ) as HTMLDivElement;
+  if (overlay) {
+    overlay.style.display = "flex";
+  }
+}
+
+function hideDeletePaymentLinkDialogCB() {
+  const overlay = document.getElementById(
+    "delete-dialog-overlay",
+  ) as HTMLDivElement;
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+  pendingDeletePaymentLinkId = null;
+  pendingDeleteLinkType = null;
+}
+
+function confirmDeletePaymentLinkCB() {
+  if (!pendingDeletePaymentLinkId || !pendingDeleteLinkType) return;
+
+  fetch("deletePaymentLink", {
+    method: "POST",
+    body: JSON.stringify({
+      paymentLinkId: pendingDeletePaymentLinkId,
+      linkType: pendingDeleteLinkType,
+    }),
+  }).then(async (result) => {
+    const response = await result.json();
+    if (response.success) {
+      router.navigate("/payment-links");
+      window.location.reload();
+    } else {
+      console.error("Error deleting payment link:", response.error);
+      hideDeletePaymentLinkDialogCB();
+    }
+  });
+}
+
+window.showDeletePaymentLinkDialog = showDeletePaymentLinkDialogCB;
+window.hideDeletePaymentLinkDialog = hideDeletePaymentLinkDialogCB;
+window.confirmDeletePaymentLink = confirmDeletePaymentLinkCB;
+
 export function paymentLinkDetailRoute(
   params: Params<"/payment-links/:id">,
 ): MiniHtmlString {
@@ -71,6 +135,27 @@ export function paymentLinkDetailRoute(
               <path
                 d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
               />
+            </svg>
+          </button>
+          <button
+            class="delete-payment-link-btn"
+            title="Delete payment link"
+            onclick="showDeletePaymentLinkDialog('${paymentLinkId}', '${paymentLink.linkType}')"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
             </svg>
           </button>
         </div>
@@ -144,6 +229,47 @@ export function paymentLinkDetailRoute(
                 <span class="transaction-status">Waiting for payments</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="delete-dialog-overlay" id="delete-dialog-overlay">
+        <div class="delete-dialog">
+          <div class="delete-dialog-icon">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3>Delete Payment Link</h3>
+          <p>
+            <strong>Warning:</strong> This action cannot be undone. Deleting
+            this payment link will permanently remove it and all associated
+            data.
+          </p>
+          <div class="delete-dialog-actions">
+            <button
+              type="button"
+              class="cancel-delete-btn"
+              onclick="hideDeletePaymentLinkDialog()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="confirm-delete-btn"
+              onclick="confirmDeletePaymentLink()"
+            >
+              Delete Permanently
+            </button>
           </div>
         </div>
       </div>
@@ -301,6 +427,121 @@ const paymentLinkDetailStyles = html`<style>
 
   .transaction-status {
     color: #10b981;
+  }
+
+  .edit-payment-link-btn {
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    color: var(--text);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .edit-payment-link-btn:hover {
+    background: rgba(124, 58, 237, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .delete-payment-link-btn {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-payment-link-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .delete-dialog-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .delete-dialog {
+    background: #1a1a2e;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .delete-dialog-icon {
+    color: #ef4444;
+    margin-bottom: 1rem;
+  }
+
+  .delete-dialog h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+  }
+
+  .delete-dialog p {
+    color: rgba(248, 250, 252, 0.8);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .delete-dialog-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .cancel-delete-btn {
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+  }
+
+  .cancel-delete-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .confirm-delete-btn {
+    padding: 0.75rem 1.5rem;
+    background: #ef4444;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .confirm-delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
   }
 
   @media (max-width: 768px) {
