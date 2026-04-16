@@ -21,7 +21,7 @@ export function dashboardFrontendRoute(
   if (params?.wallet_creation_tool) {
     // if there is no browser extension we open the manual dialog
     router.navigate("/wallets");
-    window.editWallet(null);
+    window.editWallet();
   }
   return html` <div class="layout-container">
     ${sidebar}

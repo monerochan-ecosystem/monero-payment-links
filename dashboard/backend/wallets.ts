@@ -2,9 +2,16 @@ export async function saveWallet(
   primary_address: string,
   view_key: string,
   wallet_name: string,
+  originalPrimaryAddress?: string,
 ) {
   primary_address = primary_address.trim();
   view_key = view_key.trim();
+
+  // If the primary address changed, remove the old wallet first
+  if (originalPrimaryAddress && originalPrimaryAddress !== primary_address) {
+    await removeWallet(originalPrimaryAddress);
+  }
+
   await writeViewKeyToDotEnv(primary_address, view_key);
   await writeWalletToScanSettings({
     primary_address,
@@ -12,39 +19,83 @@ export async function saveWallet(
   });
 }
 
+async function removeWallet(primary_address: string) {
+  try {
+    // Read the ScanSettings.json file
+    const content = await readFile("./ScanSettings.json", "utf-8");
+    const scanSettings = JSON.parse(content);
+
+    if (!scanSettings.wallets || !Array.isArray(scanSettings.wallets)) {
+      console.warn("No wallets array in ScanSettings.json");
+      return;
+    }
+
+    // Check if wallet exists
+    const walletExists = scanSettings.wallets.some(
+      (w: any) => w.primary_address === primary_address,
+    );
+
+    if (!walletExists) {
+      console.warn(`Wallet with address ${primary_address} not found`);
+      return;
+    }
+
+    // Filter out the wallet with the matching address
+    const filteredWallets = scanSettings.wallets.filter(
+      (w: any) => w.primary_address !== primary_address,
+    );
+
+    // Update scan settings with filtered wallets
+    scanSettings.wallets = filteredWallets;
+
+    // Write the updated settings back to file
+    await writeFile(
+      "./ScanSettings.json",
+      JSON.stringify(scanSettings, null, 2),
+      "utf-8",
+    );
+
+    console.log(`Successfully deleted wallet ${primary_address}`);
+  } catch (error) {
+    console.error("Error removing wallet:", error);
+    throw error;
+  }
+}
+
 import {
   writeViewKeyToDotEnv,
   writeWalletToScanSettings,
+  readScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
+import { writeFile, readFile } from "fs/promises";
 
 export type WalletFormInput = {
   walletName: string;
   primaryAddress: string;
   secretViewKey: string;
-  id?: number;
+  originalPrimaryAddress?: string;
 };
 
 export async function editWalletRoute(req: Request) {
-  console.log(req);
-
   const adminRedirect = await checkAdminAndRedirect(req);
-  console.log(adminRedirect);
   if (adminRedirect) return adminRedirect;
-  console.log(req);
   try {
     const body = (await req.json()) as WalletFormInput;
 
-    // Validate the input
     const validation = validateWalletInput(body);
     if (!validation.success) {
       return Response.json({ success: false, error: validation.error });
     }
 
-    await saveWallet(body.primaryAddress, body.secretViewKey, body.walletName);
+    await saveWallet(
+      body.primaryAddress,
+      body.secretViewKey,
+      body.walletName,
+      body.originalPrimaryAddress,
+    );
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Error parsing wallet request:", error);
     return Response.json({
       success: false,
       error: { issues: [{ path: [], message: "Invalid JSON" }] },
@@ -60,22 +111,26 @@ export async function deleteWalletRoute(req: Request) {
     const body = await req.json();
 
     // Validate the input
-    if (typeof body.walletId !== "number" || body.walletId <= 0) {
+    if (
+      typeof body.primaryAddress !== "string" ||
+      body.primaryAddress.trim().length === 0
+    ) {
       return Response.json({
         success: false,
         error: {
           issues: [
             {
-              path: ["walletId"],
-              message: "walletId must be a positive number",
+              path: ["primaryAddress"],
+              message: "Primary address is required",
             },
           ],
         },
       });
     }
 
-    // TODO: Implement the actual wallet deletion logic here
-    // For now, just return success
+    // Delete the wallet by removing it from scan settings
+    await removeWallet(body.primaryAddress);
+
     return Response.json({ success: true });
   } catch (error) {
     console.error("Error parsing delete wallet request:", error);
@@ -135,13 +190,6 @@ function validateWalletInput(input: WalletFormInput) {
       path: ["secretViewKey"],
       message: "Invalid secret view key format (must be 64 hex characters)",
     });
-  }
-
-  // Check id (optional, for updates)
-  if (input.id !== undefined) {
-    if (typeof input.id !== "number" || input.id <= 0) {
-      issues.push({ path: ["id"], message: "ID must be a positive number" });
-    }
   }
 
   if (issues.length > 0) {

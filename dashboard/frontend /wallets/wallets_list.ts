@@ -60,7 +60,7 @@ export function filledWalletCard(wallet: any) {
     <div class="wallet-actions">
       <button
         class="edit-wallet-btn"
-        onclick="editWallet($.{wallet.primary_address})"
+        onclick="editWallet('${wallet.primary_address}')"
       >
         <svg
           width="16"

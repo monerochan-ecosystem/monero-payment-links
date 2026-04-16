@@ -27,13 +27,12 @@ function hideDeleteDialogCB() {
   deleteBtn.style.display = "block";
 }
 export type WalletFormFields = {
-  id: number;
   timestamp: string | null;
   walletName: string | null;
   primaryAddress: string | null;
   secretViewKey: string | null;
 };
-function editWallet(walletId: number | null) {
+function editWallet(primary_address?: string) {
   //delete warning hidden
   const deleteWarning = document.querySelector(
     ".delete-warning",
@@ -71,17 +70,30 @@ function editWallet(walletId: number | null) {
   ) as HTMLInputElement;
 
   let wallet = {} as WalletFormFields;
-  if (walletId) {
+  if (primary_address) {
     submitButtonText = "Update Wallet";
     dialogTitle = "Edit Wallet";
     deleteBtnElement.style.display = "block";
 
-    //@ts-ignore
-    wallet = window["wallet-" + walletId] as WalletFormFields;
+    // Find the wallet in the dashboard data
+    const wallets = window.dashboardData?.scan_settings?.wallets || [];
+    const existingWallet = wallets.find(
+      (w: any) => w.primary_address === primary_address,
+    );
+
+    if (existingWallet) {
+      wallet = {
+        timestamp: null,
+        walletName: existingWallet.wallet_name || null,
+        primaryAddress: existingWallet.primary_address || null,
+        secretViewKey: existingWallet.secret_view_key || null,
+      };
+    }
+
     function confirmDeletion() {
       fetch("deleteWallet", {
         method: "POST",
-        body: JSON.stringify({ walletId }),
+        body: JSON.stringify({ primaryAddress: primary_address }),
       }).then(() => window.location.reload());
     }
     //@ts-ignore
@@ -119,7 +131,11 @@ function editWallet(walletId: number | null) {
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
-    if (walletId) input.id = walletId;
+
+    // If editing an existing wallet, include the original primary address
+    if (primary_address && wallet.primaryAddress !== input["primaryAddress"]) {
+      input.originalPrimaryAddress = primary_address;
+    }
 
     if (input["primaryAddress"])
       input["primaryAddress"] = input["primaryAddress"].trim();
@@ -160,8 +176,10 @@ function editWallet(walletId: number | null) {
   };
 }
 
-//@ts-ignore
 window.editWallet = editWallet;
+window.showDeleteDialog = showDeleteDialogCB;
+window.hideDeleteDialog = hideDeleteDialogCB;
+window.clickOutsideClose = clickOutsideCloseCB;
 export function createWalletForm() {
   return html` <div
     class="dialog-overlay edit-dialog-overlay"

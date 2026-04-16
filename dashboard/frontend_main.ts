@@ -22,6 +22,9 @@ declare global {
     switchActiveTab: () => void;
     createPaymentLink: () => void;
     clickOutsideClose: (e: Event) => void;
-    editWallet(walletId: number | null): void;
+    editWallet(primary_address?: string): void;
+    showDeleteDialog: () => void;
+    hideDeleteDialog: () => void;
+    confirmDeletion: () => void;
   }
 }
