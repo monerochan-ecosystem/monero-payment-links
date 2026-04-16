@@ -85,9 +85,23 @@ function createPaymentLinkCB() {
       submitBtn.classList.remove("loading");
       if (!response.success && response.error) {
         // Handle validation errors
+        let hasTab1Error = false;
         response.error.issues.forEach(
           (issue: { path: string[]; message: string }) => {
             const fieldName = issue.path[0];
+            if (!fieldName) return;
+
+            const tab1Fields = [
+              "productTitle",
+              "productDescription",
+              "invoiceTitle",
+              "invoiceDescription",
+            ];
+
+            if (tab1Fields.includes(fieldName)) {
+              hasTab1Error = true;
+            }
+
             const input = document.querySelector(`[name="${fieldName}"]`);
             const errorElement = document.getElementById(`${fieldName}-error`);
 
@@ -98,6 +112,33 @@ function createPaymentLinkCB() {
             }
           },
         );
+
+        // If there's a tab 1 error, show hint and switch to tab 1
+        if (hasTab1Error) {
+          const errorHint = document.getElementById(
+            "_form-error",
+          ) as HTMLDivElement;
+          if (errorHint) {
+            errorHint.textContent =
+              "Please go back to the Basic Info tab to fix the highlighted errors";
+            errorHint.style.display = "block";
+          }
+          // Switch back to tab 1
+          const formTabs = document.querySelectorAll(".form-tab");
+          const formSteps = document.querySelectorAll(
+            ".form-step",
+          ) as NodeListOf<HTMLDivElement>;
+          for (const tab of formTabs) {
+            tab.classList.toggle("active");
+          }
+          for (const step of formSteps) {
+            step.classList.toggle("active");
+          }
+          const nextBtn = document.querySelector(
+            ".next-btn",
+          ) as HTMLButtonElement;
+          nextBtn.innerText = "Next";
+        }
       } else {
         // Handle success case
         editDialog.style.display = "none";
@@ -608,6 +649,8 @@ export function createPaymentLinkForm() {
               <div class="error-message" id="successUrl-error"></div>
             </div>
 
+            <div class="error-message" id="_form-error"></div>
+
             <button type="submit" class="submit-btn">
               <span class="spinner"></span>
               <span class="button-text">Create Product Payment Linkk</span>
@@ -985,6 +1028,7 @@ const formTabStyles = html`<style>
     color: #ef4444;
     font-size: 0.875rem;
     margin-top: 0.5rem;
+    margin-bottom: 11px;
     display: none;
   }
 
