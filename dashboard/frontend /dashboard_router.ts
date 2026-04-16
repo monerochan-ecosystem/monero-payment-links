@@ -72,4 +72,12 @@ const routes = {
   },
 } as const;
 export const router = createRouter(routes);
-router.navigate("/wallets");
+
+// Only navigate to default route if we're at the root hash
+if (
+  !window.location.hash ||
+  window.location.hash === "#" ||
+  window.location.hash === ""
+) {
+  router.navigate("/payment-links");
+}

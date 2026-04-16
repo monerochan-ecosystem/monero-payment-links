@@ -1,4 +1,5 @@
 import { flatten, html, type MiniHtmlString } from "@spirobel/mininext";
+import { router } from "../dashboard_router";
 
 declare global {
   interface Window {
@@ -394,6 +395,14 @@ function setupFormSubmitHandler(
         // Handle success case
         editDialog.style.display = "none";
         form.reset();
+        
+        // Navigate to the detail route of the created/edited payment link
+        const paymentLinkId = response.paymentLinkId;
+        if (paymentLinkId) {
+          router.navigate(`/payment-links/${paymentLinkId}`);
+        }
+        
+        // Reload the page to refresh data
         window.location.reload();
       }
     });

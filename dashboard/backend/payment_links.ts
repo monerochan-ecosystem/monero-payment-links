@@ -85,7 +85,7 @@ export async function editPaymentLinkRoute(req: Request) {
       dueDate: body.linkType === "invoice" ? body.dueDate || null : undefined,
     });
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, paymentLinkId: paymentLinkId });
   } catch (error) {
     console.error("Error saving payment link:", error);
     return Response.json({
