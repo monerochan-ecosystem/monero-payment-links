@@ -1,4 +1,6 @@
 import { html } from "@spirobel/mininext";
+import { router } from "../dashboard_router";
+
 function showDeleteDialogCB() {
   const deleteWarning = document.querySelector(
     ".delete-warning",
@@ -170,6 +172,11 @@ function editWallet(primary_address?: string) {
         // Handle success case
         editDialog.style.display = "none";
         form.reset();
+
+        // Navigate to wallets page
+        router.navigate("/wallets");
+
+        // Reload the page to refresh data
         window.location.reload();
       }
     });

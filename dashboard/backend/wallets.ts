@@ -94,7 +94,10 @@ export async function editWalletRoute(req: Request) {
       body.walletName,
       body.originalPrimaryAddress,
     );
-    return Response.json({ success: true });
+    return Response.json({
+      success: true,
+      primaryAddress: body.primaryAddress,
+    });
   } catch (error) {
     return Response.json({
       success: false,
