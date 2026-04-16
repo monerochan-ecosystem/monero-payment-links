@@ -4,14 +4,14 @@ declare global {
   interface Window {
     changePaymentType: (event?: Event) => void;
     switchActiveTab: () => void;
-    createPaymentLink: () => void;
+    openPaymentLinkForm: (paymentLinkId?: string) => void;
     clickOutsideClose: (e: Event) => void;
     toggleWalletDropdown: (event: Event) => void;
     selectWallet: (event: Event) => void;
   }
 }
 
-function createPaymentLinkCB() {
+function openPaymentLinkFormCB(paymentLinkId?: string) {
   // Reset previous errors
   document.querySelectorAll(".form-input").forEach((input) => {
     input.classList.remove("error");
@@ -19,13 +19,171 @@ function createPaymentLinkCB() {
   document.querySelectorAll(".error-message").forEach((msg) => {
     (msg as HTMLDivElement).style.display = "none";
   });
-  // open the edit dialog
+
+  const form = document.querySelector("#payment-link-form") as HTMLFormElement;
+  const paymentLinkIdInput = form.querySelector(
+    'input[name="paymentLinkId"]',
+  ) as HTMLInputElement;
+
+  if (paymentLinkId) {
+    // edit mode, populate form with existing data
+    const paymentLinks = window.dashboardData?.payment_links || [];
+    const paymentLink = paymentLinks.find(
+      (link: any) => link.payment_link_id === paymentLinkId,
+    );
+
+    if (paymentLink) {
+      paymentLinkIdInput.value = paymentLinkId;
+
+      const isProduct = paymentLink.linkType === "product";
+      const currentSelectedButton = document.querySelector(
+        ".payment-type-btn.selected",
+      ) as HTMLButtonElement;
+
+      // Change payment type if needed
+      if (currentSelectedButton?.dataset.type !== paymentLink.linkType) {
+        changePaymentTypeCB();
+      }
+
+      // Populate title and description
+      if (isProduct) {
+        const titleInput = form.querySelector(
+          'input[name="productTitle"]',
+        ) as HTMLInputElement;
+        const descInput = form.querySelector(
+          'textarea[name="productDescription"]',
+        ) as HTMLTextAreaElement;
+        if (titleInput) titleInput.value = paymentLink.title || "";
+        if (descInput) descInput.value = paymentLink.description || "";
+      } else {
+        const titleInput = form.querySelector(
+          'input[name="invoiceTitle"]',
+        ) as HTMLInputElement;
+        const descInput = form.querySelector(
+          'textarea[name="invoiceDescription"]',
+        ) as HTMLTextAreaElement;
+        if (titleInput) titleInput.value = paymentLink.title || "";
+        if (descInput) descInput.value = paymentLink.description || "";
+      }
+
+      // Populate amount
+      const amountInput = form.querySelector(
+        'input[name="amount"]',
+      ) as HTMLInputElement;
+      if (amountInput) amountInput.value = paymentLink.amount || "";
+
+      // Populate maxUses
+      const maxUsesInput = form.querySelector(
+        'input[name="maxUses"]',
+      ) as HTMLInputElement;
+      if (maxUsesInput && paymentLink.maxUses) {
+        maxUsesInput.value = paymentLink.maxUses.toString();
+      } else if (maxUsesInput) {
+        maxUsesInput.value = "";
+      }
+
+      // Populate dueDate
+      const dueDateInput = form.querySelector(
+        'input[name="dueDate"]',
+      ) as HTMLInputElement;
+      if (dueDateInput && paymentLink.dueDate) {
+        dueDateInput.value = paymentLink.dueDate;
+      } else if (dueDateInput) {
+        dueDateInput.value = "";
+      }
+
+      // Populate successUrl
+      const successUrlInput = form.querySelector(
+        'input[name="successUrl"]',
+      ) as HTMLInputElement;
+      if (successUrlInput) {
+        successUrlInput.value = paymentLink.successUrl || "";
+      }
+
+      // Populate wallet selection
+      const walletDropdown = form.querySelector(
+        ".custom-dropdown-menu",
+      ) as HTMLDivElement;
+      const walletDisplay = walletDropdown?.querySelector(
+        ".dropdown-display",
+      ) as HTMLDivElement;
+      const walletHiddenInput = form.querySelector(
+        'input[name="walletId"]',
+      ) as HTMLInputElement;
+
+      const scanSettings = window.dashboardData?.scan_settings;
+      const wallets = scanSettings?.wallets || [];
+      const selectedWallet = wallets.find(
+        (w: any) => w.primary_address === paymentLink.wallet_primary_address,
+      );
+
+      if (selectedWallet && walletDisplay && walletHiddenInput) {
+        const walletName = selectedWallet.wallet_name || "Unnamed Wallet";
+        const walletAddress = selectedWallet.primary_address || "";
+        let truncatedAddress = walletAddress;
+        if (walletAddress.length > 6) {
+          truncatedAddress = `${walletAddress.slice(0, 3)}...${walletAddress.slice(-3)}`;
+        }
+        const displayName = `${walletName} (${truncatedAddress})`;
+        walletDisplay.textContent = displayName;
+        walletDisplay.dataset.selectedWallet = walletAddress;
+        walletHiddenInput.value = walletAddress;
+        walletHiddenInput.dataset.selected = "true";
+      }
+
+      // update ui text for edit mode
+      const dialogTitle = form.querySelector(".dialog-title") as HTMLDivElement;
+      const submitButtonText = form.querySelector(
+        ".submit-btn .button-text",
+      ) as HTMLDivElement;
+
+      if (dialogTitle) {
+        const typeText = isProduct ? "Product" : "Invoice";
+        dialogTitle.innerText = `Edit ${typeText} Payment Link`;
+      }
+
+      if (submitButtonText) {
+        const typeText = isProduct ? "Product" : "Invoice";
+        submitButtonText.innerText = `Update ${typeText} Payment Link`;
+      }
+    }
+  } else {
+    // create mode, clear form and reset to defaults
+    form.reset();
+    paymentLinkIdInput.value = "";
+
+    // reset to product type
+    const selectedButton = document.querySelector(
+      ".payment-type-btn.selected",
+    ) as HTMLButtonElement;
+    if (selectedButton?.dataset.type !== "product") {
+      changePaymentTypeCB();
+    }
+
+    // reset ui text for create mode
+    const dialogTitle = form.querySelector(".dialog-title") as HTMLDivElement;
+    const submitButtonText = form.querySelector(
+      ".submit-btn .button-text",
+    ) as HTMLDivElement;
+
+    if (dialogTitle) dialogTitle.innerText = "Create Product Payment Link";
+    if (submitButtonText)
+      submitButtonText.innerText = "Create Product Payment Link";
+  }
+
+  // open the dialog
   const editDialog = document.querySelector(
     ".edit-dialog-overlay",
   ) as HTMLDivElement;
   editDialog.style.display = "flex";
 
-  const form = document.querySelector("#payment-link-form") as HTMLFormElement;
+  setupFormSubmitHandler(form, editDialog);
+}
+
+function setupFormSubmitHandler(
+  form: HTMLFormElement,
+  editDialog: HTMLDivElement,
+) {
   form.onsubmit = (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector(".submit-btn") as HTMLButtonElement;
@@ -44,6 +202,14 @@ function createPaymentLinkCB() {
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
+
+    // Only include paymentLinkId if it's set (for edit mode)
+    const paymentLinkIdInput = form.querySelector(
+      'input[name="paymentLinkId"]',
+    ) as HTMLInputElement;
+    if (!paymentLinkIdInput?.value) {
+      delete input["paymentLinkId"];
+    }
 
     // Verify walletId is set before trimming
     if (!input["walletId"]) {
@@ -280,7 +446,7 @@ document.addEventListener("click", closeWalletDropdownCB);
 
 window.changePaymentType = changePaymentTypeCB;
 window.switchActiveTab = switchActiveTabCB;
-window.createPaymentLink = createPaymentLinkCB;
+window.openPaymentLinkForm = openPaymentLinkFormCB;
 window.clickOutsideClose = clickOutsideCloseCB;
 window.toggleWalletDropdown = toggleWalletDropdownCB;
 window.selectWallet = selectWalletCB;
@@ -333,9 +499,6 @@ export function getWalletOptions(): MiniHtmlString {
 }
 export function createPaymentLinkForm() {
   return html`<div>
-    <button class="create-link-btn" onclick="createPaymentLink()">
-      + Create Payment Link
-    </button>
     ${createPaymentLinkFormStyles}
     <div
       class="dialog-overlay edit-dialog-overlay"
@@ -616,6 +779,8 @@ export function createPaymentLinkForm() {
               ${getWalletOptions()}
               <div class="error-message" id="walletId-error"></div>
             </div>
+
+            <input type="hidden" name="paymentLinkId" />
 
             <div class="form-group product-invoice-fields">
               <label class="form-label form-label-optional"

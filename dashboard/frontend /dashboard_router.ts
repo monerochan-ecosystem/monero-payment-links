@@ -8,7 +8,7 @@ import { sidebar } from "./sidebar";
 import { walletGrid } from "./wallets/wallets_list";
 import { paymentLinksList } from "./payment_links/payment_links_list";
 import { createPaymentLinkForm } from "./payment_links/payment_link_form";
-import { paymentLinkDetailRoute } from "./payment_links/payment_link_detail";
+import { paymentLinkDetailRoute as paymentLinkDetailRouteContent } from "./payment_links/payment_link_detail";
 import {
   noWalletsGuidance,
   paymentLinksEmpty,
@@ -37,6 +37,9 @@ export function paymentLinksRoute(): MiniHtmlString {
   const hasPaymentLinks = paymentLinks.length > 0;
 
   const paymentLinksContent = html`<div>
+    <button class="create-link-btn" onclick="openPaymentLinkForm()">
+      + Create Payment Link
+    </button>
     ${createPaymentLinkForm}
     ${hasPaymentLinks ? paymentLinksList : paymentLinksEmpty}
   </div> `;
@@ -56,8 +59,17 @@ const routes = {
   "/wallets": dashboardFrontendRoute,
   "/transactions": dashboardFrontendRoute,
   "/payment-links": paymentLinksRoute,
-  "/payment-links/:id": (params: Params<"/payment-links/:id">) =>
-    paymentLinkDetailRoute(params),
+  "/payment-links/:id": (
+    params: Params<"/payment-links/:id">,
+  ): MiniHtmlString => {
+    const detailContent = paymentLinkDetailRouteContent(params);
+    return html`<div class="layout-container">
+      ${sidebar}
+      <main class="main-content">
+        ${createPaymentLinkForm} ${detailContent}
+      </main>
+    </div>`;
+  },
 } as const;
 export const router = createRouter(routes);
 router.navigate("/wallets");

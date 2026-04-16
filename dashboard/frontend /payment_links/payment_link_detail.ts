@@ -1,6 +1,5 @@
 import { html, type MiniHtmlString, type Params } from "@spirobel/mininext";
 import { paymentLinksStyles } from "./payment_links_list";
-import { sidebar } from "../sidebar";
 import { router } from "../dashboard_router";
 
 export function paymentLinkDetailRoute(
@@ -53,7 +52,11 @@ export function paymentLinkDetailRoute(
           Back to Payment Links
         </a>
         <div class="detail-actions">
-          <button class="edit-payment-link-btn" title="Edit payment link">
+          <button
+            class="edit-payment-link-btn"
+            title="Edit payment link"
+            onclick="openPaymentLinkForm('${paymentLinkId}')"
+          >
             <svg
               width="16"
               height="16"
@@ -147,10 +150,7 @@ export function paymentLinkDetailRoute(
     </div>
   </div>`;
 
-  return html`<div class="layout-container">
-    ${sidebar}
-    <main class="main-content">${detailContent}</main>
-  </div>`;
+  return detailContent;
 }
 
 const paymentLinkDetailStyles = html`<style>
