@@ -25,6 +25,18 @@ export async function editPaymentLinkRoute(req: Request) {
         message: "Link type must be 'product' or 'invoice'",
       });
     }
+    if (body.linkType === "product" && !body.productTitle) {
+      errors.push({
+        path: ["productTitle"],
+        message: "Product title is required",
+      });
+    }
+    if (body.linkType === "invoice" && !body.invoiceTitle) {
+      errors.push({
+        path: ["invoiceTitle"],
+        message: "Invoice title is required",
+      });
+    }
 
     if (errors.length > 0) {
       return Response.json({
@@ -59,13 +71,17 @@ export async function editPaymentLinkRoute(req: Request) {
       maxUses: body.maxUses || null,
       successUrl: body.successUrl || null,
       productTitle:
-        body.linkType === "product" ? body.title || null : undefined,
+        body.linkType === "product" ? body.productTitle || null : undefined,
       productDescription:
-        body.linkType === "product" ? body.description || null : undefined,
+        body.linkType === "product"
+          ? body.productDescription || null
+          : undefined,
       invoiceTitle:
-        body.linkType === "invoice" ? body.title || null : undefined,
+        body.linkType === "invoice" ? body.invoiceTitle || null : undefined,
       invoiceDescription:
-        body.linkType === "invoice" ? body.description || null : undefined,
+        body.linkType === "invoice"
+          ? body.invoiceDescription || null
+          : undefined,
       dueDate: body.linkType === "invoice" ? body.dueDate || null : undefined,
     });
 
