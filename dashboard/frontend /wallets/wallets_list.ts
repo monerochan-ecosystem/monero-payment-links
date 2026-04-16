@@ -472,7 +472,7 @@ export const walletStyles = html`<style>
     word-wrap: break-word;
     display: inline-block;
     font-size: 0.875rem;
-    opacity: 0.8;
+    opacity: 0.7;
     margin-bottom: 20px;
     transition: all 0.3s ease;
   }
@@ -480,7 +480,6 @@ export const walletStyles = html`<style>
   .wallet-address:hover {
     opacity: 1;
     cursor: pointer;
-    color: var(--accent);
   }
 
   .sync-progress {
