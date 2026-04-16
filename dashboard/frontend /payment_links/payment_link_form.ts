@@ -40,9 +40,31 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         ".payment-type-btn.selected",
       ) as HTMLButtonElement;
 
-      // Change payment type if needed
+      // In edit mode, manually apply the payment type
       if (currentSelectedButton?.dataset.type !== paymentLink.linkType) {
-        changePaymentTypeCB();
+        // Toggle payment type buttons' selected state
+        const typeButtons = form.querySelectorAll(
+          ".payment-type-btn",
+        ) as NodeListOf<HTMLButtonElement>;
+        typeButtons.forEach((btn) => {
+          btn.classList.toggle("selected");
+        });
+
+        // Toggle payment type forms to show the correct one
+        const typeForms = form.querySelectorAll(
+          ".payment-type-form",
+        ) as NodeListOf<HTMLDivElement>;
+        typeForms.forEach((form) => {
+          form.classList.toggle("active");
+        });
+
+        // Toggle special fields (invoice due date vs product quantity)
+        const specialFields = form.querySelectorAll(
+          ".product-invoice-fields",
+        ) as NodeListOf<HTMLDivElement>;
+        specialFields.forEach((field) => {
+          field.classList.toggle("active");
+        });
       }
 
       // Populate title and description
@@ -55,6 +77,16 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         ) as HTMLTextAreaElement;
         if (titleInput) titleInput.value = paymentLink.title || "";
         if (descInput) descInput.value = paymentLink.description || "";
+
+        // Clear invoice fields
+        const invoiceTitleInput = form.querySelector(
+          'input[name="invoiceTitle"]',
+        ) as HTMLInputElement;
+        const invoiceDescInput = form.querySelector(
+          'textarea[name="invoiceDescription"]',
+        ) as HTMLTextAreaElement;
+        if (invoiceTitleInput) invoiceTitleInput.value = "";
+        if (invoiceDescInput) invoiceDescInput.value = "";
       } else {
         const titleInput = form.querySelector(
           'input[name="invoiceTitle"]',
@@ -64,6 +96,16 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         ) as HTMLTextAreaElement;
         if (titleInput) titleInput.value = paymentLink.title || "";
         if (descInput) descInput.value = paymentLink.description || "";
+
+        // Clear product fields
+        const productTitleInput = form.querySelector(
+          'input[name="productTitle"]',
+        ) as HTMLInputElement;
+        const productDescInput = form.querySelector(
+          'textarea[name="productDescription"]',
+        ) as HTMLTextAreaElement;
+        if (productTitleInput) productTitleInput.value = "";
+        if (productDescInput) productDescInput.value = "";
       }
 
       // Populate amount
@@ -90,6 +132,21 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         dueDateInput.value = paymentLink.dueDate;
       } else if (dueDateInput) {
         dueDateInput.value = "";
+      }
+
+      // Clear type-specific optional fields
+      if (isProduct) {
+        // Clear invoice-only field
+        const dueDateClear = form.querySelector(
+          'input[name="dueDate"]',
+        ) as HTMLInputElement;
+        if (dueDateClear) dueDateClear.value = "";
+      } else {
+        // Clear product-only field
+        const maxUsesClear = form.querySelector(
+          'input[name="maxUses"]',
+        ) as HTMLInputElement;
+        if (maxUsesClear) maxUsesClear.value = "";
       }
 
       // Populate successUrl
@@ -132,19 +189,27 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       }
 
       // update ui text for edit mode
-      const dialogTitle = form.querySelector(".dialog-title") as HTMLDivElement;
+      const dialogTitle = document.querySelector(
+        ".dialog-title",
+      ) as HTMLDivElement;
       const submitButtonText = form.querySelector(
         ".submit-btn .button-text",
       ) as HTMLDivElement;
 
       if (dialogTitle) {
         const typeText = isProduct ? "Product" : "Invoice";
-        dialogTitle.innerText = `Edit ${typeText} Payment Link`;
+        dialogTitle.innerText = `Update ${typeText} Payment Link`;
       }
 
       if (submitButtonText) {
         const typeText = isProduct ? "Product" : "Invoice";
         submitButtonText.innerText = `Update ${typeText} Payment Link`;
+      }
+      const paymentTypeSelector = form.querySelector(
+        ".payment-type-selector",
+      ) as HTMLDivElement;
+      if (paymentTypeSelector) {
+        paymentTypeSelector.style.display = "none";
       }
     }
   } else {
@@ -161,7 +226,9 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
     }
 
     // reset ui text for create mode
-    const dialogTitle = form.querySelector(".dialog-title") as HTMLDivElement;
+    const dialogTitle = document.querySelector(
+      ".dialog-title",
+    ) as HTMLDivElement;
     const submitButtonText = form.querySelector(
       ".submit-btn .button-text",
     ) as HTMLDivElement;
@@ -169,6 +236,24 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
     if (dialogTitle) dialogTitle.innerText = "Create Product Payment Link";
     if (submitButtonText)
       submitButtonText.innerText = "Create Product Payment Link";
+
+    // enable payment type buttons in create mode
+    const typeButtonsCreate = form.querySelectorAll(
+      ".payment-type-btn",
+    ) as NodeListOf<HTMLButtonElement>;
+    typeButtonsCreate.forEach((btn) => {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+    });
+
+    // Show payment type selector in create mode
+    const paymentTypeSelectorCreate = form.querySelector(
+      ".payment-type-selector",
+    ) as HTMLDivElement;
+    if (paymentTypeSelectorCreate) {
+      paymentTypeSelectorCreate.style.display = "flex";
+    }
   }
 
   // open the dialog
@@ -347,6 +432,16 @@ function switchActiveTabCB() {
   }
 }
 function changePaymentTypeCB() {
+  // Prevent payment type changes in edit mode
+  const form = document.querySelector("#payment-link-form") as HTMLFormElement;
+  const paymentLinkIdInput = form.querySelector(
+    'input[name="paymentLinkId"]',
+  ) as HTMLInputElement;
+  if (paymentLinkIdInput?.value) {
+    // In edit mode, don't allow type switching
+    return;
+  }
+
   const typeButtons = document.querySelectorAll(
     ".payment-type-btn",
   ) as NodeListOf<HTMLButtonElement>;
