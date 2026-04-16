@@ -107,7 +107,6 @@ export const walletStyles = html`<style>
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 2rem;
-    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;

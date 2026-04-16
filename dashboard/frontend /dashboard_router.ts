@@ -8,7 +8,7 @@ import { sidebar } from "./sidebar";
 import { walletGrid } from "./wallets/wallets_list";
 import { paymentLinksList } from "./payment_links/payment_links_list";
 import { createPaymentLinkForm } from "./payment_links/payment_link_form";
-//import { getAllActivePaymentLinks } from "../../db";
+import { paymentLinkDetailRoute } from "./payment_links/payment_link_detail";
 import {
   noWalletsGuidance,
   paymentLinksEmpty,
@@ -56,6 +56,8 @@ const routes = {
   "/wallets": dashboardFrontendRoute,
   "/transactions": dashboardFrontendRoute,
   "/payment-links": paymentLinksRoute,
+  "/payment-links/:id": (params: Params<"/payment-links/:id">) =>
+    paymentLinkDetailRoute(params),
 } as const;
 export const router = createRouter(routes);
 router.navigate("/wallets");

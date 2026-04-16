@@ -1,4 +1,5 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
+import { router } from "../dashboard_router";
 
 export function paymentLinksList() {
   const paymentLinks = window.dashboardData.payment_links || [];
@@ -11,8 +12,9 @@ export function paymentLinksList() {
     const amount = link.amount ? `${link.amount} XMR` : "0 XMR";
     const title = link.title || "Untitled";
 
-    // Generate payment link URL
-    const linkUrl = `/payment-link?id=${link.payment_link_id}`;
+    const linkUrl = router.link("/payment-links/:id", {
+      id: link.payment_link_id,
+    });
 
     // Determine details based on type
     let detailsHtml: MiniHtmlString;
@@ -213,6 +215,7 @@ export const paymentLinksStyles = html`<style>
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin: 10px;
   }
 
   .payment-link-info {
