@@ -1,65 +1,89 @@
-import { html } from "@spirobel/mininext";
-// <div class="payment-links-header">
-//   <h1>Payment Links</h1>
-// </div>
+import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
+
 export function paymentLinksList() {
-  return html`<div class="payment-links-list">
+  const paymentLinks = window.dashboardData.payment_links || [];
+
+  const renderPaymentLink = (link: any) => {
+    const isProduct = link.linkType === "product";
+    const statusClass = isProduct ? "active" : "invoice";
+    const badgeClass = isProduct ? "product-badge" : "invoice-badge";
+    const badgeText = isProduct ? "Product" : "Invoice";
+    const amount = link.amount ? `${link.amount} XMR` : "0 XMR";
+    const title = link.title || "Untitled";
+
+    // Generate payment link URL
+    const linkUrl = `/payment-link?id=${link.payment_link_id}`;
+
+    // Determine details based on type
+    let detailsHtml: MiniHtmlString;
+    if (isProduct) {
+      const paymentCount = link.currentUses || 0;
+      detailsHtml = html`<div class="payment-link-details">
+        <span>${amount}</span>
+        <span>•</span>
+        <span
+          >${paymentCount} payment${paymentCount !== 1 ? "s" : ""}
+          received</span
+        >
+      </div>`;
+    } else {
+      // Invoice with due date
+      const dueDate = link.dueDate
+        ? new Date(link.dueDate).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "No due date";
+      detailsHtml = html`<div class="payment-link-details">
+        <span>${amount}</span>
+        <span>•</span>
+        <span>Due on ${dueDate}</span>
+      </div>`;
+    }
+
+    return html`<a class="payment-link-card" href="${linkUrl}">
+      <div class="payment-link-status ${statusClass}"></div>
+      <div class="payment-link-info">
+        <h3>${title} <span class="${badgeClass}">${badgeText}</span></h3>
+        <p class="payment-link-url">
+          https://pay.example.com/${link.payment_link_id}
+        </p>
+        ${detailsHtml}
+      </div>
+      <button
+        class="copy-link-btn"
+        onclick="event.preventDefault(); navigator.clipboard.writeText('https://pay.example.com/${link.payment_link_id}'); this.textContent='Copied!'; setTimeout(() => this.textContent='', 2000);"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path
+            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+          ></path>
+        </svg>
+      </button>
+    </a>`;
+  };
+
+  return html`<div>
+    ${() => {
+      const linkElementList: MiniHtmlString[] = [];
+      for (const link of paymentLinks) {
+        linkElementList.push(renderPaymentLink(link));
+      }
+      return flatten(
+        linkElementList,
+        (l) => html`<div class="payment-links-list">${l}</div>`,
+      );
+    }}
     ${paymentLinksStyles}
-    <a class="payment-link-card" href="/payment-link?id=5">
-      <div class="payment-link-status active"></div>
-      <div class="payment-link-info">
-        <h3>cookie dough <span class="product-badge">Product</span></h3>
-        <p class="payment-link-url">https://pay.example.com/monthly-sub</p>
-        <div class="payment-link-details">
-          <span>0.5 XMR</span>
-          <span>•</span>
-          <span>24 payments received</span>
-        </div>
-      </div>
-      <button class="copy-link-btn">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path
-            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-          ></path>
-        </svg>
-      </button>
-    </a>
-    <a class="payment-link-card" href="/payment-link?id=6">
-      <div class="payment-link-status invoice"></div>
-      <div class="payment-link-info">
-        <h3>yug <span class="invoice-badge">Invoice</span></h3>
-        <p class="payment-link-url">https://pay.example.com/launch-package</p>
-        <div class="payment-link-details">
-          <span>2.5 XMR</span>
-          <span>•</span>
-          <span>Due in 5 days</span>
-        </div>
-        <div class="due-date">Due on Sep 30, 2023</div>
-      </div>
-      <button class="copy-link-btn">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path
-            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-          ></path>
-        </svg>
-      </button>
-    </a>
   </div>`;
 }
 

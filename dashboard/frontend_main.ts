@@ -19,7 +19,6 @@ window.dashboardData = getHydratedData();
 declare global {
   interface Window {
     dashboardData: DashboardData;
-    changePaymentType: () => void;
     switchActiveTab: () => void;
     createPaymentLink: () => void;
     clickOutsideClose: (e: Event) => void;
