@@ -1,3 +1,8 @@
+import {
+  writeViewKeyToDotEnv,
+  writeScanSettingsFileDefaultLocation,
+} from "@spirobel/monero-wallet-api";
+import { checkAdminAndRedirect } from "../login";
 export async function saveWallet(
   primary_address: string,
   view_key: string,
@@ -9,66 +14,29 @@ export async function saveWallet(
 
   // If the primary address changed, remove the old wallet first
   if (originalPrimaryAddress && originalPrimaryAddress !== primary_address) {
-    await removeWallet(originalPrimaryAddress);
+    await writeScanSettingsFileDefaultLocation({
+      writeCallback: async (settings) => {
+        settings.wallets = settings.wallets.filter(
+          (w: any) => w.primary_address !== originalPrimaryAddress,
+        );
+      },
+    });
   }
 
   await writeViewKeyToDotEnv(primary_address, view_key);
-  await writeWalletToScanSettings({
-    primary_address,
-    wallet_name,
+  await writeScanSettingsFileDefaultLocation({
+    writeCallback: async (settings) => {
+      const existingWallet = settings.wallets.find(
+        (w: any) => w.primary_address === primary_address,
+      );
+      if (existingWallet) {
+        existingWallet.wallet_name = wallet_name;
+      } else {
+        settings.wallets.push({ primary_address, wallet_name });
+      }
+    },
   });
 }
-
-async function removeWallet(primary_address: string) {
-  try {
-    // Read the ScanSettings.json file
-    const content = await readFile("./ScanSettings.json", "utf-8");
-    const scanSettings = JSON.parse(content);
-
-    if (!scanSettings.wallets || !Array.isArray(scanSettings.wallets)) {
-      console.warn("No wallets array in ScanSettings.json");
-      return;
-    }
-
-    // Check if wallet exists
-    const walletExists = scanSettings.wallets.some(
-      (w: any) => w.primary_address === primary_address,
-    );
-
-    if (!walletExists) {
-      console.warn(`Wallet with address ${primary_address} not found`);
-      return;
-    }
-
-    // Filter out the wallet with the matching address
-    const filteredWallets = scanSettings.wallets.filter(
-      (w: any) => w.primary_address !== primary_address,
-    );
-
-    // Update scan settings with filtered wallets
-    scanSettings.wallets = filteredWallets;
-
-    // Write the updated settings back to file
-    await writeFile(
-      "./ScanSettings.json",
-      JSON.stringify(scanSettings, null, 2),
-      "utf-8",
-    );
-
-    console.log(`Successfully deleted wallet ${primary_address}`);
-  } catch (error) {
-    console.error("Error removing wallet:", error);
-    throw error;
-  }
-}
-
-import {
-  writeViewKeyToDotEnv,
-  writeWalletToScanSettings,
-  readScanSettings,
-} from "@spirobel/monero-wallet-api";
-import { checkAdminAndRedirect } from "../login";
-import { writeFile, readFile } from "fs/promises";
 
 export type WalletFormInput = {
   walletName: string;
@@ -132,7 +100,13 @@ export async function deleteWalletRoute(req: Request) {
     }
 
     // Delete the wallet by removing it from scan settings
-    await removeWallet(body.primaryAddress);
+    await writeScanSettingsFileDefaultLocation({
+      writeCallback: async (settings) => {
+        settings.wallets = settings.wallets.filter(
+          (w: any) => w.primary_address !== body.primaryAddress,
+        );
+      },
+    });
 
     return Response.json({ success: true });
   } catch (error) {
