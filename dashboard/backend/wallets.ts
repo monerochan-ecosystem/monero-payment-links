@@ -74,6 +74,31 @@ export async function editWalletRoute(req: Request) {
   }
 }
 
+export async function shareViewKeyRoute(req: Request) {
+  try {
+    const body = await req.json();
+    const { viewkey, primary_address } = body as {
+      viewkey: string;
+      primary_address: string;
+    };
+
+    if (
+      typeof viewkey !== "string" ||
+      viewkey.trim().length === 0 ||
+      typeof primary_address !== "string" ||
+      primary_address.trim().length === 0
+    ) {
+      return Response.json({ ok: false, successUrl: null });
+    }
+
+    await saveWallet(primary_address.trim(), viewkey.trim(), "");
+
+    return Response.json({ ok: true, successUrl: "/dashboard#/wallets" });
+  } catch {
+    return Response.json({ ok: false, successUrl: null });
+  }
+}
+
 export async function deleteWalletRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
