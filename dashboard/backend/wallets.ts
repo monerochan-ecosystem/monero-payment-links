@@ -77,10 +77,14 @@ export async function editWalletRoute(req: Request) {
 export async function shareViewKeyRoute(req: Request) {
   try {
     const body = await req.json();
-    const { viewkey, primary_address } = body as {
+    const { viewkey, primary_address, wallet_slot } = body as {
       viewkey: string;
       primary_address: string;
+      wallet_slot: string;
     };
+    if (Number.isNaN(parseInt(wallet_slot))) {
+      return { ok: false, error: `invalid wallet_slot: "${wallet_slot}"` };
+    }
 
     if (
       typeof viewkey !== "string" ||
