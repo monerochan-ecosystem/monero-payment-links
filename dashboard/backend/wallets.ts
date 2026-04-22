@@ -1,12 +1,14 @@
 import {
   writeViewKeyToDotEnv,
   writeScanSettingsFileDefaultLocation,
+  handle002ShareRequest,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
 export async function saveWallet(
   primary_address: string,
   view_key: string,
   wallet_name: string,
+  wallet_slot?: number,
   originalPrimaryAddress?: string,
 ) {
   primary_address = primary_address.trim();
@@ -31,8 +33,9 @@ export async function saveWallet(
       );
       if (existingWallet) {
         existingWallet.wallet_name = wallet_name;
+        existingWallet.wallet_slot = wallet_slot;
       } else {
-        settings.wallets.push({ primary_address, wallet_name });
+        settings.wallets.push({ primary_address, wallet_name, wallet_slot });
       }
     },
   });
@@ -60,6 +63,7 @@ export async function editWalletRoute(req: Request) {
       body.primaryAddress,
       body.secretViewKey,
       body.walletName,
+      undefined,
       body.originalPrimaryAddress,
     );
     return Response.json({
@@ -75,32 +79,20 @@ export async function editWalletRoute(req: Request) {
 }
 
 export async function shareViewKeyRoute(req: Request) {
-  try {
-    const body = await req.json();
-    const { viewkey, primary_address, wallet_slot } = body as {
-      viewkey: string;
-      primary_address: string;
-      wallet_slot: string;
-    };
-    if (Number.isNaN(parseInt(wallet_slot))) {
-      return { ok: false, error: `invalid wallet_slot: "${wallet_slot}"` };
-    }
-
-    if (
-      typeof viewkey !== "string" ||
-      viewkey.trim().length === 0 ||
-      typeof primary_address !== "string" ||
-      primary_address.trim().length === 0
-    ) {
-      return Response.json({ ok: false, successUrl: null });
-    }
-
-    await saveWallet(primary_address.trim(), viewkey.trim(), "");
-
-    return Response.json({ ok: true, successUrl: "/dashboard#/wallets" });
-  } catch {
-    return Response.json({ ok: false, successUrl: null });
-  }
+  const adminRedirect = await checkAdminAndRedirect(req);
+  if (adminRedirect) return adminRedirect;
+  const res = await handle002ShareRequest(
+    req,
+    async ({ primary_address, viewkey, wallet_slot }) =>
+      await saveWallet(
+        primary_address.trim(),
+        viewkey.trim(),
+        "unnamed wallet " + wallet_slot,
+        wallet_slot,
+      ),
+    "/dashboard#/wallets",
+  );
+  return Response.json(res);
 }
 
 export async function deleteWalletRoute(req: Request) {
