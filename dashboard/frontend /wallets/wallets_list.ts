@@ -6,8 +6,19 @@ export function makeWalletCreationLink(wallet_slot: number = 0) {
   const makeWalletLink = make002ToolLink(wallet_slot);
   return router.link("/wallets/new/") + makeWalletLink;
 }
+function getHighestWalletSlot() {
+  const scanSettings = window.dashboardData.scan_settings;
+  const walletList = scanSettings?.wallets || [];
+  let highestWalletSlot = 0;
+  for (const wallet of walletList) {
+    if (wallet?.wallet_slot != null && wallet.wallet_slot > highestWalletSlot)
+      highestWalletSlot = wallet.wallet_slot;
+  }
+  return highestWalletSlot;
+}
 export function walletGrid() {
-  const makeWalletHref = makeWalletCreationLink();
+  const heighestWalletSlot = getHighestWalletSlot();
+  const makeWalletHref = makeWalletCreationLink(heighestWalletSlot + 1);
 
   const scanSettings = window.dashboardData.scan_settings;
   const walletList = scanSettings?.wallets || [];
