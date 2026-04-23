@@ -36,7 +36,9 @@ export function walletGrid() {
         (l) => html` <div class="wallets-grid">${l}</div>`,
       );
     }}
-    <button class="set-nodeurl-btn">Set Node URL</button>
+    <button class="set-nodeurl-btn" onclick="openNodeUrlForm()">
+      Set Node URL
+    </button>
 
     <a class="add-wallet-btn" href="${makeWalletHref}">+ Add Wallet</a>
     ${walletStyles}
