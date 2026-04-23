@@ -56,7 +56,7 @@ function editWallet(primary_address?: string) {
   deleteBtnElement.style.display = "none";
   // open the edit dialog
   const editDialog = document.querySelector(
-    ".edit-dialog-overlay",
+    "#edit-wallet-dialog-overlay",
   ) as HTMLDivElement;
   editDialog.style.display = "flex";
 
@@ -190,6 +190,7 @@ window.clickOutsideClose = clickOutsideCloseCB;
 export function createWalletForm() {
   return html` <div
     class="dialog-overlay edit-dialog-overlay"
+    id="edit-wallet-dialog-overlay"
     onclick="clickOutsideClose(event)"
   >
     <div class="dialog">
