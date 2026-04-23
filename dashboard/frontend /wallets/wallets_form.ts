@@ -1,6 +1,7 @@
 import { html } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
 import type { ScanSettingOpened } from "@spirobel/monero-wallet-api";
+import { makeWalletCreationLink } from "./wallets_list";
 
 function showDeleteDialogCB() {
   const deleteWarnings = document.querySelectorAll(
@@ -52,7 +53,6 @@ export type WalletFormFields = {
   walletSlot?: number | null;
 };
 function editWalletSlot(existingWallet: ScanSettingOpened) {
-  console.log("editwaleltslot");
   const editDialog = document.querySelector(
     "#edit-wallet-slot-dialog-overlay",
   ) as HTMLDivElement;
@@ -75,7 +75,6 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
 
   let wallet = {} as WalletFormFields;
   if (existingWallet) {
-    console.log(existingWallet);
     wallet = {
       timestamp: null,
       walletName: existingWallet.wallet_name || null,
@@ -100,6 +99,10 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
   primaryAddressInput.value = wallet.primaryAddress || "";
   secretViewKeyInput.value = wallet.secretViewKey || "";
   walletSlotInput.value = String(wallet.walletSlot);
+  const restoreWalletLink = document.querySelector(
+    "#restore-wallet-link",
+  ) as HTMLAnchorElement;
+  restoreWalletLink.href = makeWalletCreationLink(wallet.walletSlot!);
   form.onsubmit = (e) => {
     e.preventDefault();
     const submitBtn = form.querySelector(".submit-btn") as HTMLButtonElement;
@@ -133,7 +136,6 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
       // Re-enable submit button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
-      console.log(response);
       if (!response.success && response.error) {
         // Handle validation errors
         response.error.issues.forEach(
@@ -171,7 +173,6 @@ function editWallet(primary_address?: string) {
   deleteWarning.classList.remove("show");
 
   const existingWallet = findExistingWallet(primary_address);
-  console.log(existingWallet);
   if (typeof existingWallet?.wallet_slot === "number") {
     editWalletSlot(existingWallet);
     return;
@@ -279,7 +280,6 @@ function editWallet(primary_address?: string) {
       // Re-enable submit button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
-      console.log(response);
       if (!response.success && response.error) {
         // Handle validation errors
         response.error.issues.forEach(
@@ -465,7 +465,22 @@ export function createWalletSlotForm() {
             name="walletSlot"
             required
             readonly
+            style="margin-bottom: 20px;"
           />
+          <style>
+            .restore-wallet-link {
+              color: var(--accent, #7c3aed);
+              text-decoration: underline;
+              cursor: pointer;
+              font-size: 0.9rem;
+            }
+            .restore-wallet-link:hover {
+              color: var(--primary, #5b21b6);
+            }
+          </style>
+          <a class="restore-wallet-link" id="restore-wallet-link">
+            Restore Wallet in Extension</a
+          >
         </div>
 
         <button type="button" class="delete-btn" onclick="showDeleteDialog()">

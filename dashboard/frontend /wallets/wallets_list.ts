@@ -2,7 +2,7 @@ import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
 import { make002ToolLink } from "@spirobel/monero-wallet-api";
 import { router } from "../dashboard_router";
 
-function makeWalletCreationLink(wallet_slot: number = 0) {
+export function makeWalletCreationLink(wallet_slot: number = 0) {
   const makeWalletLink = make002ToolLink(wallet_slot);
   return router.link("/wallets/new/") + makeWalletLink;
 }
