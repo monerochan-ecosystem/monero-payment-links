@@ -47,6 +47,7 @@ export type WalletFormInput = {
   primaryAddress: string;
   secretViewKey: string;
   originalPrimaryAddress?: string;
+  walletSlot?: number;
 };
 
 export async function editWalletRoute(req: Request) {
@@ -64,7 +65,7 @@ export async function editWalletRoute(req: Request) {
       body.primaryAddress,
       body.secretViewKey,
       body.walletName,
-      undefined,
+      body.walletSlot,
       body.originalPrimaryAddress,
     );
     return Response.json({
