@@ -13,7 +13,7 @@ import {
   noWalletsGuidance,
   paymentLinksEmpty,
 } from "./payment_links/payment_links_empty";
-import { createWalletForm } from "./wallets/wallets_form";
+import { createWalletForm, createWalletSlotForm } from "./wallets/wallets_form";
 
 export function dashboardFrontendRoute(
   params?: Params<"/wallets/new/:wallet_creation_tool">,
@@ -25,7 +25,9 @@ export function dashboardFrontendRoute(
   }
   return html` <div class="layout-container">
     ${sidebar}
-    <main class="main-content">${walletGrid} ${createWalletForm}</main>
+    <main class="main-content">
+      ${walletGrid} ${createWalletForm} ${createWalletSlotForm}
+    </main>
   </div>`;
 }
 export function paymentLinksRoute(): MiniHtmlString {
