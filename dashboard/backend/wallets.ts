@@ -2,6 +2,7 @@ import {
   writeViewKeyToDotEnv,
   writeScanSettingsFileDefaultLocation,
   handle002ShareRequest,
+  readWalletsFromScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
 export async function saveWallet(
@@ -81,8 +82,11 @@ export async function editWalletRoute(req: Request) {
 export async function shareViewKeyRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
+  //if slot already exists we  make sure primary address & vk is the same
+  const wallets = await readWalletsFromScanSettings();
   const res = await handle002ShareRequest(
     req,
+    wallets,
     async ({ primary_address, viewkey, wallet_slot }) =>
       await saveWallet(
         primary_address.trim(),
