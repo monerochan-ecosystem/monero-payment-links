@@ -28,7 +28,11 @@ function openNodeUrlForm() {
     if (nodeurlInput && scanSettings.node_url) {
       nodeurlInput.value = scanSettings.node_url;
     }
-    if (startHeightInput && scanSettings.start_height !== undefined) {
+    if (
+      startHeightInput &&
+      scanSettings.start_height !== undefined &&
+      scanSettings.start_height !== null
+    ) {
       startHeightInput.value = String(scanSettings.start_height);
     }
   }
@@ -40,7 +44,6 @@ function openNodeUrlForm() {
     nodeUrlForm.onsubmit = async (e) => {
       e.preventDefault();
 
-      // Reset previous errors
       document.querySelectorAll(".nodeurl-form-input").forEach((input) => {
         (input as HTMLInputElement).classList.remove("error");
       });
@@ -49,7 +52,6 @@ function openNodeUrlForm() {
         (msg as HTMLDivElement).style.display = "none";
       });
 
-      // Disable button and show loading state
       const submitBtn = nodeUrlForm.querySelector(
         ".submit-btn",
       ) as HTMLButtonElement;
@@ -60,49 +62,9 @@ function openNodeUrlForm() {
         const formData = new FormData(nodeUrlForm);
         const input: any = Object.fromEntries(formData);
 
-        // Trim string inputs
         if (input.nodeurl) input.nodeurl = input.nodeurl.trim();
         if (input.start_height) input.start_height = Number(input.start_height);
 
-        // Validate inputs
-        const errors: { [key: string]: string } = {};
-
-        if (!input.nodeurl || input.nodeurl === "") {
-          errors.nodeurl = "Node URL is required";
-        }
-
-        if (
-          input.start_height === null ||
-          input.start_height === undefined ||
-          input.start_height < 0
-        ) {
-          errors.start_height =
-            "Start height must be a valid non-negative number";
-        }
-
-        if (Object.keys(errors).length > 0) {
-          // Display errors
-          Object.entries(errors).forEach(([field, message]) => {
-            const input = nodeUrlForm.querySelector(
-              `[name="${field}"]`,
-            ) as HTMLInputElement;
-            const errorDiv = nodeUrlForm.querySelector(
-              `#${field}-error`,
-            ) as HTMLDivElement;
-
-            if (input) input.classList.add("error");
-            if (errorDiv) {
-              errorDiv.textContent = message;
-              errorDiv.style.display = "block";
-            }
-          });
-
-          submitBtn.disabled = false;
-          submitBtn.classList.remove("loading");
-          return;
-        }
-
-        // Submit to API
         const response = await fetch("/updateNodeUrl", {
           method: "POST",
           headers: {
@@ -114,15 +76,34 @@ function openNodeUrlForm() {
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          const errorMessage =
-            result.error?.message || "Failed to update node URL";
-          const nodeUrlError = nodeUrlForm.querySelector(
-            "#nodeurl-error",
-          ) as HTMLDivElement;
+          if (result.error?.issues && Array.isArray(result.error.issues)) {
+            result.error.issues.forEach(
+              (issue: { path: string[]; message: string }) => {
+                const fieldName = issue.path[0] || "nodeurl";
+                const input = nodeUrlForm.querySelector(
+                  `[name="${fieldName}"]`,
+                ) as HTMLInputElement;
+                const errorDiv = nodeUrlForm.querySelector(
+                  `#${fieldName}-error`,
+                ) as HTMLDivElement;
 
-          if (nodeUrlError) {
-            nodeUrlError.textContent = errorMessage;
-            nodeUrlError.style.display = "block";
+                if (input) input.classList.add("error");
+                if (errorDiv) {
+                  errorDiv.textContent = issue.message;
+                  errorDiv.style.display = "block";
+                }
+              },
+            );
+          } else {
+            const nodeUrlError = nodeUrlForm.querySelector(
+              "#nodeurl-error",
+            ) as HTMLDivElement;
+
+            if (nodeUrlError) {
+              nodeUrlError.textContent =
+                result.error?.message || "Failed to update node URL";
+              nodeUrlError.style.display = "block";
+            }
           }
 
           submitBtn.disabled = false;
@@ -190,7 +171,6 @@ export function createNodeUrlForm() {
             type="text"
             class="nodeurl-form-input form-input"
             name="nodeurl"
-            required
             placeholder="http://node.example.com:18081"
           />
           <div
@@ -205,7 +185,6 @@ export function createNodeUrlForm() {
             type="number"
             class="nodeurl-form-input form-input"
             name="start_height"
-            required
             placeholder="0"
             min="0"
           />

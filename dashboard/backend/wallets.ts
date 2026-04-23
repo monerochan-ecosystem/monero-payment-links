@@ -3,6 +3,8 @@ import {
   writeScanSettingsFileDefaultLocation,
   handle002ShareRequest,
   readWalletsFromScanSettings,
+  writeStartHeightToScanSettings,
+  writeNodeUrlToScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
 export async function saveWallet(
@@ -215,4 +217,53 @@ function isValidMoneroPrivateKey(key: string): boolean {
 
 function isAlphaNumeric(str: string) {
   return str.match(/^[a-z0-9]+$/i) !== null;
+}
+
+export type NodeUrlFormInput = {
+  nodeurl: string;
+  start_height: number | null | "";
+};
+
+export async function updateNodeUrlRoute(req: Request) {
+  const adminRedirect = await checkAdminAndRedirect(req);
+  if (adminRedirect) return adminRedirect;
+
+  try {
+    const body = (await req.json()) as NodeUrlFormInput;
+
+    const issues: { path: string[]; message: string }[] = [];
+
+    if (typeof body.nodeurl !== "string" || body.nodeurl.trim().length === 0) {
+      issues.push({
+        path: ["nodeurl"],
+        message: "Node URL is required and must be a non-empty string",
+      });
+    }
+    if (body.start_height === "") body.start_height = null;
+    if (
+      body.start_height !== null &&
+      (typeof body.start_height !== "number" || body.start_height < 0)
+    ) {
+      issues.push({
+        path: ["start_height"],
+        message: "Start height must be a non-negative number or null",
+      });
+    }
+
+    if (issues.length > 0) {
+      return Response.json({ success: false, error: { issues } });
+    }
+
+    await writeNodeUrlToScanSettings(body.nodeurl.trim());
+
+    await writeStartHeightToScanSettings(body.start_height);
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("Error updating node URL:", error);
+    return Response.json({
+      success: false,
+      error: { issues: [{ path: [], message: "Invalid JSON" }] },
+    });
+  }
 }

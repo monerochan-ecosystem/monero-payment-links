@@ -6,6 +6,7 @@ import {
   editWalletRoute,
   deleteWalletRoute,
   shareViewKeyRoute,
+  updateNodeUrlRoute,
 } from "./dashboard/backend/wallets";
 import { dashBoardRoute, dashboardSkeleton } from "./dashboard/dashboard";
 import {
@@ -38,6 +39,9 @@ export function makeRoutes() {
     },
     "/monerochan002/": {
       POST: shareViewKeyRoute,
+    },
+    "/updateNodeUrl": {
+      POST: updateNodeUrlRoute,
     },
   };
   return routes;
