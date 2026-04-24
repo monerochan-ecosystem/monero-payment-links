@@ -2,6 +2,7 @@
 node_modules
 monero_payments.db
 monero_payments.db*
+getblocksbinbuffer/*
 *RegtestScanSettings.json
 *ScanSettings.json
 *_stats.json
