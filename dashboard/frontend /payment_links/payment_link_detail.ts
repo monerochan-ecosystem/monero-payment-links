@@ -1,4 +1,9 @@
-import { html, type MiniHtmlString, type Params } from "@spirobel/mininext";
+import {
+  html,
+  flatten,
+  type MiniHtmlString,
+  type Params,
+} from "@spirobel/mininext";
 import { paymentLinksStyles } from "./payment_links_list";
 import { router } from "../dashboard_router";
 
@@ -97,6 +102,94 @@ export function paymentLinkDetailRoute(
   const currentUses = paymentLink.currentUses || 0;
   const maxUses = paymentLink.maxUses || "Unlimited";
   const dueDate = paymentLink.dueDate || "N/A";
+
+  const checkoutSessions = window.dashboardData?.checkout_sessions || [];
+  const transactions = checkoutSessions.filter(
+    (session: any) =>
+      session.payment_link_row_id === paymentLink.id &&
+      session.payment_link_link_type === paymentLink.linkType &&
+      session.paid_status === 1,
+  );
+
+  function timeAgo(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+    const years = Math.floor(months / 12);
+    return `${years}y ago`;
+  }
+
+  let transactionsListHtml: MiniHtmlString;
+  if (transactions.length > 0) {
+    const items: MiniHtmlString[] = transactions.map((tx: any) => {
+      const txHashShort = tx.tx_hash
+        ? `${tx.tx_hash.slice(0, 6)}...${tx.tx_hash.slice(-3)}`
+        : "unknown";
+      return html`<div class="transaction-item">
+        <div class="transaction-icon incoming">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div class="transaction-info">
+          <div class="transaction-primary">
+            <span class="transaction-type">Payment Received!</span>
+            <span class="transaction-amount received">+${tx.amount} XMR</span>
+          </div>
+          <div class="transaction-secondary">
+            <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
+            <span class="transaction-hash">tx ${txHashShort}</span>
+            <span class="transaction-status confirmed">Confirmed</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    transactionsListHtml = flatten(
+      items,
+      (list) => html`<div class="transactions-list">${list}</div>`,
+    );
+  } else {
+    transactionsListHtml = html`<div class="transactions-list">
+      <div class="transaction-item">
+        <div class="transaction-icon incoming">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div class="transaction-info">
+          <div class="transaction-primary">
+            <span class="transaction-type">No payments yet</span>
+          </div>
+          <div class="transaction-secondary">
+            <span class="transaction-status">Waiting for payments</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
 
   const detailContent = html`<div>
     ${paymentLinkDetailStyles} ${paymentLinksStyles}
@@ -225,32 +318,7 @@ export function paymentLinkDetailRoute(
 
       <div class="payment-history">
         <h3>Payment History</h3>
-        <div class="transactions-list">
-          <div class="transaction-item">
-            <div class="transaction-icon incoming">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                />
-              </svg>
-            </div>
-            <div class="transaction-info">
-              <div class="transaction-primary">
-                <span class="transaction-type">No payments yet</span>
-              </div>
-              <div class="transaction-secondary">
-                <span class="transaction-status">Waiting for payments</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        ${transactionsListHtml}
       </div>
 
       <div class="delete-dialog-overlay" id="delete-dialog-overlay">
@@ -454,6 +522,29 @@ const paymentLinkDetailStyles = html`<style>
 
   .transaction-status {
     color: #10b981;
+  }
+
+  .transaction-amount.received {
+    color: #10b981;
+    font-weight: 600;
+  }
+
+  .transaction-status.confirmed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .transaction-date {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .transaction-hash {
+    font-family: monospace;
+    color: rgba(248, 250, 252, 0.6);
   }
 
   .edit-payment-link-btn {

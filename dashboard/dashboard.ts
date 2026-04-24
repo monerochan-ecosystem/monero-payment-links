@@ -5,7 +5,12 @@ import {
   readScanSettings,
   type ScanSettingsOpened,
 } from "@spirobel/monero-wallet-api";
-import { getAllActivePaymentLinks, type CombinedPaymentLinkRow } from "../db";
+import {
+  getAllActivePaymentLinks,
+  type CombinedPaymentLinkRow,
+  getAllSuccessfulCheckoutSessions,
+  type CheckoutSessionRow,
+} from "../db";
 
 export const dashboardSkeleton = await html`<!DOCTYPE html>
   <html>
@@ -24,10 +29,14 @@ export async function dashBoardRoute(req: Request) {
   if (adminRedirect) return adminRedirect;
   const scan_settings = await readScanSettings();
   const payment_links = await getAllActivePaymentLinks();
-  const hydrate = btoa(JSON.stringify({ scan_settings, payment_links }));
+  const checkout_sessions = await getAllSuccessfulCheckoutSessions();
+  const hydrate = btoa(
+    JSON.stringify({ scan_settings, payment_links, checkout_sessions }),
+  );
   return new Response(dashboardSkeleton.fill(hydrate));
 }
 export type DashboadData = {
   scan_settings?: ScanSettingsOpened;
   payment_links: CombinedPaymentLinkRow[];
+  checkout_sessions?: CheckoutSessionRow[];
 };

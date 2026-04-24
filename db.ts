@@ -5,6 +5,7 @@ const sql = new SQL({
   filename: "monero_payments.db",
   create: true,
 });
+await sql`PRAGMA journal_mode = WAL`;
 
 await sql`
   CREATE TABLE IF NOT EXISTS admin_session_cookies (
@@ -355,7 +356,10 @@ export function deletePaymentLink(
   }
 }
 
-export function incrementPaymentLinkUses(id: number, linkType: "product" | "invoice"): SQL.Query<{}> {
+export function incrementPaymentLinkUses(
+  id: number,
+  linkType: "product" | "invoice",
+): SQL.Query<{}> {
   if (linkType === "product") {
     return sql`
       UPDATE product_payment_links
@@ -371,7 +375,10 @@ export function incrementPaymentLinkUses(id: number, linkType: "product" | "invo
   }
 }
 
-export function checkAndDeactivateIfMaxUsesReached(id: number, linkType: "product" | "invoice"): SQL.Query<{}> {
+export function checkAndDeactivateIfMaxUsesReached(
+  id: number,
+  linkType: "product" | "invoice",
+): SQL.Query<{}> {
   if (linkType === "product") {
     return sql`
       UPDATE product_payment_links
@@ -515,6 +522,31 @@ export function getCheckoutSessionByAddress(
 export function getAllCheckoutSessions(): SQL.Query<CheckoutSessionRow[]> {
   return sql`
     SELECT * FROM checkout_session
+    ORDER BY timestamp DESC
+  `.execute();
+}
+
+export function getSuccessfulCheckoutSessionsByPaymentLink(
+  payment_link_row_id: number,
+  payment_link_link_type: "product" | "invoice",
+): SQL.Query<CheckoutSessionRow[]> {
+  return sql`
+    SELECT * FROM checkout_session
+    WHERE payment_link_row_id = ${payment_link_row_id}
+      AND payment_link_link_type = ${payment_link_link_type}
+      AND paid_status = 1
+    ORDER BY timestamp DESC
+  `.execute();
+}
+
+export function getAllSuccessfulCheckoutSessions(): SQL.Query<
+  CheckoutSessionRow[]
+> {
+  return sql`
+    SELECT * FROM checkout_session
+    WHERE paid_status = 1
+      AND payment_link_row_id IS NOT NULL
+      AND payment_link_link_type IS NOT NULL
     ORDER BY timestamp DESC
   `.execute();
 }
