@@ -16,6 +16,9 @@ import {
   markAsPaid,
   updateTxConfirmations,
   updateTxHash,
+  getPaymentLinkByPaymentLinkId,
+  incrementPaymentLinkUses,
+  checkAndDeactivateIfMaxUsesReached,
 } from "./db";
 import type { BunRequest } from "bun";
 
@@ -42,6 +45,7 @@ export function makeCheckoutRoutes() {
   return {
     ...skeleton.static_routes,
     "/newsession": { GET: newSessionRoute },
+    "/pay/:paymentLinkId": { GET: payRoute },
     "/paymentstatus": { GET: paymentStatusRoute },
     "/monerochan001/:address": {
       GET: async (req: BunRequest<"/monerochan001/:address">) => {
@@ -111,6 +115,17 @@ async function syncPaymentStatus() {
         tx.amount >= convertAmountBigInt(checkout_session_row[0].amount)
       ) {
         await markAsPaid(tx.payment_id);
+
+        if (checkout_session_row[0].payment_link_row_id && checkout_session_row[0].payment_link_link_type) {
+          await incrementPaymentLinkUses(
+            checkout_session_row[0].payment_link_row_id,
+            checkout_session_row[0].payment_link_link_type,
+          );
+          await checkAndDeactivateIfMaxUsesReached(
+            checkout_session_row[0].payment_link_row_id,
+            checkout_session_row[0].payment_link_link_type,
+          );
+        }
       }
     }
   }
@@ -204,6 +219,48 @@ async function paymentStatusRoute(req: Request) {
   headers.set("Refresh", "1");
 
   return new Response(skeleton.fill(content), { headers });
+}
+
+async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
+  const paymentLinkId = req.params.paymentLinkId;
+
+  if (!paymentLinkId) {
+    return new Response(skeleton.fill(html`<h1>Invalid payment link</h1>`));
+  }
+
+  const paymentLinkRow = (await getPaymentLinkByPaymentLinkId(paymentLinkId))[0];
+
+  if (!paymentLinkRow) {
+    return new Response(skeleton.fill(html`<h1>Payment link not found</h1>`));
+  }
+
+  if (paymentLinkRow.status !== "active") {
+    return new Response(skeleton.fill(html`<h1>This payment link is no longer active</h1>`));
+  }
+
+  const secret = crypto.randomUUID();
+  const insertedRow = (
+    await createCheckoutSession(
+      paymentLinkRow.amount,
+      secret,
+      ACCEPT_AFTER_CONFIRMATIONS,
+      paymentLinkRow.id,
+      paymentLinkRow.linkType,
+    )
+  )[0];
+
+  if (!insertedRow)
+    return new Response(skeleton.fill(html`<h1>no merchant db found</h1>`));
+  if (!mainwallet)
+    return new Response(skeleton.fill(html`<h1>no merchant wallet found</h1>`));
+
+  const address = await mainwallet.makeIntegratedAddress(insertedRow.id);
+  await updateCheckoutSessionAddress(insertedRow.session_id, address);
+
+  const redirectUrl = `/?checkoutId=${insertedRow.session_id}`;
+  const headers = new Headers();
+  headers.set("Location", redirectUrl);
+  return new Response(null, { status: 303, headers });
 }
 
 async function checkoutRoute(req: Request) {

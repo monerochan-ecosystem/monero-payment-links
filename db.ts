@@ -355,22 +355,40 @@ export function deletePaymentLink(
   }
 }
 
-export function incrementPaymentLinkUses(id: number): SQL.Query<{}> {
-  return sql`
-    UPDATE payment_links 
-    SET currentUses = currentUses + 1 
-    WHERE id = ${id}
-  `.execute();
+export function incrementPaymentLinkUses(id: number, linkType: "product" | "invoice"): SQL.Query<{}> {
+  if (linkType === "product") {
+    return sql`
+      UPDATE product_payment_links
+      SET currentUses = currentUses + 1
+      WHERE id = ${id}
+    `.execute();
+  } else {
+    return sql`
+      UPDATE invoice_payment_links
+      SET currentUses = currentUses + 1
+      WHERE id = ${id}
+    `.execute();
+  }
 }
 
-export function checkAndDeactivateIfMaxUsesReached(id: number): SQL.Query<{}> {
-  return sql`
-    UPDATE payment_links 
-    SET status = 'inactive'
-    WHERE id = ${id} 
-      AND maxUses IS NOT NULL 
-      AND currentUses >= maxUses
-  `.execute();
+export function checkAndDeactivateIfMaxUsesReached(id: number, linkType: "product" | "invoice"): SQL.Query<{}> {
+  if (linkType === "product") {
+    return sql`
+      UPDATE product_payment_links
+      SET status = 'inactive'
+      WHERE id = ${id}
+        AND maxUses IS NOT NULL
+        AND currentUses >= maxUses
+    `.execute();
+  } else {
+    return sql`
+      UPDATE invoice_payment_links
+      SET status = 'inactive'
+      WHERE id = ${id}
+        AND maxUses IS NOT NULL
+        AND currentUses >= maxUses
+    `.execute();
+  }
 }
 
 await sql`
@@ -383,6 +401,8 @@ CREATE TABLE IF NOT EXISTS checkout_session (
     required_confirmations INTEGER NOT NULL DEFAULT 10,
     tx_confirmations INTEGER NOT NULL DEFAULT 0,
     tx_hash TEXT,
+    payment_link_row_id INTEGER,
+    payment_link_link_type TEXT CHECK(payment_link_link_type IN ('product', 'invoice')),
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
   );
 `.execute();
@@ -396,6 +416,8 @@ export type CheckoutSessionRow = {
   required_confirmations: number;
   tx_confirmations: number;
   tx_hash: string | null;
+  payment_link_row_id: number | null;
+  payment_link_link_type: "product" | "invoice" | null;
   timestamp: string;
 };
 
@@ -411,10 +433,12 @@ export function createCheckoutSession(
   amount: string,
   session_id: string,
   required_confirmations: number = 10,
+  payment_link_row_id?: number | null,
+  payment_link_link_type?: "product" | "invoice" | null,
 ): SQL.Query<CheckoutSessionRow[]> {
   return sql`
-    INSERT INTO checkout_session (amount, session_id, paid_status, required_confirmations)
-    VALUES (${amount}, ${session_id}, 0, ${required_confirmations})
+    INSERT INTO checkout_session (amount, session_id, paid_status, required_confirmations, payment_link_row_id, payment_link_link_type)
+    VALUES (${amount}, ${session_id}, 0, ${required_confirmations}, ${payment_link_row_id ?? null}, ${payment_link_link_type ?? null})
     RETURNING *
   `.execute();
 }
