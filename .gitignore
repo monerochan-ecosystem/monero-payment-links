@@ -1,6 +1,7 @@
 # dependencies (bun install)
 node_modules
 monero_payments.db
+monero_payments.db*
 *RegtestScanSettings.json
 *ScanSettings.json
 *_stats.json
