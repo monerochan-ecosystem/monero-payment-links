@@ -38,7 +38,7 @@ const skeleton = await html`<!DOCTYPE html>
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
-export function makeRoutes() {
+export function makeCheckoutRoutes() {
   return {
     ...skeleton.static_routes,
     "/newsession": { GET: newSessionRoute },
@@ -56,8 +56,6 @@ export function makeRoutes() {
     "/wallet_info": { GET: walletInfoRoute },
   };
 }
-
-Bun.serve({ port: 3004, routes: makeRoutes() });
 
 // ─── Open Merchant Wallet ─────────────────────────────────────────────────────────
 

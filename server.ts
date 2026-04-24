@@ -1,3 +1,4 @@
+import { makeCheckoutRoutes } from "./checkout";
 import {
   editPaymentLinkRoute,
   deletePaymentLinkRoute,
@@ -49,7 +50,7 @@ export function makeRoutes() {
 
 const server = Bun.serve({
   port: 3003,
-  routes: makeRoutes(),
+  routes: { ...makeRoutes(), ...makeCheckoutRoutes() },
 });
 
 globalThis.minireload = () => {
