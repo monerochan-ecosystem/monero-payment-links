@@ -127,6 +127,8 @@ async function newSessionRoute() {
   const insertedRow = (
     await createCheckoutSession(AMOUNT, secret, ACCEPT_AFTER_CONFIRMATIONS)
   )[0];
+  if (!insertedRow)
+    return new Response(skeleton.fill(html`<h1>no merchant db found</h1>`));
 
   if (!mainwallet)
     return new Response(skeleton.fill(html`<h1>no merchant wallet found</h1>`));
