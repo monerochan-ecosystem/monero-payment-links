@@ -8,13 +8,15 @@
     "dev": "bun run --hot server.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/qrcode": "1.5.6"
   },
   "peerDependencies": {
     "typescript": "5.9.3"
   },
   "dependencies": {
     "@spirobel/mininext": "0.8.4",
-    "@spirobel/monero-wallet-api": "0.3.14"
+    "@spirobel/monero-wallet-api": "0.3.16",
+    "qrcode": "1.5.4"
   }
 }
