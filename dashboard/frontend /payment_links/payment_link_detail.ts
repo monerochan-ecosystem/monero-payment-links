@@ -166,9 +166,9 @@ export function paymentLinkDetailRoute(
         <p class="detail-description">${description}</p>
         <a
           class="payment-link-url"
-          href="https://pay.example.com/${paymentLinkId}"
+          href="${location.origin}/pay/${paymentLinkId}"
         >
-          https://pay.example.com/${paymentLinkId}
+          ${location.origin}/pay/${paymentLinkId}
         </a>
 
         <div class="detail-stats">

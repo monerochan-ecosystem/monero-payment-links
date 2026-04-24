@@ -44,18 +44,19 @@ export function paymentLinksList() {
       </div>`;
     }
 
+    const paymentUrl = `${location.origin}/pay/${link.payment_link_id}`;
     return html`<a class="payment-link-card" href="${linkUrl}">
       <div class="payment-link-status ${statusClass}"></div>
       <div class="payment-link-info">
         <h3>${title} <span class="${badgeClass}">${badgeText}</span></h3>
         <p class="payment-link-url">
-          https://pay.example.com/${link.payment_link_id}
+          ${paymentUrl}
         </p>
         ${detailsHtml}
       </div>
       <button
         class="copy-link-btn"
-        onclick="event.preventDefault(); const btn=this; const original=btn.innerHTML; navigator.clipboard.writeText('https://pay.example.com/${link.payment_link_id}'); btn.textContent='Copied!'; setTimeout(() => { btn.innerHTML=original; }, 2000);"
+        onclick="event.preventDefault(); const btn=this; const original=btn.innerHTML; navigator.clipboard.writeText('${paymentUrl}'); btn.textContent='Copied!'; setTimeout(() => { btn.innerHTML=original; }, 2000);"
       >
         <svg
           width="16"
