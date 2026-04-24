@@ -164,12 +164,32 @@ export function paymentLinkDetailRoute(
       <div class="detail-card">
         <h2>${title}</h2>
         <p class="detail-description">${description}</p>
-        <a
-          class="payment-link-url"
-          href="${location.origin}/pay/${paymentLinkId}"
-        >
-          ${location.origin}/pay/${paymentLinkId}
-        </a>
+        <div class="payment-link-url-row">
+          <a
+            class="payment-link-url"
+            href="${location.origin}/pay/${paymentLinkId}"
+          >
+            ${location.origin}/pay/${paymentLinkId}
+          </a>
+          <button
+            class="copy-link-btn"
+            onclick="event.preventDefault(); const btn=this; const original=btn.innerHTML; navigator.clipboard.writeText('${location.origin}/pay/${paymentLinkId}'); btn.textContent='Copied!'; setTimeout(() => { btn.innerHTML=original; }, 2000);"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+              ></path>
+            </svg>
+          </button>
+        </div>
 
         <div class="detail-stats">
           <div class="stat-card">
@@ -323,6 +343,13 @@ const paymentLinkDetailStyles = html`<style>
     display: block;
     font-size: 0.875rem;
     word-break: break-all;
+  }
+
+  .payment-link-url-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0 1.5rem 0;
   }
 
   .detail-stats {
