@@ -15,6 +15,7 @@ import {
 } from "./payment_links/payment_links_empty";
 import { createWalletForm, createWalletSlotForm } from "./wallets/wallets_form";
 import { createNodeUrlForm } from "./wallets/nodeurl_form";
+import { transactionsList } from "./transactions/transactions_list";
 
 export function dashboardFrontendRoute(
   params?: Params<"/wallets/new/:wallet_creation_tool">,
@@ -56,12 +57,21 @@ export function paymentLinksRoute(): MiniHtmlString {
   </div>`;
 }
 
+export function transactionsRoute(): MiniHtmlString {
+  return html` <div class="layout-container">
+    ${sidebar}
+    <main class="main-content">
+      ${transactionsList}
+    </main>
+  </div>`;
+}
+
 const routes = {
   "/wallets/new/:wallet_creation_tool": (
     params: Params<"/wallets/new/:wallet_creation_tool">,
   ) => dashboardFrontendRoute(params),
   "/wallets": dashboardFrontendRoute,
-  "/transactions": dashboardFrontendRoute,
+  "/transactions": transactionsRoute,
   "/payment-links": paymentLinksRoute,
   "/payment-links/:id": (
     params: Params<"/payment-links/:id">,
