@@ -340,6 +340,15 @@ export function deletePaymentLink(
   }
 }
 
+export function deleteCheckoutSessionsByPaymentLinkId(
+  paymentLinkId: string,
+): SQL.Query<{}> {
+  return sql`
+    DELETE FROM checkout_session
+    WHERE payment_link_id = ${paymentLinkId}
+  `.execute();
+}
+
 export async function incrementPaymentLinkUses(payment_link_id: string) {
   await sql`
     UPDATE product_payment_links

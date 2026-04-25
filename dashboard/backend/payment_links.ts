@@ -1,5 +1,9 @@
 import { checkAdminAndRedirect } from "../login";
-import { upsertPaymentLink, deletePaymentLink } from "../../db";
+import {
+  deleteCheckoutSessionsByPaymentLinkId,
+  deletePaymentLink,
+  upsertPaymentLink,
+} from "../../db";
 import { readScanSettings } from "@spirobel/monero-wallet-api";
 
 export async function editPaymentLinkRoute(req: Request) {
@@ -138,6 +142,7 @@ export async function deletePaymentLinkRoute(req: Request) {
       });
     }
 
+    await deleteCheckoutSessionsByPaymentLinkId(body.paymentLinkId);
     await deletePaymentLink(body.paymentLinkId, body.linkType);
 
     return Response.json({ success: true });
