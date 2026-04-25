@@ -57,12 +57,16 @@ export function transactionsList() {
         <div class="transaction-info">
           <div class="transaction-primary">
             <span class="transaction-type">${linkTitle}</span>
-            <span class="transaction-amount ${amountClass}">+${tx.amount} XMR</span>
+            <span class="transaction-amount ${amountClass}"
+              >+${tx.amount} XMR</span
+            >
           </div>
           <div class="transaction-secondary">
             <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
             <span class="transaction-address">tx ${txHashShort}</span>
-            <span class="transaction-status ${typeBadgeClass}">${typeBadgeText}</span>
+            <span class="transaction-status ${typeBadgeClass}"
+              >${typeBadgeText}</span
+            >
           </div>
         </div>
       </a>`;
@@ -93,9 +97,11 @@ export function transactionsList() {
   return html`<div>
     ${transactionsListStyles}
     <div class="transactions-section">
-      <div class="transactions-header">
-        <h1>Transactions</h1>
-      </div>
+      ${checkoutSessions.length > 0
+        ? html`<div class="transactions-header">
+            <h1>Transactions</h1>
+          </div>`
+        : ""}
       ${transactionsListHtml}
     </div>
   </div>`;
