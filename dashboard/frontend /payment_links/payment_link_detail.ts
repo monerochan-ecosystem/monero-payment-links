@@ -102,6 +102,9 @@ export function paymentLinkDetailRoute(
   const currentUses = paymentLink.currentUses || 0;
   const maxUses = paymentLink.maxUses || "Unlimited";
   const dueDate = paymentLink.dueDate || "N/A";
+  const walletShort = paymentLink.wallet_primary_address
+    ? `${paymentLink.wallet_primary_address.slice(0, 6)}...${paymentLink.wallet_primary_address.slice(-6)}`
+    : "N/A";
 
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
   const transactions = checkoutSessions.filter(
@@ -263,9 +266,24 @@ export function paymentLinkDetailRoute(
         </div>
       </div>
 
-      <div class="detail-card">
-        <h2>${title}</h2>
-        <p class="detail-description">${description}</p>
+      <div class="detail-card${isProduct ? "" : " invoice"}">
+        ${isProduct
+          ? html`<div><h2>${title}</h2>
+                 <p class="detail-description">${description}</p></div>`
+          : html`<div class="info-box">
+                   <div class="info-title">${title}</div>
+                   <div class="info-amount">${amount}</div>
+                   ${dueDate !== "N/A"
+                     ? html`<div class="info-due-date">Due on ${dueDate}</div>`
+                     : ""}
+                   ${description
+                     ? html`<div class="info-description">${description}</div>`
+                     : ""}
+                   <div class="info-wallet">
+                     <span class="info-wallet-label">Receiving Wallet</span>
+                     <span class="info-wallet-address">${walletShort}</span>
+                   </div>
+                 </div>`}
         <div class="payment-link-url-row">
           <a
             class="payment-link-url"
@@ -292,37 +310,33 @@ export function paymentLinkDetailRoute(
             </svg>
           </button>
         </div>
-
-        <div class="detail-stats">
-          <div class="stat-card">
-            <div class="stat-label">Amount</div>
-            <div class="stat-value">${amount}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Payment Type</div>
-            <div class="stat-value">${paymentType}</div>
-          </div>
-          ${isProduct
-            ? html`<div class="stat-card">
+        ${isProduct
+          ? html`<div class="detail-stats">
+              <div class="stat-card">
+                <div class="stat-label">Amount</div>
+                <div class="stat-value">${amount}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Payment Type</div>
+                <div class="stat-value">${paymentType}</div>
+              </div>
+              <div class="stat-card">
                 <div class="stat-label">Uses</div>
                 <div class="stat-value">
                   ${currentUses}${maxUses !== "Unlimited" ? `/${maxUses}` : ""}
                 </div>
-              </div>`
-            : html`<div class="stat-card">
-                <div class="stat-label">Due Date</div>
-                <div class="stat-value">${dueDate}</div>
-              </div>`}
-          <div class="stat-card">
-            <div class="stat-label">Receiving Wallet</div>
-            <div class="stat-value wallet-address">
-              ${paymentLink.wallet_primary_address?.slice(
-                0,
-                6,
-              )}...${paymentLink.wallet_primary_address?.slice(-6)}
-            </div>
-          </div>
-        </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Receiving Wallet</div>
+                <div class="stat-value wallet-address">
+                  ${paymentLink.wallet_primary_address?.slice(
+                    0,
+                    6,
+                  )}...${paymentLink.wallet_primary_address?.slice(-6)}
+                </div>
+              </div>
+            </div>`
+          : ""}
       </div>
 
       <div class="payment-history">
@@ -403,6 +417,43 @@ const paymentLinkDetailStyles = html`<style>
     margin-bottom: 2rem;
   }
 
+  .detail-card.invoice {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(124, 58, 237, 0.1);
+  }
+
+  .detail-card .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-card .info-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-card .info-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #fff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .detail-card .info-description {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: rgba(248, 250, 252, 0.8);
+    white-space: pre-wrap;
+  }
+
   .detail-card h2 {
     margin: 0 0 0.5rem 0;
     font-size: 1.75rem;
@@ -457,6 +508,33 @@ const paymentLinkDetailStyles = html`<style>
   .stat-value.wallet-address {
     font-size: 0.875rem;
     font-family: monospace;
+  }
+
+  .info-due-date {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(248, 250, 252, 0.6);
+    margin-bottom: 0.75rem;
+  }
+
+  .info-wallet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
+    font-size: 0.875rem;
+  }
+
+  .info-wallet-label {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .info-wallet-address {
+    font-family: monospace;
+    color: var(--accent);
   }
 
   .payment-history {
