@@ -35,9 +35,14 @@ export function transactionsList() {
       const detailUrl = link
         ? router.link("/payment-links/:id", { id: link.payment_link_id })
         : "#";
+      const isInvoice = link?.linkType === "invoice";
+      const typeBadgeClass = isInvoice ? "invoice-badge" : "product-badge";
+      const typeBadgeText = isInvoice ? "Invoice" : "Product";
+      const iconClass = isInvoice ? "invoice" : "product";
+      const amountClass = isInvoice ? "invoice-amount" : "product-amount";
 
       return html`<a class="transaction-item" href="${detailUrl}">
-        <div class="transaction-icon incoming">
+        <div class="transaction-icon incoming ${iconClass}">
           <svg
             width="40"
             height="40"
@@ -52,12 +57,12 @@ export function transactionsList() {
         <div class="transaction-info">
           <div class="transaction-primary">
             <span class="transaction-type">${linkTitle}</span>
-            <span class="transaction-amount received">+${tx.amount} XMR</span>
+            <span class="transaction-amount ${amountClass}">+${tx.amount} XMR</span>
           </div>
           <div class="transaction-secondary">
             <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
             <span class="transaction-address">tx ${txHashShort}</span>
-            <span class="transaction-status confirmed">Confirmed</span>
+            <span class="transaction-status ${typeBadgeClass}">${typeBadgeText}</span>
           </div>
         </div>
       </a>`;
@@ -149,11 +154,18 @@ const transactionsListStyles = html`<style>
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background: rgba(107, 114, 128, 0.1);
+    color: #9ca3af;
   }
 
-  .transaction-icon.incoming {
+  .transaction-icon.incoming.product {
     background: rgba(16, 185, 129, 0.1);
     color: #10b981;
+  }
+
+  .transaction-icon.incoming.invoice {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
   }
 
   .transaction-info {
@@ -171,8 +183,13 @@ const transactionsListStyles = html`<style>
     font-weight: 600;
   }
 
-  .transaction-amount.received {
+  .transaction-amount.product-amount {
     color: #10b981;
+    font-weight: 600;
+  }
+
+  .transaction-amount.invoice-amount {
+    color: #8b5cf6;
     font-weight: 600;
   }
 
@@ -183,9 +200,18 @@ const transactionsListStyles = html`<style>
     color: rgba(248, 250, 252, 0.8);
   }
 
-  .transaction-status.confirmed {
+  .transaction-status.product-badge {
     background: rgba(16, 185, 129, 0.1);
     color: #10b981;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .transaction-status.invoice-badge {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.75rem;
