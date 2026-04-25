@@ -377,6 +377,8 @@ async function checkoutRoute(req: Request) {
 
   let title = "";
   let description = "";
+  let dueDate: string | null = null;
+  let isInvoice = false;
   if (sessionRow.payment_link_id) {
     const paymentLink = (
       await getPaymentLinkByPaymentLinkId(sessionRow.payment_link_id)
@@ -384,8 +386,19 @@ async function checkoutRoute(req: Request) {
     if (paymentLink) {
       title = paymentLink.title || title;
       description = paymentLink.description || "";
+      dueDate = paymentLink.dueDate;
+      isInvoice = paymentLink.linkType === "invoice";
     }
   }
+
+  const dueDateText =
+    isInvoice && dueDate
+      ? new Date(dueDate).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : null;
 
   const toollink = `/wallet_info?checkoutId=${sessionId}#${make001ToolLink(address, sessionRow.amount)}`;
   const addressQrCode = await QRCode.toDataURL(address);
@@ -398,6 +411,9 @@ async function checkoutRoute(req: Request) {
       <div class="info-box">
         <div class="info-title">${title}</div>
         <div class="info-amount">${displayAmount} XMR</div>
+        ${dueDateText
+          ? html`<div class="info-due-date">Due on ${dueDateText}</div>`
+          : ""}
         ${description
           ? html`<div class="info-description">${description}</div>`
           : ""}
@@ -528,6 +544,13 @@ const checkoutStyles = html`<style>
     background: linear-gradient(135deg, #fff 0%, #7c3aed 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .info-due-date {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(248, 250, 252, 0.6);
+    margin-bottom: 0.75rem;
   }
 
   .info-description {
