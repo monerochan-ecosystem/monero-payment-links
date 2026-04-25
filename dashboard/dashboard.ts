@@ -6,7 +6,7 @@ import {
   type ScanSettingsOpened,
 } from "@spirobel/monero-wallet-api";
 import {
-  getAllActivePaymentLinks,
+  getAllPaymentLinks,
   type CombinedPaymentLinkRow,
   getAllSuccessfulCheckoutSessions,
   type CheckoutSessionRow,
@@ -28,7 +28,7 @@ export async function dashBoardRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
   const scan_settings = await readScanSettings();
-  const payment_links = await getAllActivePaymentLinks();
+  const payment_links = await getAllPaymentLinks();
   const checkout_sessions = await getAllSuccessfulCheckoutSessions();
   const hydrate = btoa(
     JSON.stringify({ scan_settings, payment_links, checkout_sessions }),

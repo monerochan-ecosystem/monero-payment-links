@@ -18,7 +18,7 @@ import {
   updateTxHash,
   getPaymentLinkByPaymentLinkId,
   incrementPaymentLinkUses,
-  checkAndDeactivateIfMaxUsesReached,
+  getPaidCheckoutSessionByPaymentLinkId,
 } from "./db";
 import type { BunRequest } from "bun";
 
@@ -120,9 +120,6 @@ async function syncPaymentStatus() {
           await incrementPaymentLinkUses(
             checkout_session_row[0].payment_link_id,
           );
-          await checkAndDeactivateIfMaxUsesReached(
-            checkout_session_row[0].payment_link_id,
-          );
         }
       }
     }
@@ -131,13 +128,11 @@ async function syncPaymentStatus() {
 // sync payments on startup
 await syncPaymentStatus();
 
-async function getSuccessRedirectUrl(
-  sessionRow: {
-    session_id: string;
-    paid_status: number;
-    payment_link_id: string | null;
-  },
-): Promise<string | null> {
+async function getSuccessRedirectUrl(sessionRow: {
+  session_id: string;
+  paid_status: number;
+  payment_link_id: string | null;
+}): Promise<string | null> {
   if (!sessionRow.paid_status || !sessionRow.payment_link_id) return null;
 
   const paymentLink = (
@@ -276,10 +271,76 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     return new Response(skeleton.fill(html`<h1>Payment link not found</h1>`));
   }
 
-  if (paymentLinkRow.status !== "active") {
-    return new Response(
-      skeleton.fill(html`<h1>This payment link is no longer active</h1>`),
-    );
+  const isExhausted =
+    paymentLinkRow.linkType === "invoice"
+      ? paymentLinkRow.currentUses >= 1
+      : paymentLinkRow.maxUses !== null &&
+        paymentLinkRow.currentUses >= paymentLinkRow.maxUses;
+
+  if (isExhausted) {
+    if (paymentLinkRow.linkType === "product") {
+      const title = paymentLinkRow.title || "Product";
+      const description = paymentLinkRow.description || "";
+      const amount = paymentLinkRow.amount
+        ? `${paymentLinkRow.amount} XMR`
+        : "";
+      const content = html`<div class="info-container">
+        ${outOfStockStyles}
+        <div class="info-card">
+          <div class="info-box">
+            <div class="info-title">${title}</div>
+            ${amount ? html`<div class="info-amount">${amount}</div>` : ""}
+            ${description
+              ? html`<div class="info-description">${description}</div>`
+              : ""}
+          </div>
+          <p class="info-message">
+            This product is currently out of stock. All available units have
+            been purchased.
+          </p>
+        </div>
+      </div>`;
+      return new Response(skeleton.fill(content));
+    } else {
+      const title = paymentLinkRow.title || "Invoice";
+      const description = paymentLinkRow.description || "";
+      const amount = paymentLinkRow.amount
+        ? `${paymentLinkRow.amount} XMR`
+        : "";
+      const paidSession = (
+        await getPaidCheckoutSessionByPaymentLinkId(paymentLinkId)
+      )[0];
+      const txHash = paidSession?.tx_hash || null;
+      const txHashShort = txHash
+        ? `${txHash.slice(0, 6)}...${txHash.slice(-6)}`
+        : null;
+      const content = html`<div class="info-container">
+        ${invoicePaidStyles}
+        <div class="info-card">
+          <div class="info-box">
+            <div class="info-title">${title}</div>
+            ${amount ? html`<div class="info-amount">${amount}</div>` : ""}
+            ${description
+              ? html`<div class="info-description">${description}</div>`
+              : ""}
+            ${txHashShort
+              ? html`<div class="info-tx">
+                  <span class="info-tx-label">Transaction</span>
+                  <a
+                    class="info-tx-hash"
+                    href="https://xmrchain.net/tx/${txHash}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >${txHashShort}</a
+                  >
+                </div>`
+              : ""}
+          </div>
+          <p class="info-message">This invoice has been paid.</p>
+        </div>
+      </div>`;
+      return new Response(skeleton.fill(content));
+    }
   }
 
   const secret = crypto.randomUUID();
@@ -718,6 +779,202 @@ const paymentStatusStyles = html`<style>
     font-family: "Inter", system-ui, sans-serif;
     color: var(--text);
     background: rgba(20, 20, 20, 0.8);
+  }
+</style>`;
+
+const outOfStockStyles = html`<style>
+  :root {
+    --primary: #5b21b6;
+    --accent: #7c3aed;
+    --text: #f8fafc;
+    --bg: #070707;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+    padding: 1rem;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      rgba(124, 58, 237, 0.15) 0%,
+      transparent 50%
+    );
+  }
+
+  .info-container {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .info-card {
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+  }
+
+  .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #fff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .info-description {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: rgba(248, 250, 252, 0.8);
+    white-space: pre-wrap;
+  }
+
+  .info-message {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(248, 250, 252, 0.8);
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .info-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+</style>`;
+
+const invoicePaidStyles = html`<style>
+  :root {
+    --primary: #5b21b6;
+    --accent: #7c3aed;
+    --text: #f8fafc;
+    --bg: #070707;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+    padding: 1rem;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      rgba(124, 58, 237, 0.15) 0%,
+      transparent 50%
+    );
+  }
+
+  .info-container {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .info-card {
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+  }
+
+  .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #fff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .info-description {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: rgba(248, 250, 252, 0.8);
+    white-space: pre-wrap;
+  }
+
+  .info-message {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(248, 250, 252, 0.8);
+    margin: 0;
+  }
+
+  .info-tx {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
+    font-size: 0.875rem;
+  }
+
+  .info-tx-label {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .info-tx-hash {
+    font-family: monospace;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .info-tx-hash:hover {
+    color: #a78bfa;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .info-card {
+      padding: 2rem 1.5rem;
+    }
   }
 </style>`;
 

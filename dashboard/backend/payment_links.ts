@@ -68,7 +68,7 @@ export async function editPaymentLinkRoute(req: Request) {
       linkType: body.linkType as "product" | "invoice",
       amount: body.amount,
       wallet_primary_address: wallet.primary_address,
-      maxUses: body.maxUses || null,
+      maxUses: body.linkType === "product" ? body.maxUses || null : undefined,
       successUrl: body.successUrl || null,
       productTitle:
         body.linkType === "product" ? body.productTitle || null : undefined,
