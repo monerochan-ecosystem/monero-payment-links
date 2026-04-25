@@ -44,7 +44,6 @@ const skeleton = await html`<!DOCTYPE html>
 export function makeCheckoutRoutes() {
   return {
     ...skeleton.static_routes,
-    "/newsession": { GET: newSessionRoute },
     "/pay/:paymentLinkId": { GET: payRoute },
     "/paymentstatus": { GET: paymentStatusRoute },
     "/monerochan001/:address": {
@@ -149,26 +148,6 @@ async function getSuccessRedirectUrl(sessionRow: {
 }
 
 // ─── Route Handlers ─────────────────────────────────────────────────────────
-
-async function newSessionRoute() {
-  const secret = crypto.randomUUID();
-  const insertedRow = (
-    await createCheckoutSession(AMOUNT, secret, ACCEPT_AFTER_CONFIRMATIONS)
-  )[0];
-  if (!insertedRow)
-    return new Response(skeleton.fill(html`<h1>no merchant db found</h1>`));
-
-  if (!mainwallet)
-    return new Response(skeleton.fill(html`<h1>no merchant wallet found</h1>`));
-
-  const address = await mainwallet.makeIntegratedAddress(insertedRow.id);
-  await updateCheckoutSessionAddress(insertedRow.session_id, address);
-
-  const redirectUrl = `/?checkoutId=${insertedRow.session_id}`;
-  const headers = new Headers();
-  headers.set("Location", redirectUrl);
-  return new Response(null, { status: 303, headers });
-}
 
 // this route is rendered as an iframe on the checkout page
 // the refresh header means it will be reloaded every 1 second
