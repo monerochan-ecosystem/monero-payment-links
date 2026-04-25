@@ -90,13 +90,19 @@ export async function shareViewKeyRoute(req: Request) {
   const res = await handle002ShareRequest(
     req,
     wallets,
-    async ({ primary_address, viewkey, wallet_slot }) =>
+    async ({ primary_address, viewkey, wallet_slot }) => {
+      const existingWallet = wallets.find(
+        (w: any) => w.primary_address === primary_address.trim(),
+      );
+      const wallet_name = existingWallet?.wallet_name ??
+        "unnamed wallet " + wallet_slot;
       await saveWallet(
         primary_address.trim(),
         viewkey.trim(),
-        "unnamed wallet " + wallet_slot,
+        wallet_name,
         wallet_slot,
-      ),
+      );
+    },
     "/dashboard#/wallets",
   );
   return Response.json(res);
