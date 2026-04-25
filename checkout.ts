@@ -5,6 +5,7 @@ import {
   ADDRESS_VALID_RESPONSE,
   ADDRESS_INVALID_RESPONSE,
   convertAmountBigInt,
+  readMerchantConfirmationsFromScanSettings,
 } from "@spirobel/monero-wallet-api";
 import QRCode from "qrcode";
 import {
@@ -22,8 +23,13 @@ import {
 } from "./db";
 import type { BunRequest } from "bun";
 
-const AMOUNT = "0.1337";
-const ACCEPT_AFTER_CONFIRMATIONS = 10;
+let ACCEPT_AFTER_CONFIRMATIONS = 10;
+
+// Load merchant confirmation threshold from scan settings on startup
+const storedConfirmations = await readMerchantConfirmationsFromScanSettings();
+if (storedConfirmations !== undefined && storedConfirmations !== null) {
+  ACCEPT_AFTER_CONFIRMATIONS = storedConfirmations;
+}
 
 // ─── Skeleton ───────────────────────────────────────────────────────────────
 

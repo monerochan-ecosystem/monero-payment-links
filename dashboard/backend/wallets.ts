@@ -5,6 +5,7 @@ import {
   readWalletsFromScanSettings,
   writeStartHeightToScanSettings,
   writeNodeUrlToScanSettings,
+  writeMerchantConfirmationsToScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
 export async function saveWallet(
@@ -94,8 +95,8 @@ export async function shareViewKeyRoute(req: Request) {
       const existingWallet = wallets.find(
         (w: any) => w.primary_address === primary_address.trim(),
       );
-      const wallet_name = existingWallet?.wallet_name ??
-        "unnamed wallet " + wallet_slot;
+      const wallet_name =
+        existingWallet?.wallet_name ?? "unnamed wallet " + wallet_slot;
       await saveWallet(
         primary_address.trim(),
         viewkey.trim(),
@@ -228,6 +229,7 @@ function isAlphaNumeric(str: string) {
 export type NodeUrlFormInput = {
   nodeurl: string;
   start_height: number | null | "";
+  merchant_confirmations: number | null | "";
 };
 
 export async function updateNodeUrlRoute(req: Request) {
@@ -255,6 +257,17 @@ export async function updateNodeUrlRoute(req: Request) {
         message: "Start height must be a non-negative number or null",
       });
     }
+    if (body.merchant_confirmations === "") body.merchant_confirmations = null;
+    if (
+      body.merchant_confirmations !== null &&
+      (typeof body.merchant_confirmations !== "number" ||
+        body.merchant_confirmations < 0)
+    ) {
+      issues.push({
+        path: ["merchant_confirmations"],
+        message: "Confirmations must be a non-negative number or null",
+      });
+    }
 
     if (issues.length > 0) {
       return Response.json({ success: false, error: { issues } });
@@ -263,6 +276,8 @@ export async function updateNodeUrlRoute(req: Request) {
     await writeNodeUrlToScanSettings(body.nodeurl.trim());
 
     await writeStartHeightToScanSettings(body.start_height);
+
+    await writeMerchantConfirmationsToScanSettings(body.merchant_confirmations);
 
     return Response.json({ success: true });
   } catch (error) {

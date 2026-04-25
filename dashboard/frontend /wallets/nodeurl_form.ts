@@ -24,6 +24,9 @@ function openNodeUrlForm() {
     const startHeightInput = document.querySelector(
       '[name="start_height"]',
     ) as HTMLInputElement;
+    const merchantConfirmationsInput = document.querySelector(
+      '[name="merchant_confirmations"]',
+    ) as HTMLInputElement;
 
     if (nodeurlInput && scanSettings.node_url) {
       nodeurlInput.value = scanSettings.node_url;
@@ -34,6 +37,15 @@ function openNodeUrlForm() {
       scanSettings.start_height !== null
     ) {
       startHeightInput.value = String(scanSettings.start_height);
+    }
+    if (
+      merchantConfirmationsInput &&
+      scanSettings.merchant_confirmations !== undefined &&
+      scanSettings.merchant_confirmations !== null
+    ) {
+      merchantConfirmationsInput.value = String(
+        scanSettings.merchant_confirmations,
+      );
     }
   }
   const nodeUrlForm = document.querySelector(
@@ -64,6 +76,8 @@ function openNodeUrlForm() {
 
         if (input.nodeurl) input.nodeurl = input.nodeurl.trim();
         if (input.start_height) input.start_height = Number(input.start_height);
+        if (input.merchant_confirmations)
+          input.merchant_confirmations = Number(input.merchant_confirmations);
 
         const response = await fetch("/updateNodeUrl", {
           method: "POST",
@@ -194,9 +208,24 @@ export function createNodeUrlForm() {
           ></div>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Minimum Payment Confirmations</label>
+          <input
+            type="number"
+            class="nodeurl-form-input form-input"
+            name="merchant_confirmations"
+            placeholder="10"
+            min="0"
+          />
+          <div
+            class="nodeurl-error-message error-message"
+            id="merchant_confirmations-error"
+          ></div>
+        </div>
+
         <button type="submit" class="submit-btn">
           <span class="spinner"></span>
-          <span class="button-text">Update Node URL</span>
+          <span class="button-text">Update Connection Settings</span>
         </button>
       </form>
     </div>
