@@ -102,8 +102,13 @@ export function paymentLinkDetailRoute(
   const currentUses = paymentLink.currentUses || 0;
   const maxUses = paymentLink.maxUses || "Unlimited";
   const dueDate = paymentLink.dueDate || "N/A";
+  const wallets = window.dashboardData?.scan_settings?.wallets || [];
+  const matchedWallet = wallets.find(
+    (w: any) => w.primary_address === paymentLink.wallet_primary_address,
+  );
+  const walletName = matchedWallet?.wallet_name || "Unnamed Wallet";
   const walletShort = paymentLink.wallet_primary_address
-    ? `${paymentLink.wallet_primary_address.slice(0, 6)}...${paymentLink.wallet_primary_address.slice(-6)}`
+    ? `${paymentLink.wallet_primary_address.slice(0, 6)}...${paymentLink.wallet_primary_address.slice(-6)} (${walletName})`
     : "N/A";
 
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
@@ -333,12 +338,7 @@ export function paymentLinkDetailRoute(
               </div>
               <div class="stat-card">
                 <div class="stat-label">Receiving Wallet</div>
-                <div class="stat-value wallet-address">
-                  ${paymentLink.wallet_primary_address?.slice(
-                    0,
-                    6,
-                  )}...${paymentLink.wallet_primary_address?.slice(-6)}
-                </div>
+                <div class="stat-value wallet-address">${walletShort}</div>
               </div>
             </div>`
           : ""}
