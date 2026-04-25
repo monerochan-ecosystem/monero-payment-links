@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS product_payment_links (
     maxUses INTEGER,
     currentUses INTEGER DEFAULT 0,
     successUrl TEXT,
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
   );
 `.execute();
@@ -40,10 +39,8 @@ CREATE TABLE IF NOT EXISTS invoice_payment_links (
     amount TEXT,
     wallet_primary_address TEXT,
     dueDate TEXT,
-    maxUses INTEGER,
     currentUses INTEGER DEFAULT 0,
     successUrl TEXT,
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP
   );
 `.execute();
@@ -64,7 +61,6 @@ export type ProductPaymentLinkRow = {
   maxUses: number | null;
   currentUses: number;
   successUrl: string | null;
-  status: "active" | "inactive";
   timestamp: string;
 };
 
@@ -76,10 +72,8 @@ export type InvoicePaymentLinkRow = {
   amount: string;
   wallet_primary_address: string;
   dueDate: string | null;
-  maxUses: number | null;
   currentUses: number;
   successUrl: string | null;
-  status: "active" | "inactive";
   timestamp: string;
 };
 
@@ -148,7 +142,6 @@ export function insertInvoicePaymentLink(data: {
   amount: string;
   wallet_primary_address: string;
   dueDate?: string | null;
-  maxUses?: number | null;
   successUrl?: string | null;
   paymentLinkId?: string;
 }): SQL.Query<InsertIdRow[]> {
@@ -159,12 +152,12 @@ export function insertInvoicePaymentLink(data: {
       payment_link_id,
       invoiceTitle, invoiceDescription,
       amount, wallet_primary_address, dueDate,
-      maxUses, currentUses, successUrl
+      currentUses, successUrl
     ) VALUES (
       ${paymentLinkId},
       ${data.invoiceTitle}, ${data.invoiceDescription},
       ${data.amount}, ${data.wallet_primary_address}, ${data.dueDate},
-      ${data.maxUses || null}, 0, ${data.successUrl}
+      0, ${data.successUrl}
     )
     RETURNING id
   `.execute();
@@ -181,7 +174,6 @@ export type CombinedPaymentLinkRow = {
   maxUses: number | null;
   currentUses: number;
   successUrl: string | null;
-  status: "active" | "inactive";
   linkType: "product" | "invoice";
   timestamp: string;
 };
@@ -201,7 +193,6 @@ export function getPaymentLinkByPaymentLinkId(
       maxUses,
       currentUses,
       successUrl,
-      status,
       'product' AS linkType,
       timestamp
     FROM product_payment_links 
@@ -217,10 +208,9 @@ export function getPaymentLinkByPaymentLinkId(
       amount,
       wallet_primary_address,
       dueDate,
-      maxUses,
+      NULL AS maxUses,
       currentUses,
       successUrl,
-      status,
       'invoice' AS linkType,
       timestamp
     FROM invoice_payment_links 
@@ -228,10 +218,7 @@ export function getPaymentLinkByPaymentLinkId(
   `.execute();
 }
 
-
-export function getAllActivePaymentLinks(): SQL.Query<
-  CombinedPaymentLinkRow[]
-> {
+export function getAllPaymentLinks(): SQL.Query<CombinedPaymentLinkRow[]> {
   return sql`
     SELECT
       id,
@@ -244,11 +231,9 @@ export function getAllActivePaymentLinks(): SQL.Query<
       maxUses,
       currentUses,
       successUrl,
-      status,
       'product' AS linkType,
       timestamp
     FROM product_payment_links
-    WHERE status = 'active'
 
     UNION ALL
 
@@ -260,14 +245,12 @@ export function getAllActivePaymentLinks(): SQL.Query<
       amount,
       wallet_primary_address,
       dueDate,
-      maxUses,
+      NULL AS maxUses,
       currentUses,
       successUrl,
-      status,
       'invoice' AS linkType,
       timestamp
     FROM invoice_payment_links
-    WHERE status = 'active'
 
     ORDER BY timestamp DESC
   `.execute();
@@ -313,12 +296,12 @@ export function upsertPaymentLink(data: {
       INSERT INTO invoice_payment_links (
         payment_link_id, invoiceTitle, invoiceDescription,
         amount, wallet_primary_address, dueDate,
-        maxUses, currentUses, successUrl
+        currentUses, successUrl
       ) VALUES (
         ${data.paymentLinkId},
         ${data.invoiceTitle}, ${data.invoiceDescription},
         ${data.amount}, ${data.wallet_primary_address}, ${data.dueDate},
-        ${data.maxUses || null}, 0, ${data.successUrl}
+        0, ${data.successUrl}
       )
       ON CONFLICT(payment_link_id) DO UPDATE SET
         invoiceTitle = excluded.invoiceTitle,
@@ -326,7 +309,6 @@ export function upsertPaymentLink(data: {
         amount = excluded.amount,
         wallet_primary_address = excluded.wallet_primary_address,
         dueDate = excluded.dueDate,
-        maxUses = excluded.maxUses,
         successUrl = excluded.successUrl
       RETURNING id
     `.execute();
@@ -368,25 +350,6 @@ export async function incrementPaymentLinkUses(payment_link_id: string) {
     UPDATE invoice_payment_links
     SET currentUses = currentUses + 1
     WHERE payment_link_id = ${payment_link_id}
-  `.execute();
-}
-
-export async function checkAndDeactivateIfMaxUsesReached(
-  payment_link_id: string,
-) {
-  await sql`
-    UPDATE product_payment_links
-    SET status = 'inactive'
-    WHERE payment_link_id = ${payment_link_id}
-      AND maxUses IS NOT NULL
-      AND currentUses >= maxUses
-  `.execute();
-  await sql`
-    UPDATE invoice_payment_links
-    SET status = 'inactive'
-    WHERE payment_link_id = ${payment_link_id}
-      AND maxUses IS NOT NULL
-      AND currentUses >= maxUses
   `.execute();
 }
 
@@ -523,5 +486,17 @@ export function getAllSuccessfulCheckoutSessions(): SQL.Query<
     WHERE paid_status = 1
       AND payment_link_id IS NOT NULL
     ORDER BY timestamp DESC
+  `.execute();
+}
+
+export function getPaidCheckoutSessionByPaymentLinkId(
+  paymentLinkId: string,
+): SQL.Query<CheckoutSessionRow[]> {
+  return sql`
+    SELECT * FROM checkout_session
+    WHERE paid_status = 1
+      AND payment_link_id = ${paymentLinkId}
+    ORDER BY timestamp DESC
+    LIMIT 1
   `.execute();
 }
