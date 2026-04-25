@@ -958,7 +958,7 @@ export function createPaymentLinkForm() {
               <label class="form-label">Amount (XMR)</label>
               <input
                 type="number"
-                step="0.0001"
+                step="any"
                 class="form-input"
                 name="amount"
                 required
