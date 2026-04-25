@@ -149,7 +149,7 @@ export function paymentLinkDetailRoute(
         </div>
         <div class="transaction-info">
           <div class="transaction-primary">
-            <span class="transaction-type">Payment Received!</span>
+            <span class="transaction-type">Payment Received</span>
             <span class="transaction-amount received">+${tx.amount} XMR</span>
           </div>
           <div class="transaction-secondary">

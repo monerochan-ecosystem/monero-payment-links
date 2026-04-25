@@ -17,6 +17,7 @@ import {
   updateTxConfirmations,
   updateTxHash,
   getPaymentLinkByPaymentLinkId,
+  getPaymentLinkByRowId,
   incrementPaymentLinkUses,
   checkAndDeactivateIfMaxUsesReached,
 } from "./db";
@@ -136,6 +137,37 @@ async function syncPaymentStatus() {
 // sync payments on startup
 await syncPaymentStatus();
 
+async function getSuccessRedirectUrl(
+  sessionRow: {
+    session_id: string;
+    paid_status: number;
+    payment_link_row_id: number | null;
+    payment_link_link_type: "product" | "invoice" | null;
+  },
+): Promise<string | null> {
+  if (
+    !sessionRow.paid_status ||
+    !sessionRow.payment_link_row_id ||
+    !sessionRow.payment_link_link_type
+  )
+    return null;
+
+  const paymentLink = (
+    await getPaymentLinkByRowId(
+      sessionRow.payment_link_row_id,
+      sessionRow.payment_link_link_type,
+    )
+  )[0];
+
+  if (!paymentLink?.successUrl) return null;
+
+  let successUrl = paymentLink.successUrl;
+  if (successUrl.endsWith("checkoutId=")) {
+    successUrl = successUrl + sessionRow.session_id;
+  }
+  return successUrl;
+}
+
 // ─── Route Handlers ─────────────────────────────────────────────────────────
 
 async function newSessionRoute() {
@@ -176,6 +208,26 @@ async function paymentStatusRoute(req: Request) {
     return new Response(
       skeleton.fill(html`<h1>checkout session not found</h1>`),
     );
+  }
+
+  if (sessionRow.paid_status) {
+    const redirectUrl = await getSuccessRedirectUrl(sessionRow);
+    if (redirectUrl) {
+      const content = html`
+        <script>
+          window.top.location.href = "${redirectUrl}";
+        </script>
+        <div class="payment-status success">
+          <span>Payment received! Redirecting...</span>
+          ${paymentStatusStyles}
+        </div>
+      `;
+      const headers = new Headers();
+      headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+      headers.set("Pragma", "no-cache");
+      headers.set("Expires", "0");
+      return new Response(skeleton.fill(content), { headers });
+    }
   }
 
   const statusClass = sessionRow.paid_status ? "success" : "pending";
@@ -285,6 +337,15 @@ async function checkoutRoute(req: Request) {
     return new Response(
       skeleton.fill(html`<h1>checkout session not found</h1>`),
     );
+  }
+
+  if (sessionRow.paid_status) {
+    const redirectUrl = await getSuccessRedirectUrl(sessionRow);
+    if (redirectUrl) {
+      const headers = new Headers();
+      headers.set("Location", redirectUrl);
+      return new Response(null, { status: 303, headers });
+    }
   }
 
   const displayAmount = sessionRow.amount;

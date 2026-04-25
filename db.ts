@@ -227,6 +227,51 @@ export function getPaymentLinkByPaymentLinkId(
     WHERE payment_link_id = ${paymentLinkId}
   `.execute();
 }
+
+export function getPaymentLinkByRowId(
+  id: number,
+  linkType: "product" | "invoice",
+): SQL.Query<CombinedPaymentLinkRow[]> {
+  if (linkType === "product") {
+    return sql`
+      SELECT 
+        id,
+        payment_link_id,
+        productTitle AS title,
+        productDescription AS description,
+        amount,
+        wallet_primary_address,
+        NULL AS dueDate,
+        maxUses,
+        currentUses,
+        successUrl,
+        status,
+        'product' AS linkType,
+        timestamp
+      FROM product_payment_links 
+      WHERE id = ${id}
+    `.execute();
+  } else {
+    return sql`
+      SELECT 
+        id,
+        payment_link_id,
+        invoiceTitle AS title,
+        invoiceDescription AS description,
+        amount,
+        wallet_primary_address,
+        dueDate,
+        maxUses,
+        currentUses,
+        successUrl,
+        status,
+        'invoice' AS linkType,
+        timestamp
+      FROM invoice_payment_links 
+      WHERE id = ${id}
+    `.execute();
+  }
+}
 export function getAllActivePaymentLinks(): SQL.Query<
   CombinedPaymentLinkRow[]
 > {

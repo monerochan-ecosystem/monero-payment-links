@@ -1005,6 +1005,9 @@ export function createPaymentLinkForm() {
                 placeholder="https://..."
               />
               <div class="error-message" id="successUrl-error"></div>
+              <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
+                End with <code>checkoutId=</code> to append the actual checkout ID on success.
+              </div>
             </div>
 
             <div class="error-message" id="_form-error"></div>
