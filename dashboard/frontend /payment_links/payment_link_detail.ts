@@ -112,6 +112,7 @@ export function paymentLinkDetailRoute(
       session.payment_link_id === paymentLink.payment_link_id &&
       session.paid_status === 1,
   );
+  const isPaid = transactions.length > 0;
 
   function timeAgo(dateString: string): string {
     const date = new Date(dateString);
@@ -270,7 +271,7 @@ export function paymentLinkDetailRoute(
         ${isProduct
           ? html`<div><h2>${title}</h2>
                  <p class="detail-description">${description}</p></div>`
-          : html`<div class="info-box">
+           : html`<div class="info-box">
                    <div class="info-title">${title}</div>
                    <div class="info-amount">${amount}</div>
                    ${dueDate !== "N/A"
@@ -282,6 +283,10 @@ export function paymentLinkDetailRoute(
                    <div class="info-wallet">
                      <span class="info-wallet-label">Receiving Wallet</span>
                      <span class="info-wallet-address">${walletShort}</span>
+                   </div>
+                   <div class="info-payment-status">
+                     <span class="info-payment-status-label">Payment Status</span>
+                     <span class="info-payment-status-value ${isPaid ? "paid" : "unpaid"}">${isPaid ? "Paid" : "Unpaid"}</span>
                    </div>
                  </div>`}
         <div class="payment-link-url-row">
@@ -508,6 +513,52 @@ const paymentLinkDetailStyles = html`<style>
   .stat-value.wallet-address {
     font-size: 0.875rem;
     font-family: monospace;
+  }
+
+  .info-payment-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
+    font-size: 0.875rem;
+  }
+
+  .info-payment-status-label {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .info-payment-status-value {
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .info-payment-status-value::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .info-payment-status-value.paid {
+    color: #10b981;
+  }
+
+  .info-payment-status-value.paid::before {
+    background: #10b981;
+  }
+
+  .info-payment-status-value.unpaid {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .info-payment-status-value.unpaid::before {
+    background: rgba(248, 250, 252, 0.4);
   }
 
   .info-due-date {
