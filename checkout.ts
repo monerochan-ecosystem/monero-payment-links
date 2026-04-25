@@ -374,6 +374,19 @@ async function checkoutRoute(req: Request) {
 
   const displayAmount = sessionRow.amount;
   const address = sessionRow.address;
+
+  let title = "";
+  let description = "";
+  if (sessionRow.payment_link_id) {
+    const paymentLink = (
+      await getPaymentLinkByPaymentLinkId(sessionRow.payment_link_id)
+    )[0];
+    if (paymentLink) {
+      title = paymentLink.title || title;
+      description = paymentLink.description || "";
+    }
+  }
+
   const toollink = `/wallet_info?checkoutId=${sessionId}#${make001ToolLink(address, sessionRow.amount)}`;
   const addressQrCode = await QRCode.toDataURL(address);
   const paymentUri = `monero:${address}?tx_amount=${displayAmount}`;
@@ -382,8 +395,13 @@ async function checkoutRoute(req: Request) {
   const content = html`<div class="checkout-container">
     ${checkoutStyles}
     <div class="payment-info">
-      <div class="payment-amount">${displayAmount} XMR</div>
-      <div class="payment-title">Super Special Green Tea</div>
+      <div class="info-box">
+        <div class="info-title">${title}</div>
+        <div class="info-amount">${displayAmount} XMR</div>
+        ${description
+          ? html`<div class="info-description">${description}</div>`
+          : ""}
+      </div>
 
       <div class="payment-steps">
         <div class="step">
@@ -485,6 +503,38 @@ const checkoutStyles = html`<style>
     color: var(--accent);
     margin-bottom: 2rem;
     letter-spacing: -0.02em;
+  }
+
+  .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.1);
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .info-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #fff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .info-description {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: rgba(248, 250, 252, 0.8);
+    white-space: pre-wrap;
   }
 
   .product-description {
