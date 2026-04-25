@@ -130,9 +130,19 @@ export function paymentLinkDetailRoute(
   let transactionsListHtml: MiniHtmlString;
   if (transactions.length > 0) {
     const items: MiniHtmlString[] = transactions.map((tx: any) => {
-      const txHashShort = tx.tx_hash
-        ? `${tx.tx_hash.slice(0, 6)}...${tx.tx_hash.slice(-3)}`
+      const txHash = tx.tx_hash || null;
+      const txHashShort = txHash
+        ? `${txHash.slice(0, 6)}...${txHash.slice(-3)}`
         : "unknown";
+      const txHashLink = txHash
+        ? html`<a
+            class="transaction-hash-link"
+            href="https://xmrchain.net/tx/${txHash}"
+            target="_blank"
+            rel="noopener noreferrer"
+            >tx ${txHashShort}</a
+          >`
+        : html`<span class="transaction-hash">tx ${txHashShort}</span>`;
       return html`<div class="transaction-item">
         <div class="transaction-icon incoming">
           <svg
@@ -153,7 +163,7 @@ export function paymentLinkDetailRoute(
           </div>
           <div class="transaction-secondary">
             <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
-            <span class="transaction-hash">tx ${txHashShort}</span>
+            ${txHashLink}
             <span class="transaction-status confirmed">Confirmed</span>
           </div>
         </div>
@@ -544,6 +554,18 @@ const paymentLinkDetailStyles = html`<style>
   .transaction-hash {
     font-family: monospace;
     color: rgba(248, 250, 252, 0.6);
+  }
+
+  .transaction-hash-link {
+    font-family: monospace;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .transaction-hash-link:hover {
+    color: #a78bfa;
+    text-decoration: underline;
   }
 
   .edit-payment-link-btn {
