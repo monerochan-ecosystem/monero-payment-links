@@ -116,7 +116,10 @@ async function syncPaymentStatus() {
       ) {
         await markAsPaid(tx.payment_id);
 
-        if (checkout_session_row[0].payment_link_row_id && checkout_session_row[0].payment_link_link_type) {
+        if (
+          checkout_session_row[0].payment_link_row_id &&
+          checkout_session_row[0].payment_link_link_type
+        ) {
           await incrementPaymentLinkUses(
             checkout_session_row[0].payment_link_row_id,
             checkout_session_row[0].payment_link_link_type,
@@ -228,14 +231,18 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     return new Response(skeleton.fill(html`<h1>Invalid payment link</h1>`));
   }
 
-  const paymentLinkRow = (await getPaymentLinkByPaymentLinkId(paymentLinkId))[0];
+  const paymentLinkRow = (
+    await getPaymentLinkByPaymentLinkId(paymentLinkId)
+  )[0];
 
   if (!paymentLinkRow) {
     return new Response(skeleton.fill(html`<h1>Payment link not found</h1>`));
   }
 
   if (paymentLinkRow.status !== "active") {
-    return new Response(skeleton.fill(html`<h1>This payment link is no longer active</h1>`));
+    return new Response(
+      skeleton.fill(html`<h1>This payment link is no longer active</h1>`),
+    );
   }
 
   const secret = crypto.randomUUID();
@@ -282,7 +289,7 @@ async function checkoutRoute(req: Request) {
 
   const displayAmount = sessionRow.amount;
   const address = sessionRow.address;
-  const toollink = `/wallet_info?checkoutId=${sessionId}#${make001ToolLink(address, AMOUNT)}`;
+  const toollink = `/wallet_info?checkoutId=${sessionId}#${make001ToolLink(address, sessionRow.amount)}`;
   const addressQrCode = await QRCode.toDataURL(address);
   const paymentUri = `monero:${address}?tx_amount=${displayAmount}`;
   const paymentUriQrCode = await QRCode.toDataURL(paymentUri);
