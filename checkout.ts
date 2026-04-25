@@ -17,7 +17,6 @@ import {
   updateTxConfirmations,
   updateTxHash,
   getPaymentLinkByPaymentLinkId,
-  getPaymentLinkByRowId,
   incrementPaymentLinkUses,
   checkAndDeactivateIfMaxUsesReached,
 } from "./db";
@@ -117,17 +116,12 @@ async function syncPaymentStatus() {
       ) {
         await markAsPaid(tx.payment_id);
 
-        if (
-          checkout_session_row[0].payment_link_row_id &&
-          checkout_session_row[0].payment_link_link_type
-        ) {
+        if (checkout_session_row[0].payment_link_id) {
           await incrementPaymentLinkUses(
-            checkout_session_row[0].payment_link_row_id,
-            checkout_session_row[0].payment_link_link_type,
+            checkout_session_row[0].payment_link_id,
           );
           await checkAndDeactivateIfMaxUsesReached(
-            checkout_session_row[0].payment_link_row_id,
-            checkout_session_row[0].payment_link_link_type,
+            checkout_session_row[0].payment_link_id,
           );
         }
       }
@@ -141,22 +135,13 @@ async function getSuccessRedirectUrl(
   sessionRow: {
     session_id: string;
     paid_status: number;
-    payment_link_row_id: number | null;
-    payment_link_link_type: "product" | "invoice" | null;
+    payment_link_id: string | null;
   },
 ): Promise<string | null> {
-  if (
-    !sessionRow.paid_status ||
-    !sessionRow.payment_link_row_id ||
-    !sessionRow.payment_link_link_type
-  )
-    return null;
+  if (!sessionRow.paid_status || !sessionRow.payment_link_id) return null;
 
   const paymentLink = (
-    await getPaymentLinkByRowId(
-      sessionRow.payment_link_row_id,
-      sessionRow.payment_link_link_type,
-    )
+    await getPaymentLinkByPaymentLinkId(sessionRow.payment_link_id)
   )[0];
 
   if (!paymentLink?.successUrl) return null;
@@ -303,8 +288,7 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
       paymentLinkRow.amount,
       secret,
       ACCEPT_AFTER_CONFIRMATIONS,
-      paymentLinkRow.id,
-      paymentLinkRow.linkType,
+      paymentLinkRow.payment_link_id,
     )
   )[0];
 

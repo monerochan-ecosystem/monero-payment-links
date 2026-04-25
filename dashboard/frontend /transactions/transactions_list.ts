@@ -29,7 +29,7 @@ export function transactionsList() {
         ? `${tx.tx_hash.slice(0, 6)}...${tx.tx_hash.slice(-3)}`
         : "unknown";
       const link = paymentLinks.find(
-        (l: any) => l.id === tx.payment_link_row_id,
+        (l: any) => l.payment_link_id === tx.payment_link_id,
       );
       const linkTitle = link?.title || "Untitled";
       const detailUrl = link

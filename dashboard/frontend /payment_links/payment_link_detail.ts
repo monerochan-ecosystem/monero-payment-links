@@ -106,8 +106,7 @@ export function paymentLinkDetailRoute(
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
   const transactions = checkoutSessions.filter(
     (session: any) =>
-      session.payment_link_row_id === paymentLink.id &&
-      session.payment_link_link_type === paymentLink.linkType &&
+      session.payment_link_id === paymentLink.payment_link_id &&
       session.paid_status === 1,
   );
 
