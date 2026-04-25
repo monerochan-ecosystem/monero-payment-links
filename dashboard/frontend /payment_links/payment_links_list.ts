@@ -29,19 +29,28 @@ export function paymentLinksList() {
         >
       </div>`;
     } else {
-      // Invoice with due date
-      const dueDate = link.dueDate
-        ? new Date(link.dueDate).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : "No due date";
-      detailsHtml = html`<div class="payment-link-details">
-        <span>${amount}</span>
-        <span>•</span>
-        <span>Due on ${dueDate}</span>
-      </div>`;
+      // Invoice: show payment status or due date
+      const isPaid = (link.currentUses || 0) >= 1;
+      if (isPaid) {
+        detailsHtml = html`<div class="payment-link-details">
+          <span>${amount}</span>
+          <span>•</span>
+          <span>Payment received</span>
+        </div>`;
+      } else {
+        const dueDateText = link.dueDate
+          ? `Due on ${new Date(link.dueDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}`
+          : "No due date";
+        detailsHtml = html`<div class="payment-link-details">
+          <span>${amount}</span>
+          <span>•</span>
+          <span>${dueDateText}</span>
+        </div>`;
+      }
     }
 
     const paymentUrl = `${location.origin}/pay/${link.payment_link_id}`;
@@ -49,9 +58,7 @@ export function paymentLinksList() {
       <div class="payment-link-status ${statusClass}"></div>
       <div class="payment-link-info">
         <h3>${title} <span class="${badgeClass}">${badgeText}</span></h3>
-        <p class="payment-link-url">
-          ${paymentUrl}
-        </p>
+        <p class="payment-link-url">${paymentUrl}</p>
         ${detailsHtml}
       </div>
       <button
