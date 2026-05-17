@@ -469,7 +469,7 @@ function switchActiveTabCB() {
     }
   }
 }
-function changePaymentTypeCB() {
+function changePaymentTypeCB(event?: Event) {
   // Prevent payment type changes in edit mode
   const form = document.querySelector("#payment-link-form") as HTMLFormElement;
   const paymentLinkIdInput = form.querySelector(
@@ -479,6 +479,31 @@ function changePaymentTypeCB() {
     // In edit mode, don't allow type switching
     return;
   }
+
+  // determine which type to switch to
+  const alreadySelected = document.querySelector(
+    ".payment-type-btn.selected",
+  ) as HTMLButtonElement | null;
+
+  let targetType: string | undefined;
+  if (event) {
+    // user clicked a button find it from the event target
+    const target = event.target as HTMLElement;
+    const clickedBtn = target.closest(
+      ".payment-type-btn",
+    ) as HTMLButtonElement | null;
+    targetType = clickedBtn?.dataset.type;
+    // if clicking the already selected type, do nothing
+    if (targetType && alreadySelected?.dataset.type === targetType) {
+      return;
+    }
+  } else {
+    // programmatic call (from openPaymentLinkFormCB) flip to the other type
+    targetType =
+      alreadySelected?.dataset.type === "product" ? "invoice" : "product";
+  }
+
+  if (!targetType) return;
 
   const typeButtons = document.querySelectorAll(
     ".payment-type-btn",
@@ -491,26 +516,51 @@ function changePaymentTypeCB() {
   const submitButtonTextElement = document.querySelector(
     ".submit-btn .button-text",
   ) as HTMLDivElement;
+
+  // set selected on the target button, remove from others
   for (const btn of typeButtons) {
-    btn.classList.toggle("selected");
-    if (btn.dataset.type === "product") {
-      if (btn.classList.contains("selected")) {
-        dialogTitleElement.innerText = "Create Product Payment Link";
-        submitButtonTextElement.innerText = "Create Product Payment Link";
-      }
+    if (btn.dataset.type === targetType) {
+      btn.classList.add("selected");
     } else {
-      if (btn.classList.contains("selected")) {
-        dialogTitleElement.innerText = "Create Invoice Payment Link";
-        submitButtonTextElement.innerText = "Create Invoice Payment Link";
-      }
+      btn.classList.remove("selected");
     }
   }
 
-  for (const typeSelectionForm of typeForms) {
-    typeSelectionForm.classList.toggle("active");
+  // update title and button text based on what's now selected
+  const selectedBtn = document.querySelector(
+    ".payment-type-btn.selected",
+  ) as HTMLButtonElement | null;
+  if (selectedBtn?.dataset.type === "product") {
+    dialogTitleElement.innerText = "Create Product Payment Link";
+    submitButtonTextElement.innerText = "Create Product Payment Link";
+  } else {
+    dialogTitleElement.innerText = "Create Invoice Payment Link";
+    submitButtonTextElement.innerText = "Create Invoice Payment Link";
   }
+
+  // sync form visibility with selected type
+  for (const typeSelectionForm of typeForms) {
+    const formType = (typeSelectionForm as HTMLElement).dataset.type;
+    if (formType === selectedBtn?.dataset.type) {
+      typeSelectionForm.classList.add("active");
+    } else {
+      typeSelectionForm.classList.remove("active");
+    }
+  }
+
+  // product-invoice-fields: due date for invoice, maxUses for product
   for (const field of specialFields) {
-    field.classList.toggle("active");
+    if (selectedBtn?.dataset.type === "invoice") {
+      field.classList.toggle(
+        "active",
+        field.querySelector('[name="dueDate"]') !== null,
+      );
+    } else {
+      field.classList.toggle(
+        "active",
+        field.querySelector('[name="maxUses"]') !== null,
+      );
+    }
   }
 }
 function toggleWalletDropdownCB(event: Event) {
@@ -1005,8 +1055,11 @@ export function createPaymentLinkForm() {
                 placeholder="https://..."
               />
               <div class="error-message" id="successUrl-error"></div>
-              <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">
-                End with <code>checkoutId=</code> to append the actual checkout ID on success.
+              <div
+                style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;"
+              >
+                End with <code>checkoutId=</code> to append the actual checkout
+                ID on success.
               </div>
             </div>
 
