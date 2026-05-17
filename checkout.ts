@@ -22,16 +22,16 @@ import {
   getPaidCheckoutSessionByPaymentLinkId,
 } from "./db";
 import type { BunRequest } from "bun";
+import { SCAN_SETTINGS_PATH } from "./dashboard/backend/wallets";
 
 let ACCEPT_AFTER_CONFIRMATIONS = 10;
 
 // Load merchant confirmation threshold from scan settings on startup
-const storedConfirmations = await readMerchantConfirmationsFromScanSettings();
+const storedConfirmations =
+  await readMerchantConfirmationsFromScanSettings(SCAN_SETTINGS_PATH);
 if (storedConfirmations !== undefined && storedConfirmations !== null) {
   ACCEPT_AFTER_CONFIRMATIONS = storedConfirmations;
 }
-
-// ─── Skeleton ───────────────────────────────────────────────────────────────
 
 const skeleton = await html`<!DOCTYPE html>
   <html>
@@ -44,8 +44,6 @@ const skeleton = await html`<!DOCTYPE html>
       ${null}
     </body>
   </html> `.build();
-
-// ─── Routes ─────────────────────────────────────────────────────────────────
 
 export function makeCheckoutRoutes() {
   return {
@@ -66,11 +64,10 @@ export function makeCheckoutRoutes() {
   };
 }
 
-// ─── Open Merchant Wallet ─────────────────────────────────────────────────────────
-
 let retryScheduled = false;
 
 const wallets = await openWallets({
+  scan_settings_path: SCAN_SETTINGS_PATH,
   notifyMasterChanged: async (params) => {
     // sync payments on cache change
     // sync in any case to update confirmations
@@ -152,8 +149,6 @@ async function getSuccessRedirectUrl(sessionRow: {
   }
   return successUrl;
 }
-
-// ─── Route Handlers ─────────────────────────────────────────────────────────
 
 // this route is rendered as an iframe on the checkout page
 // the refresh header means it will be reloaded every 1 second
@@ -459,8 +454,6 @@ async function checkoutRoute(req: Request) {
 
   return new Response(skeleton.fill(content));
 }
-
-// ─── Styles ─────────────────────────────────────────────────────
 
 const checkoutStyles = html`<style>
   iframe {

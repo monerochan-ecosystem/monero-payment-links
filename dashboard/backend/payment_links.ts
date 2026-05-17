@@ -5,6 +5,7 @@ import {
   upsertPaymentLink,
 } from "../../db";
 import { readScanSettings } from "@spirobel/monero-wallet-api";
+import { SCAN_SETTINGS_PATH } from "./wallets";
 
 export async function editPaymentLinkRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
@@ -53,7 +54,7 @@ export async function editPaymentLinkRoute(req: Request) {
     const paymentLinkId = body.paymentLinkId || crypto.randomUUID();
 
     // Get wallet primary address from scan settings
-    const scanSettings = await readScanSettings();
+    const scanSettings = await readScanSettings(SCAN_SETTINGS_PATH);
     const wallet = scanSettings?.wallets?.find(
       (w: any) => w.primary_address === body.walletId,
     );

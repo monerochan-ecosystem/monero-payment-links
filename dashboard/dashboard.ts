@@ -11,6 +11,7 @@ import {
   getAllSuccessfulCheckoutSessions,
   type CheckoutSessionRow,
 } from "../db";
+import { SCAN_SETTINGS_PATH } from "./backend/wallets";
 
 export const dashboardSkeleton = await html`<!DOCTYPE html>
   <html>
@@ -27,7 +28,7 @@ export const dashboardSkeleton = await html`<!DOCTYPE html>
 export async function dashBoardRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
-  const scan_settings = await readScanSettings();
+  const scan_settings = await readScanSettings(SCAN_SETTINGS_PATH);
   const payment_links = await getAllPaymentLinks();
   const checkout_sessions = await getAllSuccessfulCheckoutSessions();
   const hydrate = btoa(

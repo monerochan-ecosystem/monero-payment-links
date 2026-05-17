@@ -8,6 +8,8 @@ import {
   writeMerchantConfirmationsToScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
+export const WALLET_CACHES_DIR = "wallet-caches";
+export const SCAN_SETTINGS_PATH = WALLET_CACHES_DIR + "/ScanSettings.json";
 export async function saveWallet(
   primary_address: string,
   view_key: string,
@@ -21,6 +23,7 @@ export async function saveWallet(
   // If the primary address changed, remove the old wallet first
   if (originalPrimaryAddress && originalPrimaryAddress !== primary_address) {
     await writeScanSettingsFileDefaultLocation({
+      settingsStorePath: SCAN_SETTINGS_PATH,
       writeCallback: async (settings) => {
         settings.wallets = settings.wallets.filter(
           (w: any) => w.primary_address !== originalPrimaryAddress,
@@ -31,6 +34,8 @@ export async function saveWallet(
 
   await writeViewKeyToDotEnv(primary_address, view_key);
   await writeScanSettingsFileDefaultLocation({
+    settingsStorePath: SCAN_SETTINGS_PATH,
+
     writeCallback: async (settings) => {
       const existingWallet = settings.wallets.find(
         (w: any) => w.primary_address === primary_address,
@@ -87,7 +92,7 @@ export async function shareViewKeyRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
   //if slot already exists we  make sure primary address & vk is the same
-  const wallets = await readWalletsFromScanSettings();
+  const wallets = await readWalletsFromScanSettings(SCAN_SETTINGS_PATH);
   const res = await handle002ShareRequest(
     req,
     wallets,
@@ -136,6 +141,8 @@ export async function deleteWalletRoute(req: Request) {
 
     // Delete the wallet by removing it from scan settings
     await writeScanSettingsFileDefaultLocation({
+      settingsStorePath: SCAN_SETTINGS_PATH,
+
       writeCallback: async (settings) => {
         settings.wallets = settings.wallets.filter(
           (w: any) => w.primary_address !== body.primaryAddress,
@@ -273,11 +280,14 @@ export async function updateNodeUrlRoute(req: Request) {
       return Response.json({ success: false, error: { issues } });
     }
 
-    await writeNodeUrlToScanSettings(body.nodeurl.trim());
+    await writeNodeUrlToScanSettings(body.nodeurl.trim(), SCAN_SETTINGS_PATH);
 
-    await writeStartHeightToScanSettings(body.start_height);
+    await writeStartHeightToScanSettings(body.start_height, SCAN_SETTINGS_PATH);
 
-    await writeMerchantConfirmationsToScanSettings(body.merchant_confirmations);
+    await writeMerchantConfirmationsToScanSettings(
+      body.merchant_confirmations,
+      SCAN_SETTINGS_PATH,
+    );
 
     return Response.json({ success: true });
   } catch (error) {
