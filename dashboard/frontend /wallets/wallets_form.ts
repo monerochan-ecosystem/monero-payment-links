@@ -521,7 +521,7 @@ export function findExistingWallet(
   if (!primary_address) return;
   const wallets = window.dashboardData?.scan_settings?.wallets || [];
   const existingWallet = wallets.find(
-    (w: any) => w.primary_address === primary_address,
+    (w) => w.primary_address === primary_address,
   );
-  return existingWallet;
+  return existingWallet as ScanSettingOpened;
 }
