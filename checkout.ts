@@ -22,7 +22,7 @@ import {
   getPaidCheckoutSessionByPaymentLinkId,
 } from "./db";
 import type { BunRequest } from "bun";
-import { SCAN_SETTINGS_PATH } from "./dashboard/backend/wallets";
+import { SCAN_SETTINGS_PATH, setWallets } from "./dashboard/backend/wallets";
 
 let ACCEPT_AFTER_CONFIRMATIONS = 10;
 
@@ -64,8 +64,6 @@ export function makeCheckoutRoutes() {
   };
 }
 
-let retryScheduled = false;
-
 const wallets = await openWallets({
   scan_settings_path: SCAN_SETTINGS_PATH,
   notifyMasterChanged: async (params) => {
@@ -73,21 +71,11 @@ const wallets = await openWallets({
     // sync in any case to update confirmations
     await syncPaymentStatus();
   },
-  workerError: async (err) => {
-    console.log(
-      "scan worker error, typically loss of network connection, retry in 1 second",
-      err,
-    );
-    if (retryScheduled) return;
-
-    retryScheduled = true;
-    setTimeout(() => {
-      wallets?.retry();
-      retryScheduled = false;
-    }, 1000);
-  },
+  autoRetry: true,
+  retryDelayMs: 1000,
   no_stats: true,
 });
+if (wallets) setWallets(wallets);
 const mainwallet = wallets?.wallets[0];
 async function syncPaymentStatus() {
   if (!mainwallet) return;
