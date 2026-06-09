@@ -1,6 +1,4 @@
 import {
-  writeViewKeyToDotEnv,
-  writeScanSettingsFileDefaultLocation,
   handle002ShareRequest,
   readWalletsFromScanSettings,
   writeStartHeightToScanSettings,
@@ -8,6 +6,18 @@ import {
   writeMerchantConfirmationsToScanSettings,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
+import type { ManyScanCachesOpened } from "@spirobel/monero-wallet-api";
+
+let _wallets: ManyScanCachesOpened | undefined;
+
+export function getWallets(): ManyScanCachesOpened | undefined {
+  return _wallets;
+}
+
+export function setWallets(w: ManyScanCachesOpened) {
+  _wallets = w;
+}
+
 export const WALLET_CACHES_DIR = "wallet-caches";
 export const SCAN_SETTINGS_PATH = WALLET_CACHES_DIR + "/ScanSettings.json";
 export async function saveWallet(
@@ -20,34 +30,30 @@ export async function saveWallet(
   primary_address = primary_address.trim();
   view_key = view_key.trim();
 
-  // If the primary address changed, remove the old wallet first
+  const wallets = getWallets();
+  const existingWallet = wallets?.wallets.find(
+    (w) => w.primary_address === primary_address,
+  );
   if (originalPrimaryAddress && originalPrimaryAddress !== primary_address) {
-    await writeScanSettingsFileDefaultLocation({
-      settingsStorePath: SCAN_SETTINGS_PATH,
-      writeCallback: async (settings) => {
-        settings.wallets = settings.wallets.filter(
-          (w: any) => w.primary_address !== originalPrimaryAddress,
-        );
-      },
+    // address changed: remove old, add new
+    await wallets?.removeWallet(originalPrimaryAddress);
+    await wallets?.addViewWallet(primary_address, view_key, {
+      wallet_name,
+      wallet_slot,
+    });
+  } else if (originalPrimaryAddress === primary_address || existingWallet) {
+    // same address, just update fields
+    await wallets?.setWalletName(primary_address, wallet_name);
+    if (typeof wallet_slot === "number") {
+      await wallets?.setWalletSlot(primary_address, wallet_slot);
+    }
+  } else {
+    // new wallet
+    await wallets?.addViewWallet(primary_address, view_key, {
+      wallet_name,
+      wallet_slot,
     });
   }
-
-  await writeViewKeyToDotEnv(primary_address, view_key);
-  await writeScanSettingsFileDefaultLocation({
-    settingsStorePath: SCAN_SETTINGS_PATH,
-
-    writeCallback: async (settings) => {
-      const existingWallet = settings.wallets.find(
-        (w: any) => w.primary_address === primary_address,
-      );
-      if (existingWallet) {
-        existingWallet.wallet_name = wallet_name;
-        existingWallet.wallet_slot = wallet_slot;
-      } else {
-        settings.wallets.push({ primary_address, wallet_name, wallet_slot });
-      }
-    },
-  });
 }
 
 export type WalletFormInput = {
@@ -81,9 +87,10 @@ export async function editWalletRoute(req: Request) {
       primaryAddress: body.primaryAddress,
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
     return Response.json({
       success: false,
-      error: { issues: [{ path: [], message: "Invalid JSON" }] },
+      error: { issues: [{ path: [], message }] },
     });
   }
 }
@@ -140,22 +147,16 @@ export async function deleteWalletRoute(req: Request) {
     }
 
     // Delete the wallet by removing it from scan settings
-    await writeScanSettingsFileDefaultLocation({
-      settingsStorePath: SCAN_SETTINGS_PATH,
-
-      writeCallback: async (settings) => {
-        settings.wallets = settings.wallets.filter(
-          (w: any) => w.primary_address !== body.primaryAddress,
-        );
-      },
-    });
+    const wallets = getWallets();
+    await wallets?.removeWallet(body.primaryAddress);
 
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Error parsing delete wallet request:", error);
+    const message = error instanceof Error ? error.message : "unknown error";
+    console.error("Error deleting wallet:", error);
     return Response.json({
       success: false,
-      error: { issues: [{ path: [], message: "Invalid JSON" }] },
+      error: { issues: [{ path: [], message }] },
     });
   }
 }
