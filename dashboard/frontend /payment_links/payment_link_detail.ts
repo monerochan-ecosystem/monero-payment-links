@@ -657,6 +657,7 @@ const paymentLinkDetailStyles = html`<style>
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
+    width: 65px;
   }
 
   .transaction-date {

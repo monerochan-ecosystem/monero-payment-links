@@ -444,7 +444,7 @@ export const paymentLinksStyles = html`<style>
     }
 
     .transaction-secondary {
-      flex-direction: column;
+      flex-direction: row;
       gap: 0.25rem;
     }
   }
