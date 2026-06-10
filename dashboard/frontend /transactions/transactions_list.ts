@@ -38,22 +38,9 @@ export function transactionsList() {
       const isInvoice = link?.linkType === "invoice";
       const typeBadgeClass = isInvoice ? "invoice-badge" : "product-badge";
       const typeBadgeText = isInvoice ? "Invoice" : "Product";
-      const iconClass = isInvoice ? "invoice" : "product";
       const amountClass = isInvoice ? "invoice-amount" : "product-amount";
 
       return html`<a class="transaction-item" href="${detailUrl}">
-        <div class="transaction-icon incoming ${iconClass}">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-        </div>
         <div class="transaction-info">
           <div class="transaction-primary">
             <span class="transaction-type">${linkTitle}</span>
@@ -77,18 +64,6 @@ export function transactionsList() {
     );
   } else {
     transactionsListHtml = html`<div class="transactions-empty">
-      <div class="transaction-icon incoming">
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-      </div>
       <h3>No transactions yet</h3>
       <p>Successful payments will appear here once received.</p>
     </div>`;
@@ -183,6 +158,7 @@ const transactionsListStyles = html`<style>
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+    gap: 20px;
   }
 
   .transaction-type {

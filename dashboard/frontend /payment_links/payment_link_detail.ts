@@ -153,18 +153,6 @@ export function paymentLinkDetailRoute(
           >`
         : html`<span class="transaction-hash">tx ${txHashShort}</span>`;
       return html`<div class="transaction-item">
-        <div class="transaction-icon incoming">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-        </div>
         <div class="transaction-info">
           <div class="transaction-primary">
             <span class="transaction-type">Payment Received</span>
@@ -185,18 +173,6 @@ export function paymentLinkDetailRoute(
   } else {
     transactionsListHtml = html`<div class="transactions-list">
       <div class="transaction-item">
-        <div class="transaction-icon incoming">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-        </div>
         <div class="transaction-info">
           <div class="transaction-primary">
             <span class="transaction-type">No payments yet</span>
@@ -274,26 +250,33 @@ export function paymentLinkDetailRoute(
 
       <div class="detail-card${isProduct ? "" : " invoice"}">
         ${isProduct
-          ? html`<div><h2>${title}</h2>
-                 <p class="detail-description">${description}</p></div>`
-           : html`<div class="info-box">
-                   <div class="info-title">${title}</div>
-                   <div class="info-amount">${amount}</div>
-                   ${dueDate !== "N/A"
-                     ? html`<div class="info-due-date">Due on ${dueDate}</div>`
-                     : ""}
-                   ${description
-                     ? html`<div class="info-description">${description}</div>`
-                     : ""}
-                   <div class="info-wallet">
-                     <span class="info-wallet-label">Receiving Wallet</span>
-                     <span class="info-wallet-address">${walletShort}</span>
-                   </div>
-                   <div class="info-payment-status">
-                     <span class="info-payment-status-label">Payment Status</span>
-                     <span class="info-payment-status-value ${isPaid ? "paid" : "unpaid"}">${isPaid ? "Paid" : "Unpaid"}</span>
-                   </div>
-                 </div>`}
+          ? html`<div>
+              <h2>${title}</h2>
+              <p class="detail-description">${description}</p>
+            </div>`
+          : html`<div class="info-box">
+              <div class="info-title">${title}</div>
+              <div class="info-amount">${amount}</div>
+              ${dueDate !== "N/A"
+                ? html`<div class="info-due-date">Due on ${dueDate}</div>`
+                : ""}
+              ${description
+                ? html`<div class="info-description">${description}</div>`
+                : ""}
+              <div class="info-wallet">
+                <span class="info-wallet-label">Receiving Wallet</span>
+                <span class="info-wallet-address">${walletShort}</span>
+              </div>
+              <div class="info-payment-status">
+                <span class="info-payment-status-label">Payment Status</span>
+                <span
+                  class="info-payment-status-value ${isPaid
+                    ? "paid"
+                    : "unpaid"}"
+                  >${isPaid ? "Paid" : "Unpaid"}</span
+                >
+              </div>
+            </div>`}
         <div class="payment-link-url-row">
           <a
             class="payment-link-url"
