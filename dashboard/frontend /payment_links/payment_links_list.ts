@@ -6,7 +6,6 @@ export function paymentLinksList() {
 
   const renderPaymentLink = (link: any) => {
     const isProduct = link.linkType === "product";
-    const statusClass = isProduct ? "active" : "invoice";
     const badgeClass = isProduct ? "product-badge" : "invoice-badge";
     const badgeText = isProduct ? "Product" : "Invoice";
     const amount = link.amount ? `${link.amount} XMR` : "0 XMR";
@@ -55,7 +54,6 @@ export function paymentLinksList() {
 
     const paymentUrl = `${location.origin}/pay/${link.payment_link_id}`;
     return html`<a class="payment-link-card" href="${linkUrl}">
-      <div class="payment-link-status ${statusClass}"></div>
       <div class="payment-link-info">
         <h3>${title} <span class="${badgeClass}">${badgeText}</span></h3>
         <p class="payment-link-url">${paymentUrl}</p>
@@ -102,7 +100,6 @@ export const paymentLinksStyles = html`<style>
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20 auto;
   }
   .payment-links-header {
     margin-bottom: 1rem;
@@ -155,22 +152,6 @@ export const paymentLinksStyles = html`<style>
   .payment-link-card:hover {
     transform: translateY(-2px);
     border-color: var(--accent);
-  }
-  .payment-link-status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #6b7280;
-  }
-
-  .payment-link-status.active {
-    background: #10b981;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-  }
-
-  .payment-link-status.invoice {
-    background: #8b5cf6;
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
   }
 
   .payment-link-info {
