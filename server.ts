@@ -19,6 +19,7 @@ export function makeRoutes() {
   const routes = {
     ...dashboardSkeleton.static_routes,
     ...loginSkeleton.static_routes,
+    ...makeCheckoutRoutes(),
     "/login": {
       GET: adminLoginGet,
       POST: adminLoginPost,
@@ -50,7 +51,7 @@ export function makeRoutes() {
 
 const server = Bun.serve({
   port: 3003,
-  routes: { ...makeRoutes(), ...makeCheckoutRoutes() },
+  routes: makeRoutes(),
 });
 
 globalThis.minireload = () => {
