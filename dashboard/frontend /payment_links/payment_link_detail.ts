@@ -468,25 +468,6 @@ const paymentLinkDetailStyles = html`<style>
     margin: 1rem 0 1.5rem 0;
   }
 
-  .detail-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-  }
-
-  .stat-card {
-    background: rgba(124, 58, 237, 0.05);
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    border-radius: 8px;
-    padding: 1rem;
-  }
-
-  .stat-label {
-    font-size: 0.875rem;
-    opacity: 0.8;
-    margin-bottom: 0.5rem;
-  }
-
   .stat-value {
     font-size: 1.25rem;
     font-weight: 600;
@@ -571,37 +552,9 @@ const paymentLinkDetailStyles = html`<style>
     color: var(--accent);
   }
 
-  .payment-history {
-    background: rgba(124, 58, 237, 0.05);
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    border-radius: 12px;
-    padding: 2rem;
-  }
-
   .payment-history h3 {
     margin: 0 0 1.5rem 0;
     font-size: 1.25rem;
-  }
-
-  .transactions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .transaction-item {
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 12px;
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .transaction-item:hover {
-    transform: translateY(-2px);
   }
 
   .transaction-icon {
@@ -612,37 +565,6 @@ const paymentLinkDetailStyles = html`<style>
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-  }
-
-  .transaction-icon.incoming {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-  }
-
-  .transaction-info {
-    flex: 1;
-  }
-
-  .transaction-primary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .transaction-type {
-    font-weight: 600;
-  }
-
-  .transaction-secondary {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.875rem;
-    color: rgba(248, 250, 252, 0.8);
-  }
-
-  .transaction-status {
-    color: #10b981;
   }
 
   .transaction-amount.received {
@@ -804,15 +726,6 @@ const paymentLinkDetailStyles = html`<style>
     .detail-header {
       gap: 1rem;
       align-items: flex-start;
-    }
-
-    .detail-stats {
-      grid-template-columns: 1fr;
-    }
-
-    .transaction-secondary {
-      flex-direction: column;
-      gap: 0.25rem;
     }
   }
 </style>`;
