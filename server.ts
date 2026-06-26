@@ -61,4 +61,4 @@ globalThis.minireload = () => {
   });
 };
 
-console.log("Server running at http://localhost:3003");
+console.log("access dashboard at http://localhost:3003/dashboard");
