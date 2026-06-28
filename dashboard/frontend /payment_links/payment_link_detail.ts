@@ -386,23 +386,12 @@ const paymentLinkDetailStyles = html`<style>
   }
 
   .detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 2rem;
   }
 
   .detail-actions {
     display: flex;
     gap: 0.5rem;
-  }
-
-  .detail-card {
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
   }
 
   .detail-card.invoice {
@@ -454,10 +443,7 @@ const paymentLinkDetailStyles = html`<style>
   }
 
   .payment-link-url {
-    color: var(--accent);
-    margin: 1rem 0 1.5rem 0;
     display: block;
-    font-size: 0.875rem;
     word-break: break-all;
   }
 
@@ -469,8 +455,6 @@ const paymentLinkDetailStyles = html`<style>
   }
 
   .stat-value {
-    font-size: 1.25rem;
-    font-weight: 600;
     word-break: break-word;
   }
 
@@ -604,16 +588,7 @@ const paymentLinkDetailStyles = html`<style>
   }
 
   .edit-payment-link-btn {
-    background: rgba(124, 58, 237, 0.2);
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    color: var(--text);
     padding: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .edit-payment-link-btn:hover {
