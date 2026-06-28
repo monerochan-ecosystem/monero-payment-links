@@ -35,7 +35,6 @@ export const sidebarStyles = html`<style>
 
   .menu-item:hover {
     background: rgba(124, 58, 237, 0.2);
-    transform: translateX(4px);
   }
 
   .menu-item.active {
@@ -78,10 +77,6 @@ export const sidebarStyles = html`<style>
       font-weight: 700;
       width: auto;
       gap: 0.2rem;
-    }
-    .menu-item:hover {
-      background: rgba(124, 58, 237, 0.2);
-      transform: translateY(-4px);
     }
 
     .main-content {
