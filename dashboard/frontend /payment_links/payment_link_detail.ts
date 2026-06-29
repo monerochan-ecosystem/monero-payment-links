@@ -267,6 +267,10 @@ export function paymentLinkDetailRoute(
                 <span class="info-wallet-label">Receiving Wallet</span>
                 <span class="info-wallet-address">${walletShort}</span>
               </div>
+              <div class="info-payment-type">
+                <span class="info-payment-type-label">Payment Type</span>
+                <span class="info-payment-type-value">${paymentType}</span>
+              </div>
               <div class="info-payment-status">
                 <span class="info-payment-status-label">Payment Status</span>
                 <span
@@ -533,6 +537,26 @@ const paymentLinkDetailStyles = html`<style>
 
   .info-wallet-address {
     font-family: monospace;
+    color: var(--accent);
+  }
+
+  .info-payment-type {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(124, 58, 237, 0.1);
+    font-size: 0.875rem;
+  }
+
+  .info-payment-type-label {
+    color: rgba(248, 250, 252, 0.6);
+  }
+
+  .info-payment-type-value {
+    font-weight: 600;
     color: var(--accent);
   }
 
