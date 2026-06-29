@@ -109,9 +109,6 @@ export function filledWalletCard(wallet: any) {
 
     <div class="wallet-address">${wallet.primary_address}</div>
     <div class="wallet-name">${wallet.wallet_name || " "}</div>
-    <div class="sync-progress">
-      <div class="sync-bar"></div>
-    </div>
   </div>`;
 }
 
@@ -142,7 +139,6 @@ export const walletStyles = html`<style>
     overflow: hidden;
     transition: all 0.3s ease;
     cursor: pointer;
-    animation: pulse 2s infinite;
   }
 
   @keyframes float {
@@ -445,17 +441,6 @@ export const walletStyles = html`<style>
     transform: translateY(-2px);
   }
 
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-    50% {
-      box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4);
-    }
-    100% {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-  }
 
   .wallet-card:hover {
     transform: translateY(-5px);
@@ -495,33 +480,6 @@ export const walletStyles = html`<style>
     cursor: pointer;
   }
 
-  .sync-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    overflow: hidden;
-  }
-
-  .sync-bar {
-    height: 100%;
-    width: 100%;
-    background: var(--accent);
-    position: relative;
-    transition: width 0.5s ease;
-    animation: shimmer 1.5s infinite linear;
-  }
-
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
 
   .blocks-container {
     display: flex;
