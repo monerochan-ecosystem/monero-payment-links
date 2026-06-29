@@ -81,6 +81,11 @@ export function paymentLinksList() {
   };
 
   return html`<div>
+    ${paymentLinks.length > 0
+      ? html`<div class="payment-links-header">
+          <h1>Payment Links</h1>
+        </div>`
+      : ""}
     ${() => {
       const linkElementList: MiniHtmlString[] = [];
       for (const link of paymentLinks) {
