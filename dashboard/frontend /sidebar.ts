@@ -1,5 +1,18 @@
 import { html } from "@spirobel/mininext";
 import { router } from "./dashboard_router";
+
+function navigateTo(path: string) {
+  router.navigate(path);
+}
+
+declare global {
+  interface Window {
+    navigateTo: (path: string) => void;
+  }
+}
+
+window.navigateTo = navigateTo;
+
 export const sidebarStyles = html`<style>
   .sidebar {
     width: 280px;
@@ -27,8 +40,9 @@ export const sidebarStyles = html`<style>
     gap: 1rem;
     padding: 1rem;
     color: var(--text);
-    text-decoration: none;
     border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
     transition: all 0.3s ease;
     margin-bottom: 0.5rem;
   }
@@ -97,8 +111,8 @@ export function sidebar() {
   const current_path = router.getCurrentPath();
   return html`
     <nav class="sidebar">
-      <a
-        href="${router.link("/wallets")}"
+      <div
+        onclick="navigateTo('/wallets')"
         class="menu-item ${current_path.startsWith("/wallets") ? "active" : ""}"
       >
         <svg
@@ -114,10 +128,10 @@ export function sidebar() {
           />
         </svg>
         Wallets
-      </a>
+      </div>
 
-      <a
-        href="${router.link("/transactions")}"
+      <div
+        onclick="navigateTo('/transactions')"
         class="menu-item ${current_path.startsWith("/transactions")
           ? "active"
           : ""}"
@@ -133,10 +147,10 @@ export function sidebar() {
           <path d="M17 8v12M17 20l4-4M17 20l-4-4" />
         </svg>
         Transactions
-      </a>
+      </div>
 
-      <a
-        href="${router.link("/payment-links")}"
+      <div
+        onclick="navigateTo('/payment-links')"
         class="menu-item ${current_path.startsWith("/payment-links")
           ? "active"
           : ""}"
@@ -152,7 +166,7 @@ export function sidebar() {
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
         </svg>
         Payment Links
-      </a>
+      </div>
       ${sidebarStyles}
     </nav>
   `;
