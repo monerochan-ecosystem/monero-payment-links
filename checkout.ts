@@ -72,8 +72,7 @@ const wallets = await openWallets({
     await syncPaymentStatus();
   },
   autoRetry: true,
-  retryDelayMs: 1000,
-  no_stats: true,
+
 });
 if (wallets) setWallets(wallets);
 const mainwallet = wallets?.wallets[0];
