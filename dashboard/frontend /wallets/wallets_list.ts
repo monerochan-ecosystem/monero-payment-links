@@ -1,5 +1,5 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
-import { make002ToolLink } from "@spirobel/monero-wallet-api";
+import { convertBigIntAmount, make002ToolLink } from "@spirobel/monero-wallet-api";
 import { router } from "../dashboard_router";
 
 export function makeWalletCreationLink(wallet_slot: number = 0) {
@@ -69,6 +69,13 @@ export function emptyWalletCard() {
 }
 
 export function filledWalletCard(wallet: any) {
+  const balance = window.dashboardData.wallet_balances.find(
+    (b) => b.primary_address === wallet.primary_address,
+  );
+  const spendable = balance
+    ? convertBigIntAmount(BigInt(balance.spendable)) + " XMR"
+    : "0 XMR";
+
   return html` <div class="wallet-card">
     <div class="wallet-actions">
       <button
@@ -104,7 +111,7 @@ export function filledWalletCard(wallet: any) {
           d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a2 2 0 0 1-1-.268M1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1"
         />
       </svg>
-      <div class="wallet-balance">2.4389 XMR</div>
+      <div class="wallet-balance">${spendable}</div>
     </div>
 
     <div class="wallet-address">${wallet.primary_address}</div>

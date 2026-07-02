@@ -11,7 +11,7 @@ import {
   getAllSuccessfulCheckoutSessions,
   type CheckoutSessionRow,
 } from "../db";
-import { SCAN_SETTINGS_PATH } from "./backend/wallets";
+import { SCAN_SETTINGS_PATH, getWallets } from "./backend/wallets";
 
 export const dashboardSkeleton = await html`<!DOCTYPE html>
   <html>
@@ -31,13 +31,32 @@ export async function dashBoardRoute(req: Request) {
   const scan_settings = await readScanSettings(SCAN_SETTINGS_PATH);
   const payment_links = await getAllPaymentLinks();
   const checkout_sessions = await getAllSuccessfulCheckoutSessions();
+  const wallets = getWallets();
+  const wallet_balances = wallets?.wallets.map((w) => ({
+    primary_address: w.primary_address,
+    spendable: w.amount.toString(),
+    pending: w.pending_amount.toString(),
+  })) || [];
+
   const hydrate = btoa(
-    JSON.stringify({ scan_settings, payment_links, checkout_sessions }),
+    JSON.stringify({
+      scan_settings,
+      payment_links,
+      checkout_sessions,
+      wallet_balances,
+    }),
   );
   return new Response(dashboardSkeleton.fill(hydrate));
 }
+export type WalletBalance = {
+  primary_address: string;
+  spendable: string;
+  pending: string;
+};
+
 export type DashboadData = {
   scan_settings?: ScanSettingsOpened;
   payment_links: CombinedPaymentLinkRow[];
   checkout_sessions?: CheckoutSessionRow[];
+  wallet_balances: WalletBalance[];
 };
