@@ -1535,13 +1535,6 @@ export const dashBoardStyles = html`
     display: block;
   }
 
-  .wallet-address {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--accent);
-    opacity: 0.8;
-    margin-top: 0.25rem;
-  }
 
   .custom-dropdown-menu {
     position: relative;
@@ -1899,7 +1892,7 @@ export const dashBoardStyles = html`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
     z-index: 1000;
     align-items: center;
@@ -1907,18 +1900,14 @@ export const dashBoardStyles = html`
   }
 
   .delete-dialog {
-    background: #1a1a2e;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 16px;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
     padding: 2rem;
     max-width: 420px;
     width: 90%;
     text-align: center;
-  }
-
-  .delete-dialog-icon {
-    color: #ef4444;
-    margin-bottom: 1rem;
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
   }
 
   .delete-dialog h3 {
@@ -1956,7 +1945,7 @@ export const dashBoardStyles = html`
 
   .confirm-delete-btn {
     padding: 0.75rem 1.5rem;
-    background: #ef4444;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     border: none;
     border-radius: 8px;
     color: white;
@@ -1964,11 +1953,13 @@ export const dashBoardStyles = html`
     transition: all 0.3s ease;
     font-size: 0.875rem;
     font-weight: 600;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
   }
 
   .confirm-delete-btn:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
   }
 
   @media (max-width: 768px) {
@@ -2687,7 +2678,7 @@ export const dashBoardStyles = html`
   }
 
   .transaction-amount.invoice-amount {
-    color: #a78bfa;
+    color: #34d399;
     font-weight: 600;
   }
 

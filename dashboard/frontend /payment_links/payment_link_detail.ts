@@ -334,22 +334,12 @@ export function paymentLinkDetailRoute(
         ${transactionsListHtml}
       </div>
 
-      <div class="delete-dialog-overlay" id="delete-dialog-overlay">
+      <div
+        class="delete-dialog-overlay"
+        id="delete-dialog-overlay"
+        onclick="if (event.target === this) hideDeletePaymentLinkDialog()"
+      >
         <div class="delete-dialog">
-          <div class="delete-dialog-icon">
-            <svg
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-          </div>
           <h3>Delete Payment Link</h3>
           <p>
             <strong>Warning:</strong> This action cannot be undone. Deleting
