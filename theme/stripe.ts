@@ -13,7 +13,7 @@ export const checkoutStyles = html`<style>
     --accent: #7c3aed;
     --text: #f8fafc;
     --bg: #070707;
-    --success: #10b981;
+    --success: #34d399;
   }
 
   body {
@@ -279,7 +279,7 @@ export const checkoutStyles = html`<style>
   }
 
   .payment-status.success {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.12);
   }
 
   @keyframes pulse {
@@ -540,7 +540,7 @@ export const paymentStatusStyles = html`<style>
     --accent: #7c3aed;
     --text: #f8fafc;
     --bg: #070707;
-    --success: #10b981;
+    --success: #34d399;
   }
   .payment-status {
     text-align: center;
@@ -561,7 +561,7 @@ export const paymentStatusStyles = html`<style>
   }
 
   .payment-status.success {
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.12);
   }
 
   @keyframes pulse {
@@ -591,7 +591,7 @@ export const walletNotDetectedStyles = html`<style>
     --accent: #7c3aed;
     --text: #f8fafc;
     --bg: #070707;
-    --success: #10b981;
+    --success: #34d399;
   }
 
   body {
@@ -954,51 +954,14 @@ export const dashBoardStyles = html`
   }
 /*walletFormStyles */
 .restore-wallet-link {
-              color: var(--accent, #7c3aed);
-              text-decoration: underline;
-              cursor: pointer;
-              font-size: 0.9rem;
-            }
-            .restore-wallet-link:hover {
-              color: var(--primary, #5b21b6);
-            }
-
-/*loginStyles*/
-body {
-          font-family: sans-serif;
-          text-align: center;
-          padding: 80px;
-          background: #f4f4f4;
-        }
-        form {
-          max-width: 340px;
-          margin: 0 auto;
-          background: white;
-          padding: 40px;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        input {
-          width: 100%;
-          padding: 12px;
-          margin: 15px 0;
-          font-size: 1.1rem;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
-        button {
-          padding: 14px 32px;
-          font-size: 1.2rem;
-          background: #000;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        .error {
-          color: red;
-          margin: 10px 0;
-        }
+  color: var(--accent, #7c3aed);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.restore-wallet-link:hover {
+  color: var(--primary, #5b21b6);
+}
 
 /*walletStyles*/
   .wallets-grid {
@@ -1786,11 +1749,11 @@ body {
   }
 
   .info-payment-status-value.paid {
-    color: #10b981;
+    color: #34d399;
   }
 
   .info-payment-status-value.paid::before {
-    background: #10b981;
+    background: #34d399;
   }
 
   .info-payment-status-value.unpaid {
@@ -1864,18 +1827,21 @@ body {
   }
 
   .transaction-amount.received {
-    color: #10b981;
+    color: #34d399;
     font-weight: 600;
   }
 
   .transaction-status.confirmed {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    padding: 0.125rem 0.5rem;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    padding: 0.15rem 0.6rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(16, 185, 129, 0.2);
     width: 65px;
+    text-align: center;
   }
 
   .transaction-date {
@@ -2105,21 +2071,27 @@ body {
 
   .invoice-badge,
   .product-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 9999px;
     margin-left: 0.5rem;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
   }
 
   .invoice-badge {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
+    background: rgba(124, 58, 237, 0.12);
+    color: #a78bfa;
+    border: 1px solid rgba(124, 58, 237, 0.2);
   }
 
   .product-badge {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.2);
   }
   .payment-links-list {
     display: flex;
@@ -2684,13 +2656,13 @@ body {
   }
 
   .transaction-icon.incoming.product {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
   }
 
   .transaction-icon.incoming.invoice {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
+    background: rgba(124, 58, 237, 0.12);
+    color: #a78bfa;
   }
 
   .transaction-info {
@@ -2710,12 +2682,12 @@ body {
   }
 
   .transaction-amount.product-amount {
-    color: #10b981;
+    color: #34d399;
     font-weight: 600;
   }
 
   .transaction-amount.invoice-amount {
-    color: #8b5cf6;
+    color: #a78bfa;
     font-weight: 600;
   }
 
@@ -2727,21 +2699,25 @@ body {
   }
 
   .transaction-status.product-badge {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    padding: 0.125rem 0.5rem;
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    padding: 0.15rem 0.6rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(16, 185, 129, 0.2);
   }
 
   .transaction-status.invoice-badge {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-    padding: 0.125rem 0.5rem;
+    background: rgba(124, 58, 237, 0.12);
+    color: #a78bfa;
+    padding: 0.15rem 0.6rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(124, 58, 237, 0.2);
   }
 
   .transaction-date {
@@ -2835,3 +2811,122 @@ body {
     }
   }
 </style>`
+// login
+export const loginStyles = html`<style>
+  :root {
+    --primary: #5b21b6;
+    --accent: #7c3aed;
+    --text: #f8fafc;
+    --bg: #070707;
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+    padding: 1rem;
+    background-image: radial-gradient(
+      circle at 50% 50%,
+      rgba(124, 58, 237, 0.15) 0%,
+      transparent 50%
+    );
+  }
+
+  .login-card {
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+  }
+
+  .login-card h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .login-card p.subtitle {
+    font-size: 0.9rem;
+    color: rgba(248, 250, 252, 0.5);
+    margin: 0 0 2rem 0;
+  }
+
+  .login-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .login-card input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--text);
+    background: rgba(124, 58, 237, 0.05);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.25s ease;
+    box-sizing: border-box;
+  }
+
+  .login-card input::placeholder {
+    color: rgba(248, 250, 252, 0.4);
+  }
+
+  .login-card input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  }
+
+  .login-card button {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow:
+      0 4px 15px rgba(124, 58, 237, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .login-card button:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 25px rgba(124, 58, 237, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .login-card button:active {
+    transform: translateY(0);
+  }
+
+  .login-card .error {
+    color: #f87171;
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+    padding: 0.75rem 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+  }
+</style>`;

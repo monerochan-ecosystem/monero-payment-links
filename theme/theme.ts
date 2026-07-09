@@ -9,7 +9,10 @@ export type Theme = {
   invoicePaidStyles: MiniHtmlString;
   walletNotDetectedStyles: MiniHtmlString;
 
- 
+ // login
+  loginStyles: MiniHtmlString;
+
+ // dashboard
   dashBoardStyles: MiniHtmlString;
 };
 
