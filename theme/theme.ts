@@ -9,20 +9,8 @@ export type Theme = {
   invoicePaidStyles: MiniHtmlString;
   walletNotDetectedStyles: MiniHtmlString;
 
-  // dashboard
-  mainStyles: MiniHtmlString;
-  sidebarStyles: MiniHtmlString;
-  walletStyles: MiniHtmlString;
-  paymentLinksStyles: MiniHtmlString;
-  transactionsListStyles: MiniHtmlString;
-  paymentLinkDetailStyles: MiniHtmlString;
-  emptyPaymentLinksStyles: MiniHtmlString;
-  noWalletsPaymentsCardStyles: MiniHtmlString;
-  createPaymentLinkFormStyles: MiniHtmlString;
-  paymentTypeSelectionStyles: MiniHtmlString;
-  formTabStyles: MiniHtmlString;
-  walletFormStyles: MiniHtmlString;
-  loginStyles: MiniHtmlString;
+ 
+  dashBoardStyles: MiniHtmlString;
 };
 
 const themes: Record<string, Theme> = {

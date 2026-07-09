@@ -34,7 +34,6 @@ export function dashboardFrontendRoute(
   </div>`;
 }
 export function paymentLinksRoute(): MiniHtmlString {
-  // Check dashboard data
   const scanSettings = window.dashboardData.scan_settings;
   const walletList = scanSettings?.wallets || [];
   const paymentLinks = window.dashboardData.payment_links || [];
@@ -87,7 +86,7 @@ const routes = {
 } as const;
 export const router = createRouter(routes);
 
-// Only navigate to default route if we're at the root hash
+// only navigate to default route if we're at the root hash
 if (
   !window.location.hash ||
   window.location.hash === "#" ||

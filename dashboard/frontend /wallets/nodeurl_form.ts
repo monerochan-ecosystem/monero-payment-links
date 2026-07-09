@@ -6,7 +6,6 @@ function openNodeUrlForm() {
   ) as HTMLDivElement;
   nodeUrlDialog.style.display = "flex";
 
-  // Reset previous errors
   document.querySelectorAll(".nodeurl-form-input").forEach((input) => {
     (input as HTMLInputElement).classList.remove("error");
   });
@@ -15,7 +14,6 @@ function openNodeUrlForm() {
     (msg as HTMLDivElement).style.display = "none";
   });
 
-  // Pre-fill form with current scan settings
   const scanSettings = window.dashboardData?.scan_settings;
   if (scanSettings) {
     const nodeurlInput = document.querySelector(
@@ -125,7 +123,6 @@ function openNodeUrlForm() {
           return;
         }
 
-        // Success - close dialog and reload
         closeNodeUrlForm();
         window.location.reload();
       } catch (error) {
@@ -232,7 +229,6 @@ export function createNodeUrlForm() {
   </div>`;
 }
 
-// Hook up event listeners when mounted
 declare global {
   interface Window {
     openNodeUrlForm: () => void;

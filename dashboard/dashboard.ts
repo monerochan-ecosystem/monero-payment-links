@@ -1,6 +1,6 @@
 import { html } from "@spirobel/mininext";
 import { checkAdminAndRedirect } from "./login";
-import { mainStyles } from "./styles/common";
+import { getTheme } from "../theme/theme";
 import {
   readScanSettings,
   type ScanSettingsOpened,
@@ -17,15 +17,16 @@ export const dashboardSkeleton = await html`<!DOCTYPE html>
   <html>
     <head>
       <meta charset="utf-8" />
-      <title>Admin Dashboard - Monero Payment Links</title>
+      <title>Admin Dashboard Monero Payment Links</title>
     </head>
     <body data-hydrate="${null}">
-      ${mainStyles}
+      ${null}
       <script type="module" src="./frontend_main.ts"></script>
       <div id="container"></div>
     </body>
   </html> `.build();
 export async function dashBoardRoute(req: Request) {
+  const theme = getTheme(req)
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
   const scan_settings = await readScanSettings(SCAN_SETTINGS_PATH);
@@ -46,7 +47,7 @@ export async function dashBoardRoute(req: Request) {
       wallet_balances,
     }),
   );
-  return new Response(dashboardSkeleton.fill(hydrate));
+  return new Response(dashboardSkeleton.fill(hydrate, theme.dashBoardStyles));
 }
 export type WalletBalance = {
   primary_address: string;

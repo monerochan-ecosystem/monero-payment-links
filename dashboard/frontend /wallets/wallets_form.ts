@@ -94,7 +94,6 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
     //@ts-ignore
     window.confirmDeletion = confirmDeletion;
   }
-  // Pre-fill form data
   walletNameInput.value = wallet.walletName || "";
   primaryAddressInput.value = wallet.primaryAddress || "";
   secretViewKeyInput.value = wallet.secretViewKey || "";
@@ -107,7 +106,6 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
     e.preventDefault();
     const submitBtn = form.querySelector(".submit-btn") as HTMLButtonElement;
 
-    // Reset previous errors
     document.querySelectorAll(".form-input").forEach((input) => {
       input.classList.remove("error");
     });
@@ -115,7 +113,6 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
       (msg as HTMLDivElement).style.display = "none";
     });
 
-    // Disable button and show loading state
     submitBtn.disabled = true;
     submitBtn.classList.add("loading");
 
@@ -133,11 +130,9 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
       body: JSON.stringify(input),
     }).then(async (result) => {
       const response = await result.json();
-      // Re-enable submit button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
       if (!response.success && response.error) {
-        // Handle validation errors
         response.error.issues.forEach(
           (issue: { path: string[]; message: string }) => {
             const fieldName = issue.path[0];
@@ -152,21 +147,17 @@ function editWalletSlot(existingWallet: ScanSettingOpened) {
           },
         );
       } else {
-        // Handle success case
         editDialog.style.display = "none";
         form.reset();
 
-        // Navigate to wallets page
         router.navigate("/wallets");
 
-        // Reload the page to refresh data
         window.location.reload();
       }
     });
   };
 }
 function editWallet(primary_address?: string) {
-  //delete warning hidden
   const deleteWarning = document.querySelector(
     ".delete-warning",
   ) as HTMLDivElement;
@@ -177,7 +168,6 @@ function editWallet(primary_address?: string) {
     editWalletSlot(existingWallet);
     return;
   }
-  // Reset previous errors
   document.querySelectorAll(".form-input").forEach((input) => {
     input.classList.remove("error");
   });
@@ -190,7 +180,6 @@ function editWallet(primary_address?: string) {
     ".delete-btn",
   ) as HTMLButtonElement;
   deleteBtnElement.style.display = "none";
-  // open the edit dialog
   const editDialog = document.querySelector(
     "#edit-wallet-dialog-overlay",
   ) as HTMLDivElement;
@@ -229,7 +218,6 @@ function editWallet(primary_address?: string) {
     //@ts-ignore
     window.confirmDeletion = confirmDeletion;
   }
-  // Pre-fill form data
   walletNameInput.value = wallet.walletName || "";
   primaryAddressInput.value = wallet.primaryAddress || "";
   secretViewKeyInput.value = wallet.secretViewKey || "";
@@ -247,7 +235,6 @@ function editWallet(primary_address?: string) {
     e.preventDefault();
     const submitBtn = form.querySelector(".submit-btn") as HTMLButtonElement;
 
-    // Reset previous errors
     document.querySelectorAll(".form-input").forEach((input) => {
       input.classList.remove("error");
     });
@@ -255,14 +242,12 @@ function editWallet(primary_address?: string) {
       (msg as HTMLDivElement).style.display = "none";
     });
 
-    // Disable button and show loading state
     submitBtn.disabled = true;
     submitBtn.classList.add("loading");
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
 
-    // If editing an existing wallet, include the original primary address
     if (primary_address && wallet.primaryAddress !== input["primaryAddress"]) {
       input.originalPrimaryAddress = primary_address;
     }
@@ -277,11 +262,9 @@ function editWallet(primary_address?: string) {
       body: JSON.stringify(input),
     }).then(async (result) => {
       const response = await result.json();
-      // Re-enable submit button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
       if (!response.success && response.error) {
-        // Handle validation errors
         response.error.issues.forEach(
           (issue: { path: string[]; message: string }) => {
             const fieldName = issue.path[0];
@@ -296,14 +279,11 @@ function editWallet(primary_address?: string) {
           },
         );
       } else {
-        // Handle success case
         editDialog.style.display = "none";
         form.reset();
 
-        // Navigate to wallets page
         router.navigate("/wallets");
 
-        // Reload the page to refresh data
         window.location.reload();
       }
     });
