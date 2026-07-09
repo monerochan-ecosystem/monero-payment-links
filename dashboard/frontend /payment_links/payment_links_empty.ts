@@ -1,10 +1,8 @@
 import { html, type MiniHtmlString } from "@spirobel/mininext";
-import { paymentLinksStyles } from "./payment_links_list";
 import { router } from "../dashboard_router";
 
 export function paymentLinksEmpty(): MiniHtmlString {
   return html` <div class="empty-payment-links-card">
-    ${emptyPaymentLinksStyles} ${paymentLinksStyles}
     <div class="empty-payment-links-icon">
       <svg
         width="40"
@@ -44,7 +42,6 @@ export function paymentLinksEmpty(): MiniHtmlString {
 }
 export function noWalletsGuidance() {
   return html`<div class="guidance-card" id="no-wallets-guidance">
-    ${noWalletsPaymentsCardStyles}${paymentLinksStyles}
     <div class="guidance-icon">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -81,146 +78,3 @@ export function noWalletsGuidance() {
   </div>`;
 }
 
-const emptyPaymentLinksStyles = html`<style>
-  .empty-payment-links-card {
-    background: rgba(124, 58, 237, 0.1);
-    border: 2px dashed rgba(124, 58, 237, 0.3);
-    border-radius: 20px;
-    padding: 3rem 2rem;
-    text-align: center;
-    margin: 2rem auto;
-    max-width: 500px;
-    transition: all 0.3s ease;
-  }
-
-  .empty-payment-links-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .empty-payment-links-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    padding: 1rem;
-    background: rgba(124, 58, 237, 0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent);
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .empty-payment-links-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, var(--accent), #a855f7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .empty-payment-links-description {
-    color: var(--text);
-    opacity: 0.8;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-  }
-
-  .empty-payment-links-button {
-    background: var(--accent);
-    color: var(--text);
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .empty-payment-links-button:hover {
-    background: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-  }
-
-  @keyframes float {
-    0% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
-  }
-</style>`;
-const noWalletsPaymentsCardStyles = html`<style>
-  .guidance-card {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 500px;
-    margin: 0 auto;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: fadeInUp 0.5s ease-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-  .guidance-icon {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-  .guidance-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0;
-  }
-  .guidance-text {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-  .guidance-cta {
-    background: rgba(255, 255, 255, 0.15);
-    color: var(--text);
-    text-decoration: none;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .guidance-cta:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-  }
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>`;

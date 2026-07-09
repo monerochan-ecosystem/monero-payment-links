@@ -16,7 +16,6 @@ declare global {
 }
 
 function openPaymentLinkFormCB(paymentLinkId?: string) {
-  // Reset previous errors
   document.querySelectorAll(".form-input").forEach((input) => {
     input.classList.remove("error");
   });
@@ -30,7 +29,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
   ) as HTMLInputElement;
 
   if (paymentLinkId) {
-    // edit mode, populate form with existing data
     const paymentLinks = window.dashboardData?.payment_links || [];
     const paymentLink = paymentLinks.find(
       (link: any) => link.payment_link_id === paymentLinkId,
@@ -44,9 +42,7 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         ".payment-type-btn.selected",
       ) as HTMLButtonElement;
 
-      // In edit mode, manually apply the payment type
       if (currentSelectedButton?.dataset.type !== paymentLink.linkType) {
-        // Toggle payment type buttons' selected state
         const typeButtons = form.querySelectorAll(
           ".payment-type-btn",
         ) as NodeListOf<HTMLButtonElement>;
@@ -54,7 +50,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
           btn.classList.toggle("selected");
         });
 
-        // Toggle payment type forms to show the correct one
         const typeForms = form.querySelectorAll(
           ".payment-type-form",
         ) as NodeListOf<HTMLDivElement>;
@@ -62,7 +57,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
           form.classList.toggle("active");
         });
 
-        // Toggle special fields (invoice due date vs product quantity)
         const specialFields = form.querySelectorAll(
           ".product-invoice-fields",
         ) as NodeListOf<HTMLDivElement>;
@@ -71,7 +65,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         });
       }
 
-      // Populate title and description
       if (isProduct) {
         const titleInput = form.querySelector(
           'input[name="productTitle"]',
@@ -82,7 +75,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         if (titleInput) titleInput.value = paymentLink.title || "";
         if (descInput) descInput.value = paymentLink.description || "";
 
-        // Clear invoice fields
         const invoiceTitleInput = form.querySelector(
           'input[name="invoiceTitle"]',
         ) as HTMLInputElement;
@@ -101,7 +93,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         if (titleInput) titleInput.value = paymentLink.title || "";
         if (descInput) descInput.value = paymentLink.description || "";
 
-        // Clear product fields
         const productTitleInput = form.querySelector(
           'input[name="productTitle"]',
         ) as HTMLInputElement;
@@ -112,13 +103,11 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         if (productDescInput) productDescInput.value = "";
       }
 
-      // Populate amount
       const amountInput = form.querySelector(
         'input[name="amount"]',
       ) as HTMLInputElement;
       if (amountInput) amountInput.value = paymentLink.amount || "";
 
-      // Populate maxUses
       const maxUsesInput = form.querySelector(
         'input[name="maxUses"]',
       ) as HTMLInputElement;
@@ -128,7 +117,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         maxUsesInput.value = "";
       }
 
-      // Populate dueDate
       const dueDateInput = form.querySelector(
         'input[name="dueDate"]',
       ) as HTMLInputElement;
@@ -138,22 +126,18 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         dueDateInput.value = "";
       }
 
-      // Clear type-specific optional fields
       if (isProduct) {
-        // Clear invoice-only field
         const dueDateClear = form.querySelector(
           'input[name="dueDate"]',
         ) as HTMLInputElement;
         if (dueDateClear) dueDateClear.value = "";
       } else {
-        // Clear product-only field
         const maxUsesClear = form.querySelector(
           'input[name="maxUses"]',
         ) as HTMLInputElement;
         if (maxUsesClear) maxUsesClear.value = "";
       }
 
-      // Populate successUrl
       const successUrlInput = form.querySelector(
         'input[name="successUrl"]',
       ) as HTMLInputElement;
@@ -161,7 +145,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         successUrlInput.value = paymentLink.successUrl || "";
       }
 
-      // Populate wallet selection
       const walletDropdown = form.querySelector(
         ".custom-dropdown-menu",
       ) as HTMLDivElement;
@@ -192,7 +175,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         walletHiddenInput.dataset.selected = "true";
       }
 
-      // update ui text for edit mode
       const dialogTitle = document.querySelector(
         ".dialog-title",
       ) as HTMLDivElement;
@@ -216,12 +198,10 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
         paymentTypeSelector.style.display = "none";
       }
 
-      // Show delete button in edit mode
       const deleteBtn = form.querySelector(".delete-btn") as HTMLButtonElement;
       if (deleteBtn) {
         deleteBtn.style.display = "block";
       }
-      // Reset delete warning state
       const deleteWarning = form.querySelector(
         ".delete-warning",
       ) as HTMLDivElement;
@@ -230,16 +210,13 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       }
     }
   } else {
-    // create mode, clear form and reset to defaults
     form.reset();
     paymentLinkIdInput.value = "";
 
-    // Hide delete button in create mode
     const deleteBtn = form.querySelector(".delete-btn") as HTMLButtonElement;
     if (deleteBtn) {
       deleteBtn.style.display = "none";
     }
-    // Reset delete warning state
     const deleteWarning = form.querySelector(
       ".delete-warning",
     ) as HTMLDivElement;
@@ -247,7 +224,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       deleteWarning.classList.remove("show");
     }
 
-    // reset to product type
     const selectedButton = document.querySelector(
       ".payment-type-btn.selected",
     ) as HTMLButtonElement;
@@ -255,7 +231,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       changePaymentTypeCB();
     }
 
-    // reset ui text for create mode
     const dialogTitle = document.querySelector(
       ".dialog-title",
     ) as HTMLDivElement;
@@ -267,7 +242,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
     if (submitButtonText)
       submitButtonText.innerText = "Create Product Payment Link";
 
-    // enable payment type buttons in create mode
     const typeButtonsCreate = form.querySelectorAll(
       ".payment-type-btn",
     ) as NodeListOf<HTMLButtonElement>;
@@ -277,7 +251,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       btn.style.cursor = "pointer";
     });
 
-    // Show payment type selector in create mode
     const paymentTypeSelectorCreate = form.querySelector(
       ".payment-type-selector",
     ) as HTMLDivElement;
@@ -286,7 +259,6 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
     }
   }
 
-  // open the dialog
   const editDialog = document.querySelector(
     ".edit-dialog-overlay",
   ) as HTMLDivElement;
@@ -303,7 +275,6 @@ function setupFormSubmitHandler(
     e.preventDefault();
     const submitBtn = form.querySelector(".submit-btn") as HTMLButtonElement;
 
-    // Reset previous errors
     document.querySelectorAll(".form-input").forEach((input) => {
       input.classList.remove("error");
     });
@@ -311,14 +282,12 @@ function setupFormSubmitHandler(
       (msg as HTMLDivElement).style.display = "none";
     });
 
-    // Disable button and show loading state
     submitBtn.disabled = true;
     submitBtn.classList.add("loading");
 
     const formData = new FormData(form);
     const input: any = Object.fromEntries(formData);
 
-    // Only include paymentLinkId if it's set (for edit mode)
     const paymentLinkIdInput = form.querySelector(
       'input[name="paymentLinkId"]',
     ) as HTMLInputElement;
@@ -326,7 +295,6 @@ function setupFormSubmitHandler(
       delete input["paymentLinkId"];
     }
 
-    // Verify walletId is set before trimming
     if (!input["walletId"]) {
       const hiddenInput = form.querySelector(
         'input[name="walletId"]',
@@ -336,7 +304,6 @@ function setupFormSubmitHandler(
       }
     }
 
-    // Trim all string fields except walletId (which is a wallet address)
     for (const key in input) {
       if (key !== "walletId" && typeof input[key] === "string") {
         input[key] = input[key].trim();
@@ -344,13 +311,11 @@ function setupFormSubmitHandler(
       }
     }
 
-    // Convert number fields to integers (but NOT walletId, which is a wallet address string)
     for (const key of ["maxUses"]) {
       if (input[key]) {
         input[key] = Number(input[key]);
       }
     }
-    // get paymenttype select status and set it here
     const selectedTypeElement = document.querySelector(
       ".payment-type-btn.selected",
     ) as HTMLDivElement;
@@ -361,11 +326,9 @@ function setupFormSubmitHandler(
       body: JSON.stringify(input),
     }).then(async (result) => {
       const response = await result.json();
-      // Re-enable submit button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
       if (!response.success && response.error) {
-        // Handle validation errors
         let hasTab1Error = false;
         response.error.issues.forEach(
           (issue: { path: string[]; message: string }) => {
@@ -394,7 +357,6 @@ function setupFormSubmitHandler(
           },
         );
 
-        // If there's a tab 1 error, show hint and switch to tab 1
         if (hasTab1Error) {
           const errorHint = document.getElementById(
             "_form-error",
@@ -404,7 +366,6 @@ function setupFormSubmitHandler(
               "Please go back to the Basic Info tab to fix the highlighted errors";
             errorHint.style.display = "block";
           }
-          // Switch back to tab 1
           const formTabs = document.querySelectorAll(".form-tab");
           const formSteps = document.querySelectorAll(
             ".form-step",
@@ -421,17 +382,14 @@ function setupFormSubmitHandler(
           nextBtn.innerText = "Next";
         }
       } else {
-        // Handle success case
         editDialog.style.display = "none";
         form.reset();
 
-        // Navigate to the detail route of the created/edited payment link
         const paymentLinkId = response.paymentLinkId;
         if (paymentLinkId) {
           router.navigate(`/payment-links/${paymentLinkId}`);
         }
 
-        // Reload the page to refresh data
         window.location.reload();
       }
     });
@@ -470,30 +428,26 @@ function switchActiveTabCB() {
   }
 }
 function changePaymentTypeCB(event?: Event) {
-  // Prevent payment type changes in edit mode
+  // prevent payment type changes in edit mode
   const form = document.querySelector("#payment-link-form") as HTMLFormElement;
   const paymentLinkIdInput = form.querySelector(
     'input[name="paymentLinkId"]',
   ) as HTMLInputElement;
   if (paymentLinkIdInput?.value) {
-    // In edit mode, don't allow type switching
     return;
   }
 
-  // determine which type to switch to
   const alreadySelected = document.querySelector(
     ".payment-type-btn.selected",
   ) as HTMLButtonElement | null;
 
   let targetType: string | undefined;
   if (event) {
-    // user clicked a button find it from the event target
     const target = event.target as HTMLElement;
     const clickedBtn = target.closest(
       ".payment-type-btn",
     ) as HTMLButtonElement | null;
     targetType = clickedBtn?.dataset.type;
-    // if clicking the already selected type, do nothing
     if (targetType && alreadySelected?.dataset.type === targetType) {
       return;
     }
@@ -517,7 +471,6 @@ function changePaymentTypeCB(event?: Event) {
     ".submit-btn .button-text",
   ) as HTMLDivElement;
 
-  // set selected on the target button, remove from others
   for (const btn of typeButtons) {
     if (btn.dataset.type === targetType) {
       btn.classList.add("selected");
@@ -526,7 +479,6 @@ function changePaymentTypeCB(event?: Event) {
     }
   }
 
-  // update title and button text based on what's now selected
   const selectedBtn = document.querySelector(
     ".payment-type-btn.selected",
   ) as HTMLButtonElement | null;
@@ -538,7 +490,6 @@ function changePaymentTypeCB(event?: Event) {
     submitButtonTextElement.innerText = "Create Invoice Payment Link";
   }
 
-  // sync form visibility with selected type
   for (const typeSelectionForm of typeForms) {
     const formType = (typeSelectionForm as HTMLElement).dataset.type;
     if (formType === selectedBtn?.dataset.type) {
@@ -548,7 +499,6 @@ function changePaymentTypeCB(event?: Event) {
     }
   }
 
-  // product-invoice-fields: due date for invoice, maxUses for product
   for (const field of specialFields) {
     if (selectedBtn?.dataset.type === "invoice") {
       field.classList.toggle(
@@ -624,7 +574,6 @@ function closeWalletDropdownCB() {
   }
 }
 
-// Close dropdown when clicking outside
 document.addEventListener("click", closeWalletDropdownCB);
 
 function showDeletePaymentLinkFormDialogCB() {
@@ -656,7 +605,6 @@ function confirmDeletePaymentLinkFormCB() {
 
   if (!paymentLinkId) return;
 
-  // Determine link type from selected button
   const selectedTypeElement = document.querySelector(
     ".payment-type-btn.selected",
   ) as HTMLDivElement;
@@ -742,7 +690,6 @@ export function getWalletOptions(): MiniHtmlString {
 }
 export function createPaymentLinkForm() {
   return html`<div>
-    ${createPaymentLinkFormStyles}
     <div
       class="dialog-overlay edit-dialog-overlay"
       onclick="clickOutsideClose(event)"
@@ -759,7 +706,6 @@ export function createPaymentLinkForm() {
         </div>
 
         <form id="payment-link-form">
-          ${formTabStyles}
           <div class="form-tabs">
             <button
               type="button"
@@ -788,7 +734,6 @@ export function createPaymentLinkForm() {
           </div>
 
           <div class="form-step active" data-step="1">
-            ${paymentTypeSelectionStyles}
             <div class="payment-type-selector">
               <button
                 type="button"
@@ -884,7 +829,6 @@ export function createPaymentLinkForm() {
                       left: 0;
                     "
                       >
-                        <!-- Curved dotted line with rightward curve -->
                         <path
                           d="M0,20 L140,20 Q160,20 170,30"
                           stroke="var(--accent)"
@@ -938,7 +882,6 @@ export function createPaymentLinkForm() {
             left: 0;
           "
                       >
-                        <!-- Curved dotted line with downward curve at left -->
                         <path
                           d="M200,20 L60,20 Q40,20 30,30"
                           stroke="var(--accent)"
@@ -1108,531 +1051,4 @@ export function createPaymentLinkForm() {
   </div>`;
 }
 
-const createPaymentLinkFormStyles = html`<style>
-  .submit-btn {
-    width: 100%;
-    padding: 1rem;
-    background: var(--accent);
-    border: none;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
 
-  .submit-btn:disabled {
-    background: #4c4c4c;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .submit-btn .button-text {
-    display: inline;
-  }
-
-  .submit-btn.loading .button-text {
-    display: none;
-  }
-
-  .submit-btn.loading .spinner {
-    display: inline-block;
-  }
-
-  .spinner {
-    display: none;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    margin: 0 auto;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .submit-btn:hover {
-    background: var(--primary);
-    transform: translateY(-2px);
-  }
-
-  .delete-btn {
-    width: 100%;
-    padding: 0.75rem;
-    background: transparent;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-    color: #ef4444;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 0.75rem;
-  }
-
-  .delete-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.5);
-  }
-
-  .delete-warning {
-    display: none;
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-  }
-
-  .delete-warning.show {
-    display: block;
-  }
-
-  .delete-warning p {
-    color: rgba(248, 250, 252, 0.9);
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
-  }
-
-  .warning-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .cancel-delete {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-  }
-
-  .cancel-delete:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .confirm-delete {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    background: #ef4444;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .confirm-delete:hover {
-    background: #dc2626;
-  }
-
-  .form-step {
-    display: none;
-  }
-
-  .form-step.active {
-    display: block;
-  }
-  .form-label-optional::after {
-    content: " (optional)";
-    opacity: 0.7;
-    font-weight: normal;
-    font-size: 0.875em;
-  }
-  .product-invoice-fields {
-    display: none;
-  }
-
-  .product-invoice-fields.active {
-    display: block;
-  }
-
-  .wallet-address {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--accent);
-    opacity: 0.8;
-    margin-top: 0.25rem;
-  }
-
-  .custom-dropdown-menu {
-    position: relative;
-    width: 100%;
-  }
-
-  .dropdown-display {
-    padding: 0.75rem;
-    background: transparent;
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .dropdown-display:empty::before {
-    content: "Select a wallet";
-    color: rgba(248, 250, 252, 0.5);
-  }
-
-  .dropdown-display:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(124, 58, 237, 0.1);
-  }
-
-  .dropdown-display::after {
-    content: "▼";
-    margin-left: auto;
-    font-size: 0.75rem;
-    opacity: 0.6;
-    transition: transform 0.3s ease;
-    flex-shrink: 0;
-    margin-left: 0.5rem;
-  }
-
-  .dropdown-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0.25rem 0 0 0;
-    padding: 0.5rem 0;
-    list-style: none;
-    background: rgba(20, 20, 20, 0.95);
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    border-radius: 8px;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-  }
-
-  .dropdown-list.open {
-    max-height: 300px;
-    opacity: 1;
-    transform: translateY(0);
-    overflow-y: auto;
-  }
-
-  .dropdown-item {
-    padding: 0.75rem 1rem;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .dropdown-item:not(.disabled):hover {
-    background: rgba(124, 58, 237, 0.2);
-    color: var(--accent);
-    padding-left: 1.25rem;
-  }
-
-  .dropdown-item.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-</style> `;
-
-const paymentTypeSelectionStyles = html`<style>
-  .payment-type-card {
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .payment-type-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-  }
-
-  .payment-type-card.selected {
-    border-color: var(--accent);
-    background: rgba(124, 58, 237, 0.1);
-  }
-
-  .payment-type-card h3 {
-    margin: 0 0 1rem 0;
-    line-height: 1.2;
-  }
-
-  .payment-type-selector {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .payment-type-btn {
-    flex: 1;
-    padding: 1.5rem;
-    background: rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    color: var(--text);
-  }
-
-  @media (max-width: 768px) {
-    .payment-type-btn {
-      padding: 0.9rem;
-    }
-  }
-
-  .payment-type-btn:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-  }
-
-  .payment-type-btn.selected {
-    background: rgba(124, 58, 237, 0.2);
-    border-color: var(--accent);
-  }
-
-  .payment-type-btn h3 {
-    margin: 0;
-    font-size: 1.25rem;
-  }
-
-  .payment-type-btn p {
-    margin: 0;
-    font-size: 0.875rem;
-    opacity: 0.8;
-    text-align: center;
-  }
-
-  .payment-type-form {
-    display: none;
-  }
-
-  .payment-type-form.active {
-    display: block;
-    animation: slideIn 0.3s ease-out;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .payment-type-form.product-form h3 {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 2rem;
-    letter-spacing: -0.02em;
-  }
-
-  .payment-type-form.product-form {
-    background: rgba(20, 20, 20, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 20px;
-    padding: 1.2rem;
-  }
-
-  .payment-type-form.product-form .form-input:hover,
-  .payment-type-form.product-form .form-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-  }
-
-  .payment-type-form.product-form .form-input {
-    transition: all 0.3s ease;
-  }
-
-  .payment-type-form.product-form .form-label {
-    position: relative;
-    font-size: 0.875rem;
-    color: var(--accent);
-    font-weight: 500;
-    display: inline-block;
-    margin-bottom: 0.75rem;
-    padding-right: 1rem;
-  }
-
-  .product-title::placeholder {
-    color: var(--accent);
-  }
-
-  .product-title {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 2rem;
-    letter-spacing: -0.02em;
-    width: 100%;
-    border: none;
-    background: linear-gradient(
-      135deg,
-      rgba(124, 58, 237, 0.05),
-      rgba(124, 58, 237, 0.1)
-    );
-    padding: 0.75rem;
-    border-radius: 16px;
-    text-align: center;
-    letter-spacing: -0.02em;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    margin-bottom: 1rem;
-  }
-
-  .product-details {
-    text-align: center;
-    line-height: 1.8;
-    font-size: 1.1rem;
-    color: rgba(248, 250, 252, 0.9);
-    background: rgba(124, 58, 237, 0.05);
-    border-radius: 12px;
-    border: 1px solid rgba(124, 58, 237, 0.1);
-    resize: none;
-  }
-
-  .payment-type-form.product-form .form-group {
-    margin-bottom: 2rem;
-    position: relative;
-  }
-
-  .payment-type-form.product-form .form-input:hover,
-  .payment-type-form.product-form .form-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-  }
-
-  .payment-type-form.product-form > div {
-    border-radius: 12px;
-    padding: 0.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-</style>`;
-const formTabStyles = html`<style>
-  .error-message {
-    color: #ef4444;
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-    margin-bottom: 11px;
-    display: none;
-  }
-
-  .form-input.error {
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  .form-input.error:focus {
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-  }
-  .form-tabs {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
-    padding-bottom: 1rem;
-  }
-
-  .form-tab {
-    background: none;
-    border: none;
-    color: var(--text);
-    opacity: 0.7;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-
-  .form-tab:after {
-    content: "";
-    position: absolute;
-    bottom: -1rem;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  .form-tab.active {
-    opacity: 1;
-  }
-
-  .form-tab.active:after {
-    transform: scaleX(1);
-  }
-
-  .form-step {
-    display: none;
-  }
-
-  .form-step.active {
-    display: block;
-  }
-
-  .form-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-  }
-
-  .nav-btn {
-    background: var(--accent);
-    border: none;
-    color: var(--text);
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .nav-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .nav-btn:hover:not(:disabled) {
-    background: var(--primary);
-  }
-</style>`;

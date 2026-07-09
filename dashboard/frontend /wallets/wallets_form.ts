@@ -467,17 +467,6 @@ export function createWalletSlotForm() {
             readonly
             style="margin-bottom: 20px;"
           />
-          <style>
-            .restore-wallet-link {
-              color: var(--accent, #7c3aed);
-              text-decoration: underline;
-              cursor: pointer;
-              font-size: 0.9rem;
-            }
-            .restore-wallet-link:hover {
-              color: var(--primary, #5b21b6);
-            }
-          </style>
           <a class="restore-wallet-link" id="restore-wallet-link">
             Restore Wallet in Extension</a
           >

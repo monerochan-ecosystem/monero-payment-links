@@ -13,100 +13,6 @@ declare global {
 
 window.navigateTo = navigateTo;
 
-export const sidebarStyles = html`<style>
-  .sidebar {
-    width: 280px;
-    background: var(--primary);
-    padding: 2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--accent);
-  }
-
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 1rem;
-    margin-bottom: 2rem;
-    color: var(--text);
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    color: var(--text);
-    border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.3s ease;
-    margin-bottom: 0.5rem;
-  }
-
-  .menu-item:hover {
-    background: rgba(124, 58, 237, 0.2);
-  }
-
-  .menu-item.active {
-    background: var(--accent);
-  }
-  .icon {
-    width: 20px !important;
-    height: 20px !important;
-  }
-  @media (max-width: 768px) {
-    .icon {
-      width: 24px;
-      height: 24px;
-    }
-    .sidebar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      padding: 0.4rem 0.5rem;
-      flex-direction: row;
-      justify-content: space-around;
-      align-items: center;
-      background: var(--primary);
-      z-index: 100;
-      border-right: none;
-      border-top: 1px solid var(--accent);
-    }
-
-    .sidebar-logo {
-      display: none;
-    }
-
-    .menu-item {
-      flex-direction: row;
-      padding: 0.5rem;
-      margin-bottom: 0;
-      text-align: left;
-      font-weight: 700;
-      width: auto;
-      gap: 0.2rem;
-    }
-
-    .main-content {
-      padding-bottom: 80px;
-    }
-
-    .add-wallet-btn {
-      bottom: 90px !important;
-    }
-    .set-nodeurl-btn {
-      bottom: 90px !important;
-      left: 2rem !important;
-    }
-  }
-</style>`;
-
 export function sidebar() {
   const current_path = router.getCurrentPath();
   return html`
@@ -167,7 +73,6 @@ export function sidebar() {
         </svg>
         Payment Links
       </div>
-      ${sidebarStyles}
     </nav>
   `;
 }
