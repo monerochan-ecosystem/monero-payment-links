@@ -703,8 +703,256 @@ export const walletNotDetectedStyles = html`<style>
   }
 </style>`;
 
-// dashboard
-export const walletFormStyles = html`<style>
+
+export const dashBoardStyles = html`
+<style>
+  /*mainStyles*/
+  :root {
+    --primary: #5b21b6;
+    --secondary: #4c1d95;
+    --accent: #7c3aed;
+    --text: #f8fafc;
+    --bg: #18181b;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    background: var(--bg);
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+  }
+  input {
+    box-sizing: border-box;
+  }
+  textarea {
+    box-sizing: border-box;
+  }
+  select {
+    background-color: #231c30 !important;
+    color: #fff !important;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  select option {
+    color: #fff !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(124, 58, 237, 0.3) !important;
+    background: rgba(124, 58, 237, 0.1) !important;
+    font-size: 1rem;
+  }
+
+  .layout-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .main-content {
+    margin: 20px auto;
+    display: flex;
+  }
+
+  @media (min-width: 768px) {
+    .main-content {
+      padding: 2rem;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+    z-index: 101;
+    padding-top: 20px;
+  }
+
+  .dialog {
+    height: fit-content;
+    background: var(--bg);
+    padding: 2rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid var(--accent);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+  }
+
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .dialog-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  @media (max-width: 768px) {
+    .main-content {
+      padding-bottom: 80px; 
+    }
+    .dialog {
+      padding: 1rem;
+    }
+    .dialog-title {
+      font-size: 1.2rem;
+    }
+    .dialog-header {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1.5rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+
+  .close-btn:hover {
+    opacity: 1;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+  }
+  /*sidebarStyles*/
+  .sidebar {
+    width: 280px;
+    background: var(--primary);
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--accent);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+  }
+
+  .menu-item:hover {
+    background: rgba(124, 58, 237, 0.2);
+  }
+
+  .menu-item.active {
+    background: var(--accent);
+  }
+  .icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  @media (max-width: 768px) {
+    .icon {
+      width: 24px;
+      height: 24px;
+    }
+    .sidebar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      padding: 0.4rem 0.5rem;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      background: var(--primary);
+      z-index: 100;
+      border-right: none;
+      border-top: 1px solid var(--accent);
+    }
+
+    .sidebar-logo {
+      display: none;
+    }
+
+    .menu-item {
+      flex-direction: row;
+      padding: 0.5rem;
+      margin-bottom: 0;
+      text-align: left;
+      font-weight: 700;
+      width: auto;
+      gap: 0.2rem;
+    }
+
+    .main-content {
+      padding-bottom: 80px;
+    }
+
+    .add-wallet-btn {
+      bottom: 90px !important;
+    }
+    .set-nodeurl-btn {
+      bottom: 90px !important;
+      left: 2rem !important;
+    }
+  }
+/*walletFormStyles */
 .restore-wallet-link {
               color: var(--accent, #7c3aed);
               text-decoration: underline;
@@ -714,10 +962,8 @@ export const walletFormStyles = html`<style>
             .restore-wallet-link:hover {
               color: var(--primary, #5b21b6);
             }
-</style>`;
 
-// dashboard
-export const loginStyles = html`<style>
+/*loginStyles*/
 body {
           font-family: sans-serif;
           text-align: center;
@@ -753,10 +999,8 @@ body {
           color: red;
           margin: 10px 0;
         }
-</style>`;
 
-//dashboard
-export const walletStyles = html`<style>
+/*walletStyles*/
   .wallets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
@@ -1175,10 +1419,8 @@ export const walletStyles = html`<style>
       opacity: 0.7;
     }
   }
-</style>`;
 
-// dashboard
-export const createPaymentLinkFormStyles = html`<style>
+/* createPaymentLinkFormStyles */
   .submit-btn {
     width: 100%;
     padding: 1rem;
@@ -1426,11 +1668,9 @@ export const createPaymentLinkFormStyles = html`<style>
     opacity: 0.5;
     cursor: not-allowed;
   }
-</style> `;
 
 
-// dashboard
-export const paymentLinkDetailStyles = html`<style>
+/*paymentLinkDetailStyles*/ 
   .detail-container {
     padding: 2rem;
     max-width: 800px;
@@ -1775,10 +2015,8 @@ export const paymentLinkDetailStyles = html`<style>
       align-items: flex-start;
     }
   }
-</style>`;
 
-// dashboard
-export const paymentLinksStyles = html`<style>
+/*paymentLinksStyles */
   .payment-links-section {
     display: flex;
     flex-direction: column;
@@ -2130,10 +2368,8 @@ export const paymentLinksStyles = html`<style>
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
   }
-</style>`;
 
-// dashboard
-export const emptyPaymentLinksStyles = html`<style>
+/*emptyPaymentLinksStyles*/
   .empty-payment-links-card {
     background: rgba(124, 58, 237, 0.1);
     border: 2px dashed rgba(124, 58, 237, 0.3);
@@ -2212,10 +2448,7 @@ export const emptyPaymentLinksStyles = html`<style>
       transform: translateY(0px);
     }
   }
-</style>`;
-
-// dashboard
-export const formTabStyles = html`<style>
+/*formTabStyles*/ 
   .error-message {
     color: #ef4444;
     font-size: 0.875rem;
@@ -2303,11 +2536,7 @@ export const formTabStyles = html`<style>
   .nav-btn:hover:not(:disabled) {
     background: var(--primary);
   }
-</style>`;
-
-
-// dashboard
-export const paymentTypeSelectionStyles = html`<style>
+/*paymentTypeSelectionStyles*/
   .payment-type-card {
     border: 1px solid rgba(124, 58, 237, 0.2);
     border-radius: 12px;
@@ -2495,105 +2724,7 @@ export const paymentTypeSelectionStyles = html`<style>
     position: relative;
     overflow: hidden;
   }
-</style>`;
-
-// dashboard
-export const sidebarStyles = html`<style>
-  .sidebar {
-    width: 280px;
-    background: var(--primary);
-    padding: 2rem 1rem;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--accent);
-  }
-
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 1rem;
-    margin-bottom: 2rem;
-    color: var(--text);
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    color: var(--text);
-    border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.3s ease;
-    margin-bottom: 0.5rem;
-  }
-
-  .menu-item:hover {
-    background: rgba(124, 58, 237, 0.2);
-  }
-
-  .menu-item.active {
-    background: var(--accent);
-  }
-  .icon {
-    width: 20px !important;
-    height: 20px !important;
-  }
-  @media (max-width: 768px) {
-    .icon {
-      width: 24px;
-      height: 24px;
-    }
-    .sidebar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      padding: 0.4rem 0.5rem;
-      flex-direction: row;
-      justify-content: space-around;
-      align-items: center;
-      background: var(--primary);
-      z-index: 100;
-      border-right: none;
-      border-top: 1px solid var(--accent);
-    }
-
-    .sidebar-logo {
-      display: none;
-    }
-
-    .menu-item {
-      flex-direction: row;
-      padding: 0.5rem;
-      margin-bottom: 0;
-      text-align: left;
-      font-weight: 700;
-      width: auto;
-      gap: 0.2rem;
-    }
-
-    .main-content {
-      padding-bottom: 80px;
-    }
-
-    .add-wallet-btn {
-      bottom: 90px !important;
-    }
-    .set-nodeurl-btn {
-      bottom: 90px !important;
-      left: 2rem !important;
-    }
-  }
-</style>`;
-
-// dashboard
-export const transactionsListStyles = html`<style>
+/*transactionsListStyles*/
   .transactions-section {
     padding: 2rem;
     max-width: 800px;
@@ -2739,168 +2870,7 @@ export const transactionsListStyles = html`<style>
     margin: 0;
     font-size: 0.875rem;
   }
-</style>`;
-
-
-// dashboard
-export const mainStyles = html`<style>
-  :root {
-    --primary: #5b21b6;
-    --secondary: #4c1d95;
-    --accent: #7c3aed;
-    --text: #f8fafc;
-    --bg: #18181b;
-  }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    background: var(--bg);
-    font-family: "Inter", system-ui, sans-serif;
-    color: var(--text);
-  }
-  input {
-    box-sizing: border-box;
-  }
-  textarea {
-    box-sizing: border-box;
-  }
-  select {
-    background-color: #231c30 !important;
-    color: #fff !important;
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--text);
-    font-size: 1rem;
-  }
-
-  select option {
-    color: #fff !important;
-    padding: 0.75rem !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(124, 58, 237, 0.3) !important;
-    background: rgba(124, 58, 237, 0.1) !important;
-    font-size: 1rem;
-  }
-
-  .layout-container {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-  }
-
-  .main-content {
-    margin: 20px auto;
-    display: flex;
-  }
-
-  @media (min-width: 768px) {
-    .main-content {
-      padding: 2rem;
-      justify-content: center;
-      align-items: center;
-    }
-  }
-
-  .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-    overflow-y: auto;
-    z-index: 101;
-    padding-top: 20px;
-  }
-
-  .dialog {
-    height: fit-content;
-    background: var(--bg);
-    padding: 2rem;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 500px;
-    border: 1px solid var(--accent);
-    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
-  }
-
-  .dialog-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .dialog-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-  @media (max-width: 768px) {
-    .main-content {
-      padding-bottom: 80px; /* Increase padding to prevent overlap */
-    }
-    .dialog {
-      padding: 1rem;
-    }
-    .dialog-title {
-      font-size: 1.2rem;
-    }
-    .dialog-header {
-      margin-bottom: 1rem;
-    }
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text);
-    cursor: pointer;
-    font-size: 1.5rem;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-  }
-
-  .close-btn:hover {
-    opacity: 1;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  .form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    opacity: 0.8;
-  }
-
-  .form-input {
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px solid rgba(124, 58, 237, 0.3);
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--text);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .form-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
-  }
-</style>`;
-
-// dashboard
-export const noWalletsPaymentsCardStyles = html`<style>
+/*noWalletsPaymentsCardStyles*/
   .guidance-card {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     border-radius: 20px;
@@ -2962,4 +2932,4 @@ export const noWalletsPaymentsCardStyles = html`<style>
       transform: translateY(0);
     }
   }
-</style>`;
+</style>`
