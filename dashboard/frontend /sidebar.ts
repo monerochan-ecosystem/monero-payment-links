@@ -25,7 +25,7 @@ export function sidebar() {
           width="24"
           height="24"
           stroke-width="2"
-          fill="white"
+          fill="currentColor"
           class="bi bi-wallet"
           viewBox="0 0 16 16"
         >

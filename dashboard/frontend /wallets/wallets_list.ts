@@ -52,7 +52,7 @@ export function emptyWalletCard() {
       width="38"
       height="38"
       stroke-width="2"
-      fill="white"
+      fill="currentColor"
       class="bi bi-wallet"
       viewBox="0 0 16 16"
     >
@@ -102,7 +102,7 @@ export function filledWalletCard(wallet: any) {
         width="38"
         height="38"
         stroke-width="2"
-        fill="white"
+        fill="currentColor"
         class="bi bi-wallet"
         viewBox="0 0 16 16"
       >
