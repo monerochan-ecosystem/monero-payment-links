@@ -1,14 +1,13 @@
-async function ensureAdminSecret(): Promise<string> {
-  const envPath = ".env";
-  const envFile = Bun.file(envPath);
+import { writeEnvLineToDotEnvRefresh } from "@spirobel/monero-wallet-api";
 
-  if (!(await envFile.exists())) {
-    const secret = crypto.randomUUID();
-    await Bun.write(envPath, `ADMIN_SECRET=${secret}\n`);
-    console.log("created .env with random ADMIN_SECRET");
-    return secret;
-  }
-  throw new Error(".env already exists");
+async function ensureAdminSecret(): Promise<string> {
+  const existing = Bun.env.ADMIN_SECRET;
+  if (existing) return existing;
+
+  const secret = crypto.randomUUID();
+  await writeEnvLineToDotEnvRefresh("ADMIN_SECRET", secret);
+  console.log("created ADMIN_SECRET in .env");
+  return secret;
 }
 
 let adminSecret = Bun.env.ADMIN_SECRET;
