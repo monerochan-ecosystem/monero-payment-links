@@ -8,6 +8,7 @@ import {
   deleteWalletRoute,
   shareViewKeyRoute,
   updateNodeUrlRoute,
+  updateThemeRoute,
 } from "./dashboard/backend/wallets";
 import { dashBoardRoute, dashboardSkeleton } from "./dashboard/dashboard";
 import {
@@ -44,6 +45,9 @@ export function makeRoutes() {
     },
     "/updateNodeUrl": {
       POST: updateNodeUrlRoute,
+    },
+    "/updateTheme": {
+      POST: updateThemeRoute,
     },
   };
   return routes;

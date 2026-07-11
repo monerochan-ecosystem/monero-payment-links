@@ -4,6 +4,7 @@ import {
   writeStartHeightToScanSettings,
   writeNodeUrlToScanSettings,
   writeMerchantConfirmationsToScanSettings,
+  writeEnvLineToDotEnvRefresh,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
 import type { ManyScanCachesOpened } from "@spirobel/monero-wallet-api";
@@ -239,6 +240,33 @@ export type NodeUrlFormInput = {
   start_height: number | null | "";
   merchant_confirmations: number | null | "";
 };
+
+export async function updateThemeRoute(req: Request) {
+  const adminRedirect = await checkAdminAndRedirect(req);
+  if (adminRedirect) return adminRedirect;
+
+  try {
+    const body = (await req.json()) as {
+      checkout_theme?: string;
+      dashboard_theme?: string;
+    };
+
+    if (body.checkout_theme) {
+      await writeEnvLineToDotEnvRefresh("THEME_CHECKOUT", body.checkout_theme);
+    }
+    if (body.dashboard_theme) {
+      await writeEnvLineToDotEnvRefresh("THEME_DASHBOARD", body.dashboard_theme);
+    }
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("Error updating theme:", error);
+    return Response.json({
+      success: false,
+      error: { issues: [{ path: [], message: "Invalid JSON" }] },
+    });
+  }
+}
 
 export async function updateNodeUrlRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);

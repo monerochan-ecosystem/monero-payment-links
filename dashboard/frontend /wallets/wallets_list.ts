@@ -37,10 +37,10 @@ export function walletGrid() {
       );
     }}
     <button class="set-nodeurl-btn" onclick="openNodeUrlForm()">
-      Set Node URL
+      Settings
     </button>
 
-    <a class="add-wallet-btn" href="${makeWalletHref}">+ Add Wallet</a>
+    <a class="add-wallet-btn" href="${makeWalletHref}">Add Wallet</a>
   </div>`;
 }
 export function emptyWalletCard() {

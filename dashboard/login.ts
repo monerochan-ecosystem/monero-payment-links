@@ -43,7 +43,7 @@ export async function adminLoginGet(req: Request) {
         <p class="error">Incorrect password. Try again.</p>
       </div>`
     : html`<div id="error"></div>`;
-  const theme = getTheme(req);
+  const theme = getTheme();
   const filled = loginSkeleton.fill(theme.loginStyles, errorHtml);
   return new Response(filled);
 }

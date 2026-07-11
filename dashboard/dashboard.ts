@@ -26,7 +26,7 @@ export const dashboardSkeleton = await html`<!DOCTYPE html>
     </body>
   </html> `.build();
 export async function dashBoardRoute(req: Request) {
-  const theme = getTheme(req)
+  const theme = getTheme();
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
   const scan_settings = await readScanSettings(SCAN_SETTINGS_PATH);
@@ -45,6 +45,8 @@ export async function dashBoardRoute(req: Request) {
       payment_links,
       checkout_sessions,
       wallet_balances,
+      theme_checkout: Bun.env.THEME_CHECKOUT || "document",
+      theme_dashboard: Bun.env.THEME_DASHBOARD || "document",
     }),
   );
   return new Response(dashboardSkeleton.fill(hydrate, theme.dashBoardStyles));
@@ -60,4 +62,6 @@ export type DashboadData = {
   payment_links: CombinedPaymentLinkRow[];
   checkout_sessions?: CheckoutSessionRow[];
   wallet_balances: WalletBalance[];
+  theme_checkout: string;
+  theme_dashboard: string;
 };

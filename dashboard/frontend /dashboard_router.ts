@@ -42,7 +42,7 @@ export function paymentLinksRoute(): MiniHtmlString {
 
   const paymentLinksContent = html`<div>
     <button class="create-link-btn" onclick="openPaymentLinkForm()">
-      + Create Payment Link
+      Create Payment Link
     </button>
     ${createPaymentLinkForm}
     ${hasPaymentLinks ? paymentLinksList : paymentLinksEmpty}

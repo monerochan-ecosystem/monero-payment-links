@@ -141,7 +141,7 @@ async function getSuccessRedirectUrl(sessionRow: {
 // the refresh header means it will be reloaded every 1 second
 // the result is a live experience without javascript in the frontend.
 async function paymentStatusRoute(req: Request) {
-  const theme = getTheme(req)
+  const theme = getTheme("checkout")
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("checkoutId");
   if (!sessionId) {
@@ -225,7 +225,7 @@ async function paymentStatusRoute(req: Request) {
 }
 
 async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
-  const theme = getTheme(req)
+  const theme = getTheme("checkout")
   const paymentLinkId = req.params.paymentLinkId;
 
   if (!paymentLinkId) {
@@ -337,7 +337,7 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
 }
 
 async function checkoutRoute(req: Request) {
-  const theme = getTheme(req)
+  const theme = getTheme("checkout")
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("checkoutId");
   if (!sessionId) {
@@ -450,7 +450,7 @@ async function checkoutRoute(req: Request) {
 
 
 async function walletInfoRoute(req: Request) {
-  const theme = getTheme(req)
+  const theme = getTheme("checkout")
   const url = new URL(req.url);
   const checkoutId = url.searchParams.get("checkoutId");
   const backUrl = checkoutId ? `/?checkoutId=${checkoutId}` : "/";
