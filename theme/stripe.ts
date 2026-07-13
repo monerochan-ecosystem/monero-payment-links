@@ -947,7 +947,7 @@ export const dashBoardStyles = html`
     .add-wallet-btn {
       bottom: 90px !important;
     }
-    .set-nodeurl-btn {
+    .wallet-footer-left {
       bottom: 90px !important;
       left: 2rem !important;
     }
@@ -1093,12 +1093,19 @@ export const dashBoardStyles = html`
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
   }
-  .set-nodeurl-btn {
-    text-decoration: none;
-    outline: none;
+  .wallet-footer-left {
     position: fixed;
     bottom: 2rem;
     left: 360px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .set-nodeurl-btn {
+    text-decoration: none;
+    outline: none;
+    position: static;
     background: var(--accent);
     border: none;
     color: var(--text);
@@ -2800,6 +2807,32 @@ export const dashBoardStyles = html`
       opacity: 1;
       transform: translateY(0);
     }
+  }
+/*syncHeights*/
+  .connection-progress {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    line-height: 1.15;
+  }
+  .connection-progress .heights {
+    color: #888;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    font-family: "Courier New", monospace;
+  }
+  .connection-progress .mini-divider {
+    width: 50px;
+    height: 4px;
+    background: #666;
+    border-radius: 12px;
+    margin: 2px 0;
+  }
+  .connection-progress .no-connection {
+    color: #888;
+    font-size: 0.75rem;
+    font-family: "Courier New", monospace;
+    line-height: 1.15;
   }
 </style>`
 // login

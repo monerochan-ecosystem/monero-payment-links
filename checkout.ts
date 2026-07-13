@@ -5,7 +5,6 @@ import {
   ADDRESS_VALID_RESPONSE,
   ADDRESS_INVALID_RESPONSE,
   convertAmountBigInt,
-  readMerchantConfirmationsFromScanSettings,
 } from "@spirobel/monero-wallet-api";
 import QRCode from "qrcode";
 import {
@@ -22,15 +21,12 @@ import {
   getPaidCheckoutSessionByPaymentLinkId,
 } from "./db";
 import type { BunRequest } from "bun";
-import { SCAN_SETTINGS_PATH, setWallets } from "./dashboard/backend/wallets";
+import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/wallets";
+import { broadcast, serializeWallets } from "./ws";
 import { getTheme } from "./theme/theme";
 
-let ACCEPT_AFTER_CONFIRMATIONS = 10;
-
-const storedConfirmations =
-  await readMerchantConfirmationsFromScanSettings(SCAN_SETTINGS_PATH);
-if (storedConfirmations !== undefined && storedConfirmations !== null) {
-  ACCEPT_AFTER_CONFIRMATIONS = storedConfirmations;
+function acceptAfterConfirmations(): number {
+  return getWallets()?.merchant_confirmations ?? 10;
 }
 
 const skeleton = await html`<!DOCTYPE html>
@@ -70,9 +66,15 @@ const wallets = await openWallets({
     // sync payments on cache change
     // sync in any case to update confirmations
     await syncPaymentStatus();
+    // tell connected dashboards the balances / sync status changed
+    broadcast(serializeWallets(getWallets()));
+  },
+  // isConnected only flips here (not in notifyMasterChanged), without this
+  // dashboards that loaded while disconnected stay on "no connection" until F5
+  onConnectionStatusChange: () => {
+    broadcast(serializeWallets(getWallets()));
   },
   autoRetry: true,
-
 });
 if (wallets) setWallets(wallets);
 const mainwallet = wallets?.wallets[0];
@@ -317,7 +319,7 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     await createCheckoutSession(
       paymentLinkRow.amount,
       secret,
-      ACCEPT_AFTER_CONFIRMATIONS,
+      acceptAfterConfirmations(),
       paymentLinkRow.payment_link_id,
     )
   )[0];

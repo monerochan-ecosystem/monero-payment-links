@@ -1,9 +1,6 @@
 import {
   handle002ShareRequest,
   readWalletsFromScanSettings,
-  writeStartHeightToScanSettings,
-  writeNodeUrlToScanSettings,
-  writeMerchantConfirmationsToScanSettings,
   writeEnvLineToDotEnvRefresh,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
@@ -241,6 +238,39 @@ export type NodeUrlFormInput = {
   merchant_confirmations: number | null | "";
 };
 
+function emptyToNull(value: number | null | "" | undefined): number | null {
+  if (value === "" || value === undefined || value === null) return null;
+  return value;
+}
+
+function validateNodeUrlForm(body: NodeUrlFormInput) {
+  const issues: { path: string[]; message: string }[] = [];
+  if (typeof body.nodeurl !== "string" || !body.nodeurl.trim()) {
+    issues.push({
+      path: ["nodeurl"],
+      message: "Node URL is required and must be a non-empty string",
+    });
+  }
+  const start_height = emptyToNull(body.start_height);
+  if (start_height !== null && (typeof start_height !== "number" || start_height < 0)) {
+    issues.push({
+      path: ["start_height"],
+      message: "Start height must be a non-negative number or empty",
+    });
+  }
+  const merchant_confirmations = emptyToNull(body.merchant_confirmations);
+  if (
+    merchant_confirmations !== null &&
+    (typeof merchant_confirmations !== "number" || merchant_confirmations < 0)
+  ) {
+    issues.push({
+      path: ["merchant_confirmations"],
+      message: "Confirmations must be a non-negative number or empty",
+    });
+  }
+  return { issues, start_height, merchant_confirmations };
+}
+
 export async function updateThemeRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
@@ -274,56 +304,34 @@ export async function updateNodeUrlRoute(req: Request) {
 
   try {
     const body = (await req.json()) as NodeUrlFormInput;
-
-    const issues: { path: string[]; message: string }[] = [];
-
-    if (typeof body.nodeurl !== "string" || body.nodeurl.trim().length === 0) {
-      issues.push({
-        path: ["nodeurl"],
-        message: "Node URL is required and must be a non-empty string",
-      });
-    }
-    if (body.start_height === "") body.start_height = null;
-    if (
-      body.start_height !== null &&
-      (typeof body.start_height !== "number" || body.start_height < 0)
-    ) {
-      issues.push({
-        path: ["start_height"],
-        message: "Start height must be a non-negative number or null",
-      });
-    }
-    if (body.merchant_confirmations === "") body.merchant_confirmations = null;
-    if (
-      body.merchant_confirmations !== null &&
-      (typeof body.merchant_confirmations !== "number" ||
-        body.merchant_confirmations < 0)
-    ) {
-      issues.push({
-        path: ["merchant_confirmations"],
-        message: "Confirmations must be a non-negative number or null",
-      });
-    }
-
+    const { issues, start_height, merchant_confirmations } =
+      validateNodeUrlForm(body);
     if (issues.length > 0) {
       return Response.json({ success: false, error: { issues } });
     }
 
-    await writeNodeUrlToScanSettings(body.nodeurl.trim(), SCAN_SETTINGS_PATH);
+    const wallets = getWallets();
+    if (!wallets) {
+      return Response.json({
+        success: false,
+        error: { issues: [{ path: [], message: "no wallets open" }] },
+      });
+    }
 
-    await writeStartHeightToScanSettings(body.start_height, SCAN_SETTINGS_PATH);
-
-    await writeMerchantConfirmationsToScanSettings(
-      body.merchant_confirmations,
-      SCAN_SETTINGS_PATH,
+    // restarts the scan worker with the new node/start height, no process restart
+    await wallets.changeNodeUrlAndStartHeight(
+      body.nodeurl.trim(),
+      start_height,
     );
+    await wallets.setMerchantConfirmations(merchant_confirmations);
 
     return Response.json({ success: true });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Invalid JSON";
     console.error("Error updating node URL:", error);
     return Response.json({
       success: false,
-      error: { issues: [{ path: [], message: "Invalid JSON" }] },
+      error: { issues: [{ path: [], message }] },
     });
   }
 }

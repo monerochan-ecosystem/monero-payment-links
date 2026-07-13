@@ -16,6 +16,12 @@ export function getHydratedData(): DashboardData {
 
 window.dashboardData = getHydratedData();
 
+const ws = new WebSocket(`ws://${location.host}/ws`);
+ws.addEventListener("message", (e) => {
+  Object.assign(window.dashboardData, JSON.parse(e.data as string));
+});
+ws.addEventListener("close", () => setTimeout(() => location.reload(), 1000));
+
 declare global {
   interface Window {
     dashboardData: DashboardData;

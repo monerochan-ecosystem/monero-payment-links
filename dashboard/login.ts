@@ -82,7 +82,7 @@ export async function adminLoginPost(req: Request) {
 
   return new Response(null, { status: 303, headers });
 }
-function getCookieValue(req: Request, name: string): string | null {
+export function getCookieValue(req: Request, name: string): string | null {
   const header = req.headers.get("Cookie") || "";
   const parts = header.split(";");
   for (const part of parts) {

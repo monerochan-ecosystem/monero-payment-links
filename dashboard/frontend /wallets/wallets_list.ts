@@ -36,12 +36,32 @@ export function walletGrid() {
         (l) => html` <div class="wallets-grid">${l}</div>`,
       );
     }}
-    <button class="set-nodeurl-btn" onclick="openNodeUrlForm()">
-      Settings
-    </button>
-
+    <div class="wallet-footer-left">
+      <button class="set-nodeurl-btn" onclick="openNodeUrlForm()">
+        Settings
+      </button>
+      ${syncProgress()}
+    </div>
     <a class="add-wallet-btn" href="${makeWalletHref}">Add Wallet</a>
   </div>`;
+}
+export function syncProgress() {
+  const s = window.dashboardData.sync_status;
+  if (!s?.is_connected) {
+    return html`
+      <div class="connection-progress">
+        <div class="no-connection">no</div>
+        <div class="no-connection">connection</div>
+      </div>
+    `;
+  }
+  return html`
+    <div class="connection-progress">
+      <div class="heights">${s.current_height ?? "?"}</div>
+      <div class="mini-divider"></div>
+      <div class="heights">${s.daemon_height || "?"}</div>
+    </div>
+  `;
 }
 export function emptyWalletCard() {
   const makeWalletHref = makeWalletCreationLink();

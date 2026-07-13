@@ -15,7 +15,12 @@ import {
   adminLoginGet,
   adminLoginPost,
   loginSkeleton,
+  getCookieValue,
+  checkLoggedin,
 } from "./dashboard/login";
+import { serializeWallets, setServer, WS_TOPIC } from "./ws";
+import { getWallets } from "./dashboard/backend/wallets";
+import type { Server, ServerWebSocket } from "bun";
 export function makeRoutes() {
   const routes = {
     ...dashboardSkeleton.static_routes,
@@ -27,6 +32,18 @@ export function makeRoutes() {
     },
     "/dashboard": {
       GET: dashBoardRoute,
+    },
+    "/ws": {
+      GET: async (req: Request, server: Server<undefined>) => {
+        const adminCookie = getCookieValue(req, "admin_session");
+        if (!(await checkLoggedin(adminCookie))) {
+          return new Response("unauthorized", { status: 401 });
+        }
+        if (server.upgrade(req)) {
+          return;
+        }
+        return new Response("upgrade failed", { status: 500 });
+      },
     },
     "/editPaymentLink": {
       POST: editPaymentLinkRoute,
@@ -53,15 +70,30 @@ export function makeRoutes() {
   return routes;
 }
 
+const websocket = {
+  open(ws: ServerWebSocket) {
+    ws.subscribe(WS_TOPIC);
+    ws.send(JSON.stringify(serializeWallets(getWallets())));
+  },
+  close(ws: ServerWebSocket) {
+    ws.unsubscribe(WS_TOPIC);
+  },
+  message(_ws: ServerWebSocket, _message: string | Buffer) {
+  },
+};
+
 const server = Bun.serve({
   port: 3003,
   routes: makeRoutes(),
+  websocket,
 });
+
+setServer(server);
 
 globalThis.minireload = () => {
   server.reload({
     routes: makeRoutes(),
-    port: 3003,
+    websocket,
   });
 };
 
