@@ -19,10 +19,11 @@ import {
   getPaymentLinkByPaymentLinkId,
   incrementPaymentLinkUses,
   getPaidCheckoutSessionByPaymentLinkId,
+  getAllSuccessfulCheckoutSessions,
 } from "./db";
 import type { BunRequest } from "bun";
 import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/wallets";
-import { broadcast, serializeWallets } from "./ws";
+import { broadcast, serializeDashboard } from "./ws";
 import { getTheme } from "./theme/theme";
 
 function acceptAfterConfirmations(): number {
@@ -66,14 +67,24 @@ const wallets = await openWallets({
     // sync payments on cache change
     // sync in any case to update confirmations
     await syncPaymentStatus();
-    // tell connected dashboards the balances / sync status changed
-    broadcast(serializeWallets(getWallets()));
+    // tell connected dashboards balances / sync status / checkout sessions changed
+    broadcast(
+      serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
+    );
   },
   // isConnected only flips here (not in notifyMasterChanged), without this
   // dashboards that loaded while disconnected stay on "no connection" until F5
-  onConnectionStatusChange: () => {
-    broadcast(serializeWallets(getWallets()));
+  onConnectionStatusChange: async () => {
+    broadcast(
+      serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
+    );
   },
+  // logs: "console",
+  // logs_include: [
+  //   "handleCpuboundScan",
+  //   "atomicWrite",
+  //   "blocksBufferFetchLoop",
+  // ],
   autoRetry: true,
 });
 if (wallets) setWallets(wallets);

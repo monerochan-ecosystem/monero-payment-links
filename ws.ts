@@ -1,6 +1,6 @@
 import type { Server, ServerWebSocket } from "bun";
 import type { ManyScanCachesOpened } from "@spirobel/monero-wallet-api";
-import type { SyncStatus } from "./dashboard/dashboard";
+import type { CheckoutSessionRow } from "./db";
 
 export const WS_TOPIC = "dashboard";
 
@@ -14,19 +14,25 @@ export function broadcast(data: object) {
 }
 
 export function serializeWallets(wallets?: ManyScanCachesOpened) {
-  const wallet_balances = wallets?.wallets.map((w) => ({
-    primary_address: w.primary_address,
-    spendable: w.amount.toString(),
-    pending: w.pending_amount.toString(),
-  })) || [];
-
-  const sync = wallets?.connectionStatusOpened?.connectionStatus?.sync ?? null;
-  const sync_status: SyncStatus = {
+  const sync_status = wallets?.connectionStatusOpened?.connectionStatus?.sync;
+  return {
+    wallet_balances:
+      wallets?.wallets.map((w) => ({
+        primary_address: w.primary_address,
+        spendable: w.amount.toString(),
+        pending: w.pending_amount.toString(),
+      })) ?? [],
+    sync_status,
     current_height: wallets?.current_height ?? null,
-    daemon_height: wallets?.daemonHeight ?? sync?.daemon_height ?? 0,
-    is_connected: wallets?.connectionStatusOpened?.isConnected ?? false,
-    eta: sync?.eta ?? null,
   };
+}
 
-  return { wallet_balances, sync_status };
+export function serializeDashboard(
+  wallets?: ManyScanCachesOpened,
+  checkoutSessions?: CheckoutSessionRow[],
+) {
+  return {
+    ...serializeWallets(wallets),
+    checkout_sessions: checkoutSessions ?? [],
+  };
 }

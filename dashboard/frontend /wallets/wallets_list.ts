@@ -47,7 +47,7 @@ export function walletGrid() {
 }
 export function syncProgress() {
   const s = window.dashboardData.sync_status;
-  if (!s?.is_connected) {
+  if (!s) {
     return html`
       <div class="connection-progress">
         <div class="no-connection">no</div>
@@ -57,7 +57,7 @@ export function syncProgress() {
   }
   return html`
     <div class="connection-progress">
-      <div class="heights">${s.current_height ?? "?"}</div>
+      <div class="heights">${window.dashboardData.current_height ?? "?"}</div>
       <div class="mini-divider"></div>
       <div class="heights">${s.daemon_height || "?"}</div>
     </div>

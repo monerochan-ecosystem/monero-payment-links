@@ -34,7 +34,8 @@ export async function dashBoardRoute(req: Request) {
   const payment_links = await getAllPaymentLinks();
   const checkout_sessions = await getAllSuccessfulCheckoutSessions();
   const wallets = getWallets();
-  const { wallet_balances, sync_status } = serializeWallets(wallets);
+  const { wallet_balances, sync_status, current_height } =
+    serializeWallets(wallets);
 
   const hydrate = btoa(
     JSON.stringify({
@@ -43,6 +44,7 @@ export async function dashBoardRoute(req: Request) {
       checkout_sessions,
       wallet_balances,
       sync_status,
+      current_height,
       theme_checkout: Bun.env.THEME_CHECKOUT || "document",
       theme_dashboard: Bun.env.THEME_DASHBOARD || "document",
     }),
@@ -55,13 +57,6 @@ export type WalletBalance = {
   pending: string;
 };
 
-export type SyncStatus = {
-  current_height: number | null;
-  daemon_height: number;
-  is_connected: boolean;
-  eta: string | null;
-};
-
 export type DashboadData = {
   scan_settings?: ScanSettingsOpened;
   payment_links: CombinedPaymentLinkRow[];
@@ -69,5 +64,11 @@ export type DashboadData = {
   wallet_balances: WalletBalance[];
   theme_checkout: string;
   theme_dashboard: string;
-  sync_status: SyncStatus;
+  sync_status?: {
+    current_scan_height: number;
+    daemon_height: number;
+    eta: string;
+    timestamp: string;
+  } | null;
+  current_height: number | null;
 };
