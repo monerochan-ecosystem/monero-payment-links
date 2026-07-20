@@ -999,6 +999,7 @@ export const dashBoardStyles = html`
 
   .empty-wallet-card {
     text-decoration: none;
+    color: var(--text);
     max-width: 380px;
     height: 220px;
     background: #fafafa;
@@ -1021,6 +1022,7 @@ export const dashBoardStyles = html`
     height: 48px;
     opacity: 0.5;
     margin-bottom: 1rem;
+    color: var(--text);
   }
 
   .empty-state-text {
