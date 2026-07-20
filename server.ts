@@ -21,6 +21,7 @@ import {
 import { serializeWallets, setServer, WS_TOPIC } from "./ws";
 import { getWallets } from "./dashboard/backend/wallets";
 import type { Server, ServerWebSocket } from "bun";
+//import { mkdir } from "node:fs/promises";
 export function makeRoutes() {
   const routes = {
     ...dashboardSkeleton.static_routes,
@@ -66,6 +67,34 @@ export function makeRoutes() {
     "/updateTheme": {
       POST: updateThemeRoute,
     },
+    // debug: dump coordinator + cpu worker heaps while scanning
+    // "/debug/heap-dumps": {
+    //   GET: async () => {
+    //     const wallets = getWallets();
+    //     if (!wallets) {
+    //       return Response.json({ error: "no wallets open" }, { status: 503 });
+    //     }
+    //     if (typeof (wallets as any).dumpWorkerHeaps !== "function") {
+    //       return Response.json(
+    //         { error: "dumpWorkerHeaps missing; rebuild monero-wallet-api" },
+    //         { status: 500 },
+    //       );
+    //     }
+    //     const dir = `${process.cwd()}/heap-dumps`;
+    //     await mkdir(dir, { recursive: true });
+    //     try {
+    //       const paths = await (wallets as any).dumpWorkerHeaps(dir);
+    //       return Response.json({ dir, paths });
+    //     } catch (err) {
+    //       return Response.json(
+    //         {
+    //           error: err instanceof Error ? err.message : String(err),
+    //         },
+    //         { status: 500 },
+    //       );
+    //     }
+    //   },
+    // },
   };
   return routes;
 }
