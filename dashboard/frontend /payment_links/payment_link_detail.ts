@@ -5,6 +5,7 @@ import {
   type Params,
 } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
+import { formatLinkAmountDisplay } from "../../../rates";
 
 declare global {
   interface Window {
@@ -96,7 +97,7 @@ export function paymentLinkDetailRoute(
   const isProduct = paymentLink.linkType === "product";
   const title = paymentLink.title || "Untitled";
   const description = paymentLink.description || "";
-  const amount = paymentLink.amount ? `${paymentLink.amount} XMR` : "0 XMR";
+  const amount = formatLinkAmountDisplay(paymentLink);
   const paymentType = isProduct ? "Product" : "Invoice";
   const currentUses = paymentLink.currentUses || 0;
   const maxUses = paymentLink.maxUses || "Unlimited";

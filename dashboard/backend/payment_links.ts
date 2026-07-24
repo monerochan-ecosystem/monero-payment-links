@@ -6,7 +6,6 @@ import {
 } from "../../db";
 import { readScanSettings } from "@spirobel/monero-wallet-api";
 import { SCAN_SETTINGS_PATH } from "./wallets";
-
 export async function editPaymentLinkRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
@@ -20,6 +19,11 @@ export async function editPaymentLinkRoute(req: Request) {
     // paymentLinkId is optional; will be auto-generated if not provided
     if (!body.amount || body.amount.trim() === "") {
       errors.push({ path: ["amount"], message: "Amount is required" });
+    } else if (!(Number(body.amount) > 0)) {
+      errors.push({
+        path: ["amount"],
+        message: "Amount must be a positive number",
+      });
     }
     if (!body.walletId) {
       errors.push({ path: ["walletId"], message: "Wallet is required" });
@@ -40,6 +44,13 @@ export async function editPaymentLinkRoute(req: Request) {
       errors.push({
         path: ["invoiceTitle"],
         message: "Invoice title is required",
+      });
+    }
+    const currency = String(body.currency ?? "XMR").toUpperCase();
+    if (currency !== "XMR" && currency !== "USD") {
+      errors.push({
+        path: ["currency"],
+        message: "Currency must be XMR or USD",
       });
     }
 
@@ -67,11 +78,12 @@ export async function editPaymentLinkRoute(req: Request) {
       });
     }
 
-    // Upsert the payment link
     await upsertPaymentLink({
       paymentLinkId: paymentLinkId,
       linkType: body.linkType as "product" | "invoice",
-      amount: body.amount,
+      amount: body.amount.trim(),
+      currency,
+      amountFiat: currency === "USD" ? body.amount.trim() : null,
       wallet_primary_address: wallet.primary_address,
       maxUses: body.linkType === "product" ? body.maxUses || null : undefined,
       successUrl: body.successUrl || null,
@@ -90,7 +102,10 @@ export async function editPaymentLinkRoute(req: Request) {
       dueDate: body.linkType === "invoice" ? body.dueDate || null : undefined,
     });
 
-    return Response.json({ success: true, paymentLinkId: paymentLinkId });
+    return Response.json({
+      success: true,
+      paymentLinkId: paymentLinkId,
+    });
   } catch (error) {
     console.error("Error saving payment link:", error);
     return Response.json({

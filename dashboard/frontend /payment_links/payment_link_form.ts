@@ -106,6 +106,13 @@ function openPaymentLinkFormCB(paymentLinkId?: string) {
       const amountInput = form.querySelector(
         'input[name="amount"]',
       ) as HTMLInputElement;
+      const currencySelect = form.querySelector(
+        'select[name="currency"]',
+      ) as HTMLSelectElement;
+      if (currencySelect) {
+        currencySelect.value =
+          paymentLink.currency === "USD" ? "USD" : "XMR";
+      }
       if (amountInput) amountInput.value = paymentLink.amount || "";
 
       const maxUsesInput = form.querySelector(
@@ -948,7 +955,16 @@ export function createPaymentLinkForm() {
           </div>
           <div class="form-step" data-step="2">
             <div class="form-group">
-              <label class="form-label">Amount (XMR)</label>
+              <label class="form-label">Currency</label>
+              <select class="form-input" name="currency">
+                <option value="XMR" selected>XMR</option>
+                <option value="USD">USD</option>
+              </select>
+              <div class="error-message" id="currency-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Amount</label>
               <input
                 type="number"
                 step="any"
@@ -958,6 +974,9 @@ export function createPaymentLinkForm() {
                 placeholder="0.00"
               />
               <div class="error-message" id="amount-error"></div>
+              <div class="form-hint" style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.35rem;">
+                usd amount converts to xmr at checkout
+              </div>
             </div>
 
             <div class="form-group">

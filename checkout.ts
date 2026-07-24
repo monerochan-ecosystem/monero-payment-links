@@ -25,6 +25,7 @@ import type { BunRequest } from "bun";
 import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/wallets";
 import { broadcast, serializeDashboard } from "./ws";
 import { getTheme } from "./theme/theme";
+import { amountForCheckout, formatLinkAmountDisplay } from "./rates";
 
 function acceptAfterConfirmations(): number {
   return getWallets()?.merchant_confirmations ?? 10;
@@ -263,9 +264,7 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     if (paymentLinkRow.linkType === "product") {
       const title = paymentLinkRow.title || "Product";
       const description = paymentLinkRow.description || "";
-      const amount = paymentLinkRow.amount
-        ? `${paymentLinkRow.amount} XMR`
-        : "";
+      const amount = formatLinkAmountDisplay(paymentLinkRow);
       const content = html`<div class="info-container">
         ${theme.outOfStockStyles}
         <div class="info-card">
@@ -286,9 +285,7 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     } else {
       const title = paymentLinkRow.title || "Invoice";
       const description = paymentLinkRow.description || "";
-      const amount = paymentLinkRow.amount
-        ? `${paymentLinkRow.amount} XMR`
-        : "";
+      const amount = formatLinkAmountDisplay(paymentLinkRow);
       const paidSession = (
         await getPaidCheckoutSessionByPaymentLinkId(paymentLinkId)
       )[0];
@@ -325,10 +322,29 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     }
   }
 
+  let amountXmr: string;
+  try {
+    // usd priced links convert here with kraken cache; fail closed if no rate
+     amountXmr = await amountForCheckout(paymentLinkRow);
+  } catch (e) {
+    console.error("rate lookup failed for checkout", e);
+    const content = html`<div class="info-container">
+      <div class="info-card">
+        <div class="info-box">
+          <div class="info-title">Checkout unavailable</div>
+          <p class="info-message">
+            Could not get a live monero price. try again in a moment.
+          </p>
+        </div>
+      </div>
+    </div>`;
+    return new Response(skeleton.fill(content), { status: 503 });
+  }
+
   const secret = crypto.randomUUID();
   const insertedRow = (
     await createCheckoutSession(
-      paymentLinkRow.amount,
+      amountXmr,
       secret,
       acceptAfterConfirmations(),
       paymentLinkRow.payment_link_id,

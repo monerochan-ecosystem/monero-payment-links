@@ -1,5 +1,6 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
+import { formatLinkAmountDisplay } from "../../../rates";
 
 export function paymentLinksList() {
   const paymentLinks = window.dashboardData.payment_links || [];
@@ -8,7 +9,7 @@ export function paymentLinksList() {
     const isProduct = link.linkType === "product";
     const badgeClass = isProduct ? "product-badge" : "invoice-badge";
     const badgeText = isProduct ? "Product" : "Invoice";
-    const amount = link.amount ? `${link.amount} XMR` : "0 XMR";
+    const amount = formatLinkAmountDisplay(link);
     const title = link.title || "Untitled";
 
     const linkUrl = router.link("/payment-links/:id", {

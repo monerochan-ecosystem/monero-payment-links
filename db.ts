@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS product_payment_links (
     productTitle TEXT,
     productDescription TEXT,
     amount TEXT,
+    currency TEXT DEFAULT 'XMR',
+    amountFiat TEXT,
     wallet_primary_address TEXT,
     maxUses INTEGER,
     currentUses INTEGER DEFAULT 0,
@@ -37,6 +39,8 @@ CREATE TABLE IF NOT EXISTS invoice_payment_links (
     invoiceTitle TEXT,
     invoiceDescription TEXT,
     amount TEXT,
+    currency TEXT DEFAULT 'XMR',
+    amountFiat TEXT,
     wallet_primary_address TEXT,
     dueDate TEXT,
     currentUses INTEGER DEFAULT 0,
@@ -57,6 +61,8 @@ export type ProductPaymentLinkRow = {
   productTitle: string | null;
   productDescription: string | null;
   amount: string;
+  currency: string | null;
+  amountFiat: string | null;
   wallet_primary_address: string;
   maxUses: number | null;
   currentUses: number;
@@ -70,6 +76,8 @@ export type InvoicePaymentLinkRow = {
   invoiceTitle: string | null;
   invoiceDescription: string | null;
   amount: string;
+  currency: string | null;
+  amountFiat: string | null;
   wallet_primary_address: string;
   dueDate: string | null;
   currentUses: number;
@@ -169,6 +177,8 @@ export type CombinedPaymentLinkRow = {
   title: string | null; // productTitle or invoiceTitle
   description: string | null; // productDescription or invoiceDescription
   amount: string;
+  currency: string | null;
+  amountFiat: string | null;
   wallet_primary_address: string;
   dueDate: string | null; // only for invoice
   maxUses: number | null;
@@ -188,6 +198,8 @@ export function getPaymentLinkByPaymentLinkId(
       productTitle AS title,
       productDescription AS description,
       amount,
+      currency,
+      amountFiat,
       wallet_primary_address,
       NULL AS dueDate,
       maxUses,
@@ -206,6 +218,8 @@ export function getPaymentLinkByPaymentLinkId(
       invoiceTitle AS title,
       invoiceDescription AS description,
       amount,
+      currency,
+      amountFiat,
       wallet_primary_address,
       dueDate,
       NULL AS maxUses,
@@ -226,6 +240,8 @@ export function getAllPaymentLinks(): SQL.Query<CombinedPaymentLinkRow[]> {
       productTitle AS title,
       productDescription AS description,
       amount,
+      currency,
+      amountFiat,
       wallet_primary_address,
       NULL AS dueDate,
       maxUses,
@@ -243,6 +259,8 @@ export function getAllPaymentLinks(): SQL.Query<CombinedPaymentLinkRow[]> {
       invoiceTitle AS title,
       invoiceDescription AS description,
       amount,
+      currency,
+      amountFiat,
       wallet_primary_address,
       dueDate,
       NULL AS maxUses,
@@ -259,6 +277,8 @@ export function upsertPaymentLink(data: {
   paymentLinkId: string;
   linkType: "product" | "invoice";
   amount: string;
+  currency?: string | null;
+  amountFiat?: string | null;
   wallet_primary_address: string;
   maxUses?: number | null;
   successUrl?: string | null;
@@ -270,22 +290,26 @@ export function upsertPaymentLink(data: {
   invoiceDescription?: string | null;
   dueDate?: string | null;
 }): SQL.Query<InsertIdRow[]> {
+  const currency = data.currency ?? "XMR";
+  const amountFiat = data.amountFiat ?? null;
   if (data.linkType === "product") {
     return sql`
       INSERT INTO product_payment_links (
         payment_link_id, productTitle, productDescription,
-        amount, wallet_primary_address,
+        amount, currency, amountFiat, wallet_primary_address,
         maxUses, currentUses, successUrl
       ) VALUES (
         ${data.paymentLinkId},
         ${data.productTitle}, ${data.productDescription},
-        ${data.amount}, ${data.wallet_primary_address},
+        ${data.amount}, ${currency}, ${amountFiat}, ${data.wallet_primary_address},
         ${data.maxUses || null}, 0, ${data.successUrl}
       )
       ON CONFLICT(payment_link_id) DO UPDATE SET
         productTitle = excluded.productTitle,
         productDescription = excluded.productDescription,
         amount = excluded.amount,
+        currency = excluded.currency,
+        amountFiat = excluded.amountFiat,
         wallet_primary_address = excluded.wallet_primary_address,
         maxUses = excluded.maxUses,
         successUrl = excluded.successUrl
@@ -295,18 +319,20 @@ export function upsertPaymentLink(data: {
     return sql`
       INSERT INTO invoice_payment_links (
         payment_link_id, invoiceTitle, invoiceDescription,
-        amount, wallet_primary_address, dueDate,
+        amount, currency, amountFiat, wallet_primary_address, dueDate,
         currentUses, successUrl
       ) VALUES (
         ${data.paymentLinkId},
         ${data.invoiceTitle}, ${data.invoiceDescription},
-        ${data.amount}, ${data.wallet_primary_address}, ${data.dueDate},
+        ${data.amount}, ${currency}, ${amountFiat}, ${data.wallet_primary_address}, ${data.dueDate},
         0, ${data.successUrl}
       )
       ON CONFLICT(payment_link_id) DO UPDATE SET
         invoiceTitle = excluded.invoiceTitle,
         invoiceDescription = excluded.invoiceDescription,
         amount = excluded.amount,
+        currency = excluded.currency,
+        amountFiat = excluded.amountFiat,
         wallet_primary_address = excluded.wallet_primary_address,
         dueDate = excluded.dueDate,
         successUrl = excluded.successUrl
