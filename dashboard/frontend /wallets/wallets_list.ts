@@ -1,9 +1,9 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
-import { convertBigIntAmount, make002ToolLink } from "@spirobel/monero-wallet-api";
+import { convertBigIntAmount, tools } from "@spirobel/monero-wallet-api";
 import { router } from "../dashboard_router";
 
 export function makeWalletCreationLink(wallet_slot: number = 0) {
-  const makeWalletLink = make002ToolLink(wallet_slot);
+  const makeWalletLink = tools["002"].counterparty.make({ wallet_slot });
   return router.link("/wallets/new/") + makeWalletLink;
 }
 function getHighestWalletSlot() {

@@ -1,6 +1,5 @@
 import {
-  handle002ShareRequest,
-  readWalletsFromScanSettings,
+  tools,
   writeEnvLineToDotEnvRefresh,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
@@ -96,27 +95,11 @@ export async function editWalletRoute(req: Request) {
 export async function shareViewKeyRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
-  //if slot already exists we  make sure primary address & vk is the same
-  const wallets = await readWalletsFromScanSettings(SCAN_SETTINGS_PATH);
-  const res = await handle002ShareRequest(
-    req,
-    wallets,
-    async ({ primary_address, viewkey, wallet_slot }) => {
-      const existingWallet = wallets.find(
-        (w: any) => w.primary_address === primary_address.trim(),
-      );
-      const wallet_name =
-        existingWallet?.wallet_name ?? "unnamed wallet " + wallet_slot;
-      await saveWallet(
-        primary_address.trim(),
-        viewkey.trim(),
-        wallet_name,
-        wallet_slot,
-      );
-    },
-    "/dashboard#/wallets",
-  );
-  return Response.json(res);
+  const mco = getWallets();
+  if (!mco) return Response.json({ ok: false, successUrl: null });
+  return tools["002"].counterparty.execute_route(mco, {
+    successUrl: "/dashboard#/wallets",
+  })(req);
 }
 
 export async function deleteWalletRoute(req: Request) {

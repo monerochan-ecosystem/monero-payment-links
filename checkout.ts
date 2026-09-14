@@ -1,9 +1,7 @@
 import { html } from "@spirobel/mininext";
 import {
   openWallets,
-  make001ToolLink,
-  ADDRESS_VALID_RESPONSE,
-  ADDRESS_INVALID_RESPONSE,
+  tools,
   convertAmountBigInt,
 } from "@spirobel/monero-wallet-api";
 import QRCode from "qrcode";
@@ -49,13 +47,12 @@ export function makeCheckoutRoutes() {
     "/pay/:paymentLinkId": { GET: payRoute },
     "/paymentstatus": { GET: paymentStatusRoute },
     "/monerochan001/:address": {
-      GET: async (req: BunRequest<"/monerochan001/:address">) => {
-        const sessionRow = await getCheckoutSessionByAddress(
-          req.params.address,
-        );
-        if (!sessionRow[0]?.id) return Response.json(ADDRESS_INVALID_RESPONSE);
-        return Response.json(ADDRESS_VALID_RESPONSE);
-      },
+      GET: tools["001"].counterparty.validate_route({
+        isPayAddressKnown: async (address) => {
+          const sessionRow = await getCheckoutSessionByAddress(address);
+          return !!sessionRow[0]?.id;
+        },
+      }),
     },
     "/": { GET: checkoutRoute },
     "/wallet_info": { GET: walletInfoRoute },
@@ -420,7 +417,7 @@ async function checkoutRoute(req: Request) {
         })
       : null;
 
-  const toollink = `/wallet_info?checkoutId=${sessionId}#${make001ToolLink(address, sessionRow.amount)}`;
+  const toollink = `/wallet_info?checkoutId=${sessionId}#${tools["001"].counterparty.make({ address, amount: sessionRow.amount, no_check: false })}`;
   const addressQrCode = await QRCode.toDataURL(address);
   const paymentUri = `monero:${address}?tx_amount=${displayAmount}`;
   const paymentUriQrCode = await QRCode.toDataURL(paymentUri);
@@ -449,7 +446,13 @@ async function checkoutRoute(req: Request) {
         </div>
         <div class="step">
           <div class="step-content" style="text-align: center;">
-            <a href="${toollink}" class="pay-button">pay with browser wallet</a>
+            <a
+              href="${toollink}"
+              class="pay-button"
+              target="_blank"
+              rel="noopener noreferrer"
+              >pay with browser wallet</a
+            >
           </div>
         </div>
 
