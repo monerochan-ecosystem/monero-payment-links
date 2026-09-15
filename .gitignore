@@ -7,6 +7,8 @@ getblocksbinbuffer/*
 *ScanSettings.json
 *_stats.json
 *_cache.json
+*actionlog*.sqlite
+*actionlog*.sqlite-*
 # output
 out
 dist
@@ -27,6 +29,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.test.local
 .env.production.local
 .env.local
+
+# test temp data
+test-data/
 
 # caches
 .eslintcache
