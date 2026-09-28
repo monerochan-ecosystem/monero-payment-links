@@ -1,6 +1,9 @@
 # Monero Payment Links
-
 This Bun server creates checkout pages with Monero QR codes and a dashboard to manage wallets and payment links.
+
+![checkout page](docs/checkout.png)
+
+ Full operator guide: [docs/payment-links.md](docs/payment-links.md).
 
 ```bash
 bun install
