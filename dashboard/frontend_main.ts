@@ -16,7 +16,8 @@ export function getHydratedData(): DashboardData {
 
 window.dashboardData = getHydratedData();
 
-const ws = new WebSocket(`ws://${location.host}/ws`);
+const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+const ws = new WebSocket(`${wsProtocol}//${location.host}/ws`);
 ws.addEventListener("message", (e) => {
   Object.assign(window.dashboardData, JSON.parse(e.data as string));
 });
