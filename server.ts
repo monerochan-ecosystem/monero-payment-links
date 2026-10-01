@@ -34,6 +34,9 @@ export function makeRoutes() {
     "/dashboard": {
       GET: dashBoardRoute,
     },
+    "/favicon.ico": {
+      GET: () => new Response(null, { status: 204 }),
+    },
     "/ws": {
       GET: async (req: Request, server: Server<undefined>) => {
         const adminCookie = getCookieValue(req, "admin_session");
