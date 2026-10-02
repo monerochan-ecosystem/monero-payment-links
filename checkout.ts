@@ -361,23 +361,38 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
   headers.set("Location", redirectUrl);
   return new Response(null, { status: 303, headers });
 }
+function instanceInfoResponse() {
+  const theme = getTheme("checkout")
+  const content = html`<div class="info-container">
+    ${theme.outOfStockStyles}
+    <style>
+      .mpl { text-align: center; padding: 1rem 0; }
+      .mpl-title { font-size: 0.85rem; letter-spacing: 0.42em; text-indent: 0.42em; opacity: 0.9; }
+      .mpl-source { margin-top: 1rem; font-size: 0.78rem; opacity: 0.48; }
+      .mpl-source a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
+    </style>
+    <div class="info-card">
+      <div class="mpl">
+        <div class="mpl-title">monero payment links</div>
+        <div class="mpl-source"><a href="https://github.com/monerochan-ecosystem/monero-payment-links" target="_blank" rel="noopener noreferrer">[source]</a></div>
+      </div>
+    </div>
+  </div>`;
+  return new Response(skeleton.fill(content));
+}
 
 async function checkoutRoute(req: Request) {
   const theme = getTheme("checkout")
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("checkoutId");
   if (!sessionId) {
-    return new Response(
-      skeleton.fill(html`<h1>checkout session not found</h1>`),
-    );
+    return instanceInfoResponse();
   }
 
   const sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0];
 
   if (!sessionRow?.address) {
-    return new Response(
-      skeleton.fill(html`<h1>checkout session not found</h1>`),
-    );
+    return instanceInfoResponse();
   }
 
   if (sessionRow.paid_status) {
