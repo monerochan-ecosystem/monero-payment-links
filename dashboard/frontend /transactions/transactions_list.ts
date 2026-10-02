@@ -6,7 +6,9 @@ export function transactionsList() {
   const paymentLinks = window.dashboardData?.payment_links || [];
 
   function timeAgo(dateString: string): string {
-    const date = new Date(dateString);
+    // db stores utc without zone, parse as utc not local
+    const iso = dateString.includes("T") ? dateString : dateString.replace(" ", "T") + "Z";
+    const date = new Date(iso);
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     if (seconds < 60) return `${seconds}s ago`;
