@@ -16,6 +16,7 @@ import {
   updateTxHash,
   getPaymentLinkByPaymentLinkId,
   incrementPaymentLinkUses,
+  updateTxBlockTime,
   getPaidCheckoutSessionByPaymentLinkId,
   getAllSuccessfulCheckoutSessions,
 } from "./db";
@@ -24,10 +25,6 @@ import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/
 import { broadcast, serializeDashboard } from "./ws";
 import { getTheme } from "./theme/theme";
 import { amountForCheckout, formatLinkAmountDisplay } from "./rates";
-
-function acceptAfterConfirmations(): number {
-  return getWallets()?.merchant_confirmations ?? 10;
-}
 
 const skeleton = await html`<!DOCTYPE html>
   <html>
@@ -62,20 +59,30 @@ export function makeCheckoutRoutes() {
 const wallets = await openWallets({
   scan_settings_path: SCAN_SETTINGS_PATH,
   notifyMasterChanged: async (params) => {
-    // sync payments on cache change
-    // sync in any case to update confirmations
-    await syncPaymentStatus();
-    // tell connected dashboards balances / sync status / checkout sessions changed
-    broadcast(
-      serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
-    );
+    try {
+      await syncPaymentStatus();
+    } catch {
+    }
+    try {
+      broadcast(
+        serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
+      );
+    } catch {
+    }
   },
   // isConnected only flips here (not in notifyMasterChanged), without this
   // dashboards that loaded while disconnected stay on "no connection" until F5
   onConnectionStatusChange: async () => {
-    broadcast(
-      serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
-    );
+    try {
+      await syncPaymentStatus();
+    } catch {
+    }
+    try {
+      broadcast(
+        serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
+      );
+    } catch {
+    }
   },
   // logs: "console",
   // logs_include: [
@@ -86,47 +93,54 @@ const wallets = await openWallets({
   autoRetry: true,
 });
 if (wallets) setWallets(wallets);
-const mainwallet = wallets?.wallets[0];
+function walletForLink(addr?: string | null) {
+  const list = getWallets()?.wallets ?? [];
+  if (!addr) return undefined;
+  return list.find((w) => w.primary_address === addr);
+}
+// full sync for background events
+// runs when user leaves page, iframe heals open page
 async function syncPaymentStatus() {
-  if (!mainwallet) return;
-  for (const tx of mainwallet.transactions) {
-    const txConfirmations = tx.confirmations;
-    const checkout_session_row = await getCheckoutSessionByPrimaryId(
-      tx.payment_id,
-    );
-    if (
-      !checkout_session_row[0] || // no cechkout session for this tx
-      checkout_session_row[0].paid_status === 1 || // already marked as paid
-      (checkout_session_row[0].tx_hash && // tx_hash already set and different
-        checkout_session_row[0].tx_hash !== tx.tx_hash) // tx_hash changed (only support 1 tx per session)
-    )
-      continue;
-
-    if (!checkout_session_row[0].tx_hash) {
-      await updateTxHash(tx.payment_id, tx.tx_hash);
-    }
-
-    // update current confirmation count
-    await updateTxConfirmations(tx.payment_id, txConfirmations);
-
-    if (!checkout_session_row[0].paid_status) {
-      if (
-        txConfirmations >= checkout_session_row[0].required_confirmations &&
-        tx.amount >= convertAmountBigInt(checkout_session_row[0].amount)
-      ) {
-        await markAsPaid(tx.payment_id);
-
-        if (checkout_session_row[0].payment_link_id) {
-          await incrementPaymentLinkUses(
-            checkout_session_row[0].payment_link_id,
-          );
+  try {
+    for (const w of getWallets()?.wallets ?? []) {
+      let txs: { payment_id: number; confirmations: number; tx_hash: string; amount: bigint; outputs?: { block_timestamp: number }[] }[] = [];
+      try {
+        txs = w.transactions as typeof txs;
+      } catch {
+        continue;
+      }
+      for (const tx of txs) {
+        try {
+          const row = (await getCheckoutSessionByPrimaryId(tx.payment_id))[0];
+          if (!row) continue;
+          if (row.tx_hash && row.tx_hash !== tx.tx_hash) continue;
+          if (!row.tx_hash) await updateTxHash(tx.payment_id, tx.tx_hash);
+          if (row.tx_confirmations !== tx.confirmations) {
+            await updateTxConfirmations(tx.payment_id, tx.confirmations);
+          }
+          if (row.paid_status === 1) continue;
+          let need: bigint | null = null;
+          try {
+            need = convertAmountBigInt(row.amount);
+          } catch {
+          }
+          if (need === null || tx.amount < need) continue;
+          if (tx.confirmations < row.required_confirmations) continue;
+          await markAsPaid(tx.payment_id);
+          const blockTime = tx.outputs?.[0]?.block_timestamp;
+          if (blockTime) await updateTxBlockTime(tx.payment_id, blockTime);
+          if (row.payment_link_id) await incrementPaymentLinkUses(row.payment_link_id);
+        } catch {
         }
       }
     }
+  } catch {
   }
 }
-// sync payments on startup
-await syncPaymentStatus();
+try {
+  await syncPaymentStatus();
+} catch {
+}
 
 async function getSuccessRedirectUrl(sessionRow: {
   session_id: string;
@@ -161,12 +175,46 @@ async function paymentStatusRoute(req: Request) {
     );
   }
 
-  const sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0];
+  let sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0];
 
   if (!sessionRow?.address) {
     return new Response(
       skeleton.fill(html`<h1>checkout session not found</h1>`),
     );
+  }
+
+  // client polls each second, push conf forward here
+  // paid rows render from sqlite only, no wallet look
+  if (!sessionRow.paid_status) {
+    const rowId = sessionRow.id;
+    try {
+      const live = getWallets()?.wallets.flatMap((w) => {
+        try {
+          return w.transactions;
+        } catch {
+          return [];
+        }
+      }).find((t) => t.payment_id === rowId);
+      if (live) {
+        if (!sessionRow.tx_hash) await updateTxHash(sessionRow.id, live.tx_hash);
+        if (sessionRow.tx_confirmations !== live.confirmations) {
+          await updateTxConfirmations(sessionRow.id, live.confirmations);
+        }
+        let need: bigint | null = null;
+        try {
+          need = convertAmountBigInt(sessionRow.amount);
+        } catch {
+        }
+        if (need !== null && live.amount >= need && live.confirmations >= sessionRow.required_confirmations) {
+          await markAsPaid(sessionRow.id);
+          const blockTime = live.outputs?.[0]?.block_timestamp;
+          if (blockTime) await updateTxBlockTime(sessionRow.id, blockTime);
+          if (sessionRow.payment_link_id) await incrementPaymentLinkUses(sessionRow.payment_link_id);
+        }
+        sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0] ?? sessionRow;
+      }
+    } catch {
+    }
   }
 
   if (sessionRow.paid_status) {
@@ -338,21 +386,23 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     return new Response(skeleton.fill(content), { status: 503 });
   }
 
+  const liveWallet = walletForLink(paymentLinkRow.wallet_primary_address);
+  if (isBackendDown()) return backendDownResponse();
+  if (!liveWallet) return styledNotice("no merchant wallet found");
+  const needConf = liveWallet.merchant_confirmations ?? 10;
   const secret = crypto.randomUUID();
   const insertedRow = (
     await createCheckoutSession(
       amountXmr,
       secret,
-      acceptAfterConfirmations(),
+      needConf,
       paymentLinkRow.payment_link_id,
     )
   )[0];
 
-  if (isBackendDown()) return backendDownResponse();
   if (!insertedRow) return styledNotice("no merchant db found");
-  if (!mainwallet) return styledNotice("no merchant wallet found");
 
-  const address = await mainwallet.makeIntegratedAddress(insertedRow.id);
+  const address = await liveWallet.makeIntegratedAddress(insertedRow.id);
   await updateCheckoutSessionAddress(insertedRow.session_id, address);
 
   const redirectUrl = `/?checkoutId=${insertedRow.session_id}`;
