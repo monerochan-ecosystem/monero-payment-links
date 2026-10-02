@@ -348,10 +348,9 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
     )
   )[0];
 
-  if (!insertedRow)
-    return new Response(skeleton.fill(html`<h1>no merchant db found</h1>`));
-  if (!mainwallet)
-    return new Response(skeleton.fill(html`<h1>no merchant wallet found</h1>`));
+  if (isBackendDown()) return backendDownResponse();
+  if (!insertedRow) return styledNotice("no merchant db found");
+  if (!mainwallet) return styledNotice("no merchant wallet found");
 
   const address = await mainwallet.makeIntegratedAddress(insertedRow.id);
   await updateCheckoutSessionAddress(insertedRow.session_id, address);
@@ -361,13 +360,35 @@ async function payRoute(req: BunRequest<"/pay/:paymentLinkId">) {
   headers.set("Location", redirectUrl);
   return new Response(null, { status: 303, headers });
 }
+function styledNotice(title: string, sub?: string) {
+  const theme = getTheme("checkout")
+  const content = html`<div class="info-container">
+    ${theme.outOfStockStyles}
+    <style>
+      .mpl { text-align: center; padding: 1rem 0; }
+      .mpl-title { font-size: 1rem; font-weight: 600; opacity: 0.9; }
+      .mpl-sub { margin-top: 1rem; font-size: 0.85rem; opacity: 0.62; }
+      .mpl-source { margin-top: 1rem; font-size: 0.78rem; opacity: 0.48; }
+      .mpl-source a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
+    </style>
+    <div class="info-card">
+      <div class="mpl">
+        <div class="mpl-title">${title}</div>
+        ${sub ? html`<div class="mpl-sub">${sub}</div>` : ""}
+      </div>
+    </div>
+  </div>`;
+  return new Response(skeleton.fill(content));
+}
+
+
 function instanceInfoResponse() {
   const theme = getTheme("checkout")
   const content = html`<div class="info-container">
     ${theme.outOfStockStyles}
     <style>
       .mpl { text-align: center; padding: 1rem 0; }
-      .mpl-title { font-size: 0.85rem; letter-spacing: 0.42em; text-indent: 0.42em; opacity: 0.9; }
+      .mpl-title { font-size: 1rem; font-weight: 600; opacity: 0.9; }
       .mpl-source { margin-top: 1rem; font-size: 0.78rem; opacity: 0.48; }
       .mpl-source a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
     </style>
@@ -379,6 +400,21 @@ function instanceInfoResponse() {
     </div>
   </div>`;
   return new Response(skeleton.fill(content));
+}
+
+// no connection to node or wallet doesnt exist
+function isBackendDown() {
+  const w = getWallets();
+  if (!w?.wallets?.[0]) return false;
+  return w.connectionStatusOpened?.isConnected === false;
+}
+
+
+function backendDownResponse() {
+  return styledNotice(
+    "payment backend lost connection to node",
+    "try again in a moment. if this continues, contact the merchant.",
+  );
 }
 
 async function checkoutRoute(req: Request) {
@@ -403,6 +439,8 @@ async function checkoutRoute(req: Request) {
       return new Response(null, { status: 303, headers });
     }
   }
+
+  if (isBackendDown()) return backendDownResponse();
 
   const displayAmount = sessionRow.amount;
   const address = sessionRow.address;
