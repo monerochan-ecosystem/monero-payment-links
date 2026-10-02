@@ -161,7 +161,7 @@ export function paymentLinkDetailRoute(
             <span class="transaction-amount received">+${tx.amount} XMR</span>
           </div>
           <div class="transaction-secondary">
-            <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
+            <span class="transaction-date">${timeAgo(tx.paid_at || tx.timestamp)}</span>
             ${txHashLink}
             <span class="transaction-status confirmed">Confirmed</span>
           </div>

@@ -399,7 +399,9 @@ CREATE TABLE IF NOT EXISTS checkout_session (
     tx_confirmations INTEGER NOT NULL DEFAULT 0,
     tx_hash TEXT,
     payment_link_id TEXT,
-    timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+    paid_at TEXT DEFAULT NULL,
+    tx_block_timestamp INTEGER DEFAULT NULL
   );
 `.execute();
 
@@ -414,6 +416,8 @@ export type CheckoutSessionRow = {
   tx_hash: string | null;
   payment_link_id: string | null;
   timestamp: string;
+  paid_at: string | null;
+  tx_block_timestamp: number | null;
 };
 
 export function getCheckoutSessionByPrimaryId(
@@ -484,7 +488,18 @@ export function updateTxHash(
 export function markAsPaid(id: number): SQL.Query<CheckoutSessionRow[]> {
   return sql`
     UPDATE checkout_session
-    SET paid_status = 1
+    SET paid_status = 1, paid_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+  `.execute();
+}
+
+export function updateTxBlockTime(
+  id: number,
+  tx_block_timestamp: number,
+): SQL.Query<CheckoutSessionRow[]> {
+  return sql`
+    UPDATE checkout_session
+    SET tx_block_timestamp = ${tx_block_timestamp}
     WHERE id = ${id}
   `.execute();
 }

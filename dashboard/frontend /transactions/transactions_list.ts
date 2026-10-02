@@ -51,7 +51,7 @@ export function transactionsList() {
             >
           </div>
           <div class="transaction-secondary">
-            <span class="transaction-date">${timeAgo(tx.timestamp)}</span>
+            <span class="transaction-date">${timeAgo(tx.paid_at || tx.timestamp)}</span>
             <span class="transaction-address">tx ${txHashShort}</span>
             <span class="transaction-status ${typeBadgeClass}"
               >${typeBadgeText}</span
