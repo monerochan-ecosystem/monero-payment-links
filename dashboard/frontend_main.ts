@@ -16,12 +16,32 @@ export function getHydratedData(): DashboardData {
 
 window.dashboardData = getHydratedData();
 
-const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
-const ws = new WebSocket(`${wsProtocol}//${location.host}/ws`);
-ws.addEventListener("message", (e) => {
-  Object.assign(window.dashboardData, JSON.parse(e.data as string));
-});
-ws.addEventListener("close", () => setTimeout(() => location.reload(), 1000));
+function connectDashboardSocket() {
+  const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+  const ws = new WebSocket(`${wsProtocol}//${location.host}/ws`);
+  let opened = false;
+  ws.addEventListener("open", () => (opened = true));
+  ws.addEventListener("message", (e) => {
+    Object.assign(window.dashboardData, JSON.parse(e.data as string));
+  });
+  ws.addEventListener("close", () =>
+    setTimeout(opened ? connectDashboardSocket : loginOrRetry, 1000),
+  );
+}
+
+async function loginOrRetry() {
+  try {
+    const res = await fetch("/dashboard", { redirect: "manual" });
+    const denied = res.type === "opaqueredirect" || res.status === 401 || (res.status >= 300 && res.status < 400);
+    if (denied) {
+      location.assign("/login");
+      return;
+    }
+  } catch {}
+  connectDashboardSocket();
+}
+
+connectDashboardSocket();
 
 declare global {
   interface Window {

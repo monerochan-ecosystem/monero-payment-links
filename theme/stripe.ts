@@ -1840,8 +1840,23 @@ export const dashBoardStyles = html`
     font-weight: 600;
     letter-spacing: 0.02em;
     border: 1px solid rgba(16, 185, 129, 0.2);
-    width: 65px;
+    width: auto;
     text-align: center;
+    white-space: nowrap;
+  }
+
+  .transaction-status.pending {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    width: auto;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .transaction-date {

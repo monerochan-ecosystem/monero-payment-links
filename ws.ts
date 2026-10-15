@@ -1,6 +1,12 @@
 import type { Server, ServerWebSocket } from "bun";
 import type { ManyScanCachesOpened } from "@spirobel/monero-wallet-api";
-import type { CheckoutSessionRow } from "./db";
+import {
+  getAllPaymentLinks,
+  getDashboardCheckoutSessions,
+  type CheckoutSessionRow,
+  type CombinedPaymentLinkRow,
+} from "./db";
+import { getWallets } from "./dashboard/backend/wallets";
 
 export const WS_TOPIC = "dashboard";
 
@@ -30,9 +36,19 @@ export function serializeWallets(wallets?: ManyScanCachesOpened) {
 export function serializeDashboard(
   wallets?: ManyScanCachesOpened,
   checkoutSessions?: CheckoutSessionRow[],
+  paymentLinks?: CombinedPaymentLinkRow[],
 ) {
   return {
     ...serializeWallets(wallets),
     checkout_sessions: checkoutSessions ?? [],
+    payment_links: paymentLinks ?? [],
   };
+}
+
+export async function loadDashboardBroadcast() {
+  return serializeDashboard(
+    getWallets(),
+    await getDashboardCheckoutSessions(),
+    await getAllPaymentLinks(),
+  );
 }

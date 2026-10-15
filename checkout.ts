@@ -18,11 +18,10 @@ import {
   incrementPaymentLinkUses,
   updateTxBlockTime,
   getPaidCheckoutSessionByPaymentLinkId,
-  getAllSuccessfulCheckoutSessions,
 } from "./db";
 import type { BunRequest } from "bun";
 import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/wallets";
-import { broadcast, serializeDashboard } from "./ws";
+import { broadcast, loadDashboardBroadcast } from "./ws";
 import { getTheme } from "./theme/theme";
 import { amountForCheckout, formatLinkAmountDisplay } from "./rates";
 
@@ -64,9 +63,7 @@ const wallets = await openWallets({
     } catch {
     }
     try {
-      broadcast(
-        serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
-      );
+      broadcast(await loadDashboardBroadcast());
     } catch {
     }
   },
@@ -78,9 +75,7 @@ const wallets = await openWallets({
     } catch {
     }
     try {
-      broadcast(
-        serializeDashboard(getWallets(), await getAllSuccessfulCheckoutSessions()),
-      );
+      broadcast(await loadDashboardBroadcast());
     } catch {
     }
   },
@@ -196,21 +191,26 @@ async function paymentStatusRoute(req: Request) {
         }
       }).find((t) => t.payment_id === rowId);
       if (live) {
-        if (!sessionRow.tx_hash) await updateTxHash(sessionRow.id, live.tx_hash);
-        if (sessionRow.tx_confirmations !== live.confirmations) {
-          await updateTxConfirmations(sessionRow.id, live.confirmations);
-        }
+        const newHash = !sessionRow.tx_hash;
+        const newConf = sessionRow.tx_confirmations !== live.confirmations;
+        if (newHash) await updateTxHash(sessionRow.id, live.tx_hash);
+        if (newConf) await updateTxConfirmations(sessionRow.id, live.confirmations);
         let need: bigint | null = null;
         try {
           need = convertAmountBigInt(sessionRow.amount);
         } catch {
         }
-        if (need !== null && live.amount >= need && live.confirmations >= sessionRow.required_confirmations) {
+        const reached =
+          need !== null &&
+          live.amount >= need &&
+          live.confirmations >= sessionRow.required_confirmations;
+        if (reached) {
           await markAsPaid(sessionRow.id);
           const blockTime = live.outputs?.[0]?.block_timestamp;
           if (blockTime) await updateTxBlockTime(sessionRow.id, blockTime);
           if (sessionRow.payment_link_id) await incrementPaymentLinkUses(sessionRow.payment_link_id);
         }
+        if (newHash || newConf || reached) broadcast(await loadDashboardBroadcast());
         sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0] ?? sessionRow;
       }
     } catch {
