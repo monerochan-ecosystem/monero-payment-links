@@ -1765,8 +1765,23 @@ export const dashBoardStyles = html`
     font-weight: 600;
     letter-spacing: 0.02em;
     border: 1px solid #ddd;
-    width: 65px;
+    width: auto;
     text-align: center;
+    white-space: nowrap;
+  }
+
+  .transaction-status.pending {
+    background: #f0f0f0;
+    color: #666;
+    padding: 0.15rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid #ddd;
+    width: auto;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .transaction-date {

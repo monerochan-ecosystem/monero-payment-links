@@ -1,5 +1,6 @@
 import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
+import { txStatusClass, txStatusText } from "../tx_status";
 
 export function transactionsList() {
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
@@ -38,9 +39,9 @@ export function transactionsList() {
         ? router.link("/payment-links/:id", { id: link.payment_link_id })
         : "#";
       const isInvoice = link?.linkType === "invoice";
-      const typeBadgeClass = isInvoice ? "invoice-badge" : "product-badge";
-      const typeBadgeText = isInvoice ? "Invoice" : "Product";
       const amountClass = isInvoice ? "invoice-amount" : "product-amount";
+      const statusText = txStatusText(tx);
+      const statusClass = txStatusClass(tx);
 
       return html`<a class="transaction-item" href="${detailUrl}">
         <div class="transaction-info">
@@ -53,8 +54,8 @@ export function transactionsList() {
           <div class="transaction-secondary">
             <span class="transaction-date">${timeAgo(tx.paid_at || tx.timestamp)}</span>
             <span class="transaction-address">tx ${txHashShort}</span>
-            <span class="transaction-status ${typeBadgeClass}"
-              >${typeBadgeText}</span
+            <span class="transaction-status ${statusClass}"
+              >${statusText}</span
             >
           </div>
         </div>
@@ -67,7 +68,7 @@ export function transactionsList() {
   } else {
     transactionsListHtml = html`<div class="transactions-empty">
       <h3>No transactions yet</h3>
-      <p>Successful payments will appear here once received.</p>
+      <p>Payments show here once a transaction is seen.</p>
     </div>`;
   }
 

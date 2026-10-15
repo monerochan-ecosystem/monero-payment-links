@@ -18,8 +18,7 @@ import {
   getCookieValue,
   checkLoggedin,
 } from "./dashboard/login";
-import { serializeWallets, setServer, WS_TOPIC } from "./ws";
-import { getWallets } from "./dashboard/backend/wallets";
+import { loadDashboardBroadcast, setServer, WS_TOPIC } from "./ws";
 import type { Server, ServerWebSocket } from "bun";
 //import { mkdir } from "node:fs/promises";
 export function makeRoutes() {
@@ -103,9 +102,12 @@ export function makeRoutes() {
 }
 
 const websocket = {
-  open(ws: ServerWebSocket) {
+  async open(ws: ServerWebSocket) {
     ws.subscribe(WS_TOPIC);
-    ws.send(JSON.stringify(serializeWallets(getWallets())));
+    try {
+      ws.send(JSON.stringify(await loadDashboardBroadcast()));
+    } catch {
+    }
   },
   close(ws: ServerWebSocket) {
     ws.unsubscribe(WS_TOPIC);

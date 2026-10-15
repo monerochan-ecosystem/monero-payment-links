@@ -539,6 +539,18 @@ export function getAllSuccessfulCheckoutSessions(): SQL.Query<
   `.execute();
 }
 
+// paid rows and rows that already have a tx. skips checkouts with no tx yet.
+export function getDashboardCheckoutSessions(): SQL.Query<
+  CheckoutSessionRow[]
+> {
+  return sql`
+    SELECT * FROM checkout_session
+    WHERE payment_link_id IS NOT NULL
+      AND (paid_status = 1 OR tx_hash IS NOT NULL)
+    ORDER BY timestamp DESC
+  `.execute();
+}
+
 export function getPaidCheckoutSessionByPaymentLinkId(
   paymentLinkId: string,
 ): SQL.Query<CheckoutSessionRow[]> {

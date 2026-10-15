@@ -6,6 +6,7 @@ import {
 } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
 import { formatLinkAmountDisplay } from "../../../rates";
+import { txStatusClass, txStatusText } from "../tx_status";
 
 declare global {
   interface Window {
@@ -113,11 +114,9 @@ export function paymentLinkDetailRoute(
 
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
   const transactions = checkoutSessions.filter(
-    (session: any) =>
-      session.payment_link_id === paymentLink.payment_link_id &&
-      session.paid_status === 1,
+    (session: any) => session.payment_link_id === paymentLink.payment_link_id,
   );
-  const isPaid = transactions.length > 0;
+  const isPaid = transactions.some((session: any) => session.paid_status === 1);
 
   function timeAgo(dateString: string): string {
     // db stores utc without zone, parse as utc not local
@@ -157,13 +156,17 @@ export function paymentLinkDetailRoute(
       return html`<div class="transaction-item">
         <div class="transaction-info">
           <div class="transaction-primary">
-            <span class="transaction-type">Payment Received</span>
+            <span class="transaction-type"
+              >${tx.paid_status === 1 ? "Payment Received" : "Payment pending"}</span
+            >
             <span class="transaction-amount received">+${tx.amount} XMR</span>
           </div>
           <div class="transaction-secondary">
             <span class="transaction-date">${timeAgo(tx.paid_at || tx.timestamp)}</span>
             ${txHashLink}
-            <span class="transaction-status confirmed">Confirmed</span>
+            <span class="transaction-status ${txStatusClass(tx)}"
+              >${txStatusText(tx)}</span
+            >
           </div>
         </div>
       </div>`;

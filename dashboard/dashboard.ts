@@ -8,7 +8,7 @@ import {
 import {
   getAllPaymentLinks,
   type CombinedPaymentLinkRow,
-  getAllSuccessfulCheckoutSessions,
+  getDashboardCheckoutSessions,
   type CheckoutSessionRow,
 } from "../db";
 import { SCAN_SETTINGS_PATH, getWallets } from "./backend/wallets";
@@ -32,7 +32,7 @@ export async function dashBoardRoute(req: Request) {
   if (adminRedirect) return adminRedirect;
   const scan_settings = await readScanSettings(SCAN_SETTINGS_PATH);
   const payment_links = await getAllPaymentLinks();
-  const checkout_sessions = await getAllSuccessfulCheckoutSessions();
+  const checkout_sessions = await getDashboardCheckoutSessions();
   const wallets = getWallets();
   const { wallet_balances, sync_status, current_height } =
     serializeWallets(wallets);
