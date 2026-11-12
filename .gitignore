@@ -43,6 +43,3 @@ test-data/
 
 # Finder (MacOS) folder config
 .DS_Store
-
-# mininext dev mode (bun --hot) writes these next to the source
-.mininext-*

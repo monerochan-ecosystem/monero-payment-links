@@ -53,11 +53,11 @@ test("q01 every dependency is pinned to an exact version", () => {
   expect(loose).toEqual([]);
 });
 
-test("q02 mininext is 0.9.0 in package.json, bun.lock and node_modules", () => {
-  expect(pkg.dependencies["@spirobel/mininext"]).toBe("0.9.0");
-  expect(readFileSync(resolve(REPO, "bun.lock"), "utf8")).toContain('"@spirobel/mininext@0.9.0"');
+test("q02 mininext is 0.9.1 in package.json, bun.lock and node_modules", () => {
+  expect(pkg.dependencies["@spirobel/mininext"]).toBe("0.9.1");
+  expect(readFileSync(resolve(REPO, "bun.lock"), "utf8")).toContain('"@spirobel/mininext@0.9.1"');
   const installed = JSON.parse(readFileSync(resolve(REPO, "node_modules/@spirobel/mininext/package.json"), "utf8"));
-  expect(installed.version).toBe("0.9.0");
+  expect(installed.version).toBe("0.9.1");
 });
 
 test("q03 no string on* handlers in templates", () => {
@@ -141,7 +141,9 @@ test("q13 frontend fetch calls use absolute paths", () => {
 
 test("q14 secrets and data stay out of git", () => {
   const ignore = readFileSync(resolve(REPO, ".gitignore"), "utf8").split("\n").map((l) => l.trim());
-  for (const entry of ["test-data/", "monero_payments.db", ".env", "*ScanSettings.json", "*_cache.json", ".mininext-*"]) expect(ignore).toContain(entry);
+  for (const entry of ["test-data/", "monero_payments.db", ".env", "*ScanSettings.json", "*_cache.json"]) expect(ignore).toContain(entry);
+  // mininext 0.9.1 keeps its dev files in .mininext/, which ignores itself
+  expect(ignore.join("\n")).not.toContain(".mininext");
 });
 
 test("q15 the shop keeps port 3003 by default (the wallet repo tests use it)", () => {
