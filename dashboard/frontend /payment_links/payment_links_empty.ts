@@ -1,5 +1,6 @@
 import { html, type MiniHtmlString } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
+import { openPaymentLinkForm } from "./payment_link_form";
 
 export function paymentLinksEmpty(): MiniHtmlString {
   return html` <div class="empty-payment-links-card">
@@ -23,7 +24,7 @@ export function paymentLinksEmpty(): MiniHtmlString {
     </p>
     <button
       class="empty-payment-links-button"
-      onclick="document.querySelector('.create-link-btn').click()"
+      onclick=${() => openPaymentLinkForm()}
     >
       <svg
         width="20"

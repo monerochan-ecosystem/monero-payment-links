@@ -3,6 +3,7 @@ import {
   writeEnvLineToDotEnvRefresh,
 } from "@spirobel/monero-wallet-api";
 import { checkAdminAndRedirect } from "../login";
+import { themeNames } from "../../theme/theme";
 import type { ManyScanCachesOpened } from "@spirobel/monero-wallet-api";
 
 let _wallets: ManyScanCachesOpened | undefined;
@@ -159,6 +160,11 @@ function validateWalletInput(input: WalletFormInput) {
       path: ["walletName"],
       message: "Wallet name must be less than 100 characters",
     });
+  } else if (!/^[A-Za-z0-9 _.-]+$/.test(input.walletName.trim())) {
+    issues.push({
+      path: ["walletName"],
+      message: "Use only letters, numbers, spaces, hyphens, underscores or dots",
+    });
   }
 
   // Check primaryAddress
@@ -233,6 +239,11 @@ function validateNodeUrlForm(body: NodeUrlFormInput) {
       path: ["nodeurl"],
       message: "Node URL is required and must be a non-empty string",
     });
+  } else if (!isHttpUrl(body.nodeurl)) {
+    issues.push({
+      path: ["nodeurl"],
+      message: "Node URL must start with http:// or https://",
+    });
   }
   const start_height = emptyToNull(body.start_height);
   if (start_height !== null && (typeof start_height !== "number" || start_height < 0)) {
@@ -264,6 +275,14 @@ export async function updateThemeRoute(req: Request) {
       dashboard_theme?: string;
     };
 
+    for (const name of [body.checkout_theme, body.dashboard_theme]) {
+      if (name !== undefined && !themeNames.includes(String(name))) {
+        return Response.json({
+          success: false,
+          error: { issues: [{ path: [], message: "Unknown theme" }] },
+        });
+      }
+    }
     if (body.checkout_theme) {
       await writeEnvLineToDotEnvRefresh("THEME_CHECKOUT", body.checkout_theme);
     }
@@ -316,5 +335,15 @@ export async function updateNodeUrlRoute(req: Request) {
       success: false,
       error: { issues: [{ path: [], message }] },
     });
+  }
+}
+
+export function isHttpUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
   }
 }

@@ -1,4 +1,4 @@
-// an index.html with every screenshot, so a human can check all states fast.
+// an index.html with every screenshot.
 // test-data/screenshots.html links all galleries.
 import { readdirSync, statSync, writeFileSync } from "node:fs";
 import { relative, resolve } from "node:path";

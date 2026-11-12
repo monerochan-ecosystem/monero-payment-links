@@ -1,5 +1,5 @@
-// test data, like ../mininext/tests/testdata.ts: test-data/<folder>/<test file>/<test>/ (gitignored).
-// the folder of a test file is deleted once, when that file STARTS to run.
+// test data goes to test-data/<folder>/<test file>/<test>/.
+// the folder of a test file is deleted once, when that file starts to run.
 // nothing deletes it after the run, so you can look at what each test wrote.
 import { beforeAll } from "bun:test";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";

@@ -5,7 +5,7 @@
     "": {
       "name": "monero-payment-links",
       "dependencies": {
-        "@spirobel/mininext": "0.8.5",
+        "@spirobel/mininext": "0.9.0",
         "@spirobel/monero-wallet-api": "0.6.7",
         "qrcode": "1.5.4",
       },
@@ -23,7 +23,7 @@
 
     "@noble/hashes": ["@noble/hashes@2.2.0", "", {}, "sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg=="],
 
-    "@spirobel/mininext": ["@spirobel/mininext@0.8.5", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-mjsDcdIPM1/FjlowLn/A/b05eoMOTQZ2dIH+NJnnnlwIUOSxIYarBWkkPu1uuS8G6ZcdchOd0eaezJyHD6MIjw=="],
+    "@spirobel/mininext": ["@spirobel/mininext@0.9.0", "", {}, "sha512-47/OBNrJlQpuTRKvi0iI+CitsRFa7SA3GPLySCbEKMXKGSK8Xtpps5FYsJeqnsUHDwTMu5pAzDo9CvMJ0v/ttA=="],
 
     "@spirobel/monero-wallet-api": ["@spirobel/monero-wallet-api@0.6.7", "", { "dependencies": { "@noble/curves": "2.2.0", "@noble/hashes": "2.2.0" }, "peerDependencies": { "typescript": "5.9.3" } }, "sha512-FBH5fA2A9b21R2cXXME1OG3S4fxDgylofe1cpanDD04nEiEIguWIuSv0zrFytCLPG53SKYCUCI2DGYl+/LpxFQ=="],
 

@@ -1,29 +1,11 @@
-import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
+import { html, type MiniHtmlString } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
-import { txStatusClass, txStatusText } from "../tx_status";
+import { timeAgo, txStatusClass, txStatusText } from "../tx_status";
 
 export function transactionsList() {
   const checkoutSessions = window.dashboardData?.checkout_sessions || [];
   const paymentLinks = window.dashboardData?.payment_links || [];
 
-  function timeAgo(dateString: string): string {
-    // db stores utc without zone, parse as utc not local
-    const iso = dateString.includes("T") ? dateString : dateString.replace(" ", "T") + "Z";
-    const date = new Date(iso);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days}d ago`;
-    const months = Math.floor(days / 30);
-    if (months < 12) return `${months}mo ago`;
-    const years = Math.floor(months / 12);
-    return `${years}y ago`;
-  }
 
   let transactionsListHtml: MiniHtmlString;
   if (checkoutSessions.length > 0) {
@@ -61,10 +43,7 @@ export function transactionsList() {
         </div>
       </a>`;
     });
-    transactionsListHtml = flatten(
-      items,
-      (list) => html`<div class="transactions-list">${list}</div>`,
-    );
+    transactionsListHtml = html`<div class="transactions-list">${items}</div>`;
   } else {
     transactionsListHtml = html`<div class="transactions-empty">
       <h3>No transactions yet</h3>

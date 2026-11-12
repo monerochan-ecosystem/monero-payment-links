@@ -1,6 +1,6 @@
-// chrome over the devtools protocol (cdp), like ../mininext/tests/cdp.ts.
-// each test file starts its OWN headless chrome: own profile folder in test-data,
-// --remote-debugging-port=0, so it never talks to or closes another browser.
+// chrome over the devtools protocol (cdp).
+// each test file starts its own headless chrome with its own profile in test-data
+// and a random debug port, so it never touches another browser.
 // CHROME=/path/to/chrome picks the browser.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
@@ -17,7 +17,7 @@ function findChrome() {
   return found;
 }
 export const CHROME = findChrome();
-// github's ubuntu runners do not allow chrome's sandbox
+// ci runners do not allow chrome's sandbox
 const CHROME_FLAGS = process.env.CI ? ["--no-sandbox"] : [];
 
 export const VIEWPORT = { width: 1280, height: 900 };
@@ -130,7 +130,7 @@ export class CDP {
   // full page png into shotDir, numbered in the order they are taken
   async shot(name: string) {
     if (!this.shotDir) return "";
-    await Bun.sleep(120); // let the frame paint
+    await Bun.sleep(120); // wait for the paint
     const r = await this.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
     const file = `${this.shotDir}/${String(++this.shotCount).padStart(2, "0")}-${name.replace(/[^\w.-]+/g, "_").slice(0, 80)}.png`;
     mkdirSync(this.shotDir, { recursive: true });
@@ -181,8 +181,6 @@ export async function openChrome(dir: string) {
     const cdp = await CDP.connect(page.webSocketDebuggerUrl);
     for (const d of ["Runtime", "Page", "Log"]) await cdp.send(`${d}.enable`);
     await cdp.send("Emulation.setDeviceMetricsOverride", { ...VIEWPORT, deviceScaleFactor: 1, mobile: false });
-    // alert() and friends would block the page. a test checks dialogs() is empty.
-    await cdp.send("Page.setInterceptFileChooserDialog", { enabled: false }).catch(() => {});
     const close = async () => {
       cdp.close();
       chrome.kill();

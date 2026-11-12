@@ -162,7 +162,7 @@ test("d07 payment link form: empty submit errors, type switch, overlay close", a
   await cdp.click(".next-btn");
   await cdp.waitFor(`${text(".next-btn")} === "Back"`, "step 2");
   await cdp.shot("create-step2");
-  // a real click on submit must send the form (post-mortem #5)
+  // a real click on submit must send the form
   await cdp.click(".submit-btn");
   await cdp.waitFor(visible("input[name=productTitle].error"), "back on step 1 with title error");
   await cdp.shot("empty-submit-step1");
@@ -314,7 +314,7 @@ test("d13 delete from the edit form, other dashboards get the change over the we
   // the invoice from d11 is the only link left
   const ids = await cdp.eval(`window.dashboardData.payment_links.map((l) => l.payment_link_id)`);
   expect(ids.length).toBe(1);
-  // a second admin session listens like another open dashboard
+  // a second admin session acts as another open dashboard
   const { cookie } = await shop.login();
   const ws = new WebSocket(shop.url.replace("http", "ws") + "/ws", { headers: { cookie } } as any);
   const frames: any[] = [];

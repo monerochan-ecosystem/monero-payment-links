@@ -177,7 +177,7 @@ test("s07 dashboard hydration is base64 and holds no raw markup from user data",
   expect(b64).toMatch(/^[A-Za-z0-9+/=]+$/);
   const data = JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
   dump("hydrate.json", JSON.stringify(data, null, 2));
-  // s05 put xss titles in the db. they travel only inside base64.
+  // the xss titles from s05 are in the db. they may only appear inside the base64.
   expect(JSON.stringify(data)).toContain("window.__xss=2");
   expect(html).not.toContain("window.__xss");
 });
@@ -221,7 +221,7 @@ test("s09 unknown checkout ids and bad input do not crash the server", async () 
   out["bad json"] = bad.res.status;
   expect(bad.res.status).toBeLessThan(500);
   dump("statuses.json", JSON.stringify(out, null, 2));
-  // still alive
+  // the server still answers
   expect((await fetch(shop.url + "/login")).status).toBe(200);
 });
 

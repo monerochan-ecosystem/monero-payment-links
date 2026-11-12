@@ -1,5 +1,5 @@
-// assumptions about the source that must always hold, like ../mininext/tests/quality_assurance.
-// fast, no server, no browser. each check names the accident it prevents.
+// assumptions about the source that must always hold.
+// no server, no browser.
 // run: bun test tests/quality_assurance
 import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -65,7 +65,7 @@ test("q03 no string on* handlers in templates", () => {
   expect(grep(/\son[a-z]+\s*=\s*["']/i)).toEqual([]);
 });
 
-test("q04 no on* handler returns an assignment (post-mortem #5)", () => {
+test("q04 no on* handler returns an assignment", () => {
   // onclick=${() => (open = false)} returns false. a handler property that returns
   // false cancels the event: a click in that element never submits a form.
   expect(grep(/on[a-z]+=\$\{\s*(\([^)]*\)|\w+)\s*=>\s*\(/i)).toEqual([]);

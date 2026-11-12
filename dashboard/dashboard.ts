@@ -37,7 +37,7 @@ export async function dashBoardRoute(req: Request) {
   const { wallet_balances, sync_status, current_height } =
     serializeWallets(wallets);
 
-  const hydrate = btoa(
+  const hydrate = Buffer.from(
     JSON.stringify({
       scan_settings,
       payment_links,
@@ -48,7 +48,7 @@ export async function dashBoardRoute(req: Request) {
       theme_checkout: Bun.env.THEME_CHECKOUT || "document",
       theme_dashboard: Bun.env.THEME_DASHBOARD || "document",
     }),
-  );
+  ).toString("base64");
   return new Response(dashboardSkeleton.fill(hydrate, theme.dashBoardStyles));
 }
 export type WalletBalance = {

@@ -34,7 +34,7 @@ export const visible = (sel: string) =>
 export const text = (sel: string) => `(document.querySelector(${JSON.stringify(sel)})?.innerText ?? "").trim()`;
 export const value = (sel: string) => `(document.querySelector(${JSON.stringify(sel)})?.value ?? null)`;
 
-// page errors, minus the expected noise of a shop with no node
+// page errors, without favicon requests
 export function pageErrors(cdp: CDP) {
   return cdp
     .errors()
