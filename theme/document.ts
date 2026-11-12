@@ -9,6 +9,13 @@ export const checkoutStyles = html`<style>
     height: 55px;
   }
 
+  /* the status text wraps to two lines on a phone */
+  @media (max-width: 600px) {
+    iframe {
+      height: 90px;
+    }
+  }
+
   :root {
     --primary: #1a1a1a;
     --accent: #1a1a1a;

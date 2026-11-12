@@ -117,18 +117,11 @@ const websocket = {
 };
 
 const server = Bun.serve({
-  port: 3003,
+  port: Number(Bun.env.PORT ?? 3003),
   routes: makeRoutes(),
   websocket,
 });
 
 setServer(server);
 
-globalThis.minireload = () => {
-  server.reload({
-    routes: makeRoutes(),
-    websocket,
-  });
-};
-
-console.log("access dashboard at http://localhost:3003/dashboard");
+console.log(`access dashboard at ${new URL("/dashboard", server.url)}`);

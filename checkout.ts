@@ -20,7 +20,7 @@ import {
   getPaidCheckoutSessionByPaymentLinkId,
 } from "./db";
 import type { BunRequest } from "bun";
-import { SCAN_SETTINGS_PATH, setWallets, getWallets } from "./dashboard/backend/wallets";
+import { SCAN_SETTINGS_PATH, setWallets, getWallets, isHttpUrl } from "./dashboard/backend/wallets";
 import { broadcast, loadDashboardBroadcast } from "./ws";
 import { getTheme } from "./theme/theme";
 import { amountForCheckout, formatLinkAmountDisplay } from "./rates";
@@ -148,7 +148,7 @@ async function getSuccessRedirectUrl(sessionRow: {
     await getPaymentLinkByPaymentLinkId(sessionRow.payment_link_id)
   )[0];
 
-  if (!paymentLink?.successUrl) return null;
+  if (!paymentLink?.successUrl || !isHttpUrl(paymentLink.successUrl)) return null;
 
   let successUrl = paymentLink.successUrl;
   if (successUrl.endsWith("checkoutId=")) {
@@ -221,13 +221,19 @@ async function paymentStatusRoute(req: Request) {
     const redirectUrl = await getSuccessRedirectUrl(sessionRow);
     if (redirectUrl) {
       const content = html`
-        <script>
-          window.top.location.href = "${redirectUrl}";
-        </script>
         <div class="payment-status success">
-          <span>Payment received! Redirecting...</span>
+          <a
+            id="redirect"
+            href="${redirectUrl}"
+            target="_top"
+            style="color: inherit; text-decoration: none"
+            ><span>Payment received! Redirecting...</span></a
+          >
           ${theme.paymentStatusStyles}
         </div>
+        <script>
+          document.getElementById("redirect").click();
+        </script>
       `;
       const headers = new Headers();
       headers.set("Cache-Control", "no-cache, no-store, must-revalidate");

@@ -5,7 +5,15 @@ import {
   upsertPaymentLink,
 } from "../../db";
 import { readScanSettings } from "@spirobel/monero-wallet-api";
-import { SCAN_SETTINGS_PATH } from "./wallets";
+import { SCAN_SETTINGS_PATH, isHttpUrl } from "./wallets";
+import { broadcast, loadDashboardBroadcast } from "../../ws";
+
+async function freshDashboard() {
+  const dashboard = await loadDashboardBroadcast();
+  broadcast(dashboard);
+  return dashboard;
+}
+
 export async function editPaymentLinkRoute(req: Request) {
   const adminRedirect = await checkAdminAndRedirect(req);
   if (adminRedirect) return adminRedirect;
@@ -44,6 +52,12 @@ export async function editPaymentLinkRoute(req: Request) {
       errors.push({
         path: ["invoiceTitle"],
         message: "Invoice title is required",
+      });
+    }
+    if (body.successUrl && !isHttpUrl(body.successUrl)) {
+      errors.push({
+        path: ["successUrl"],
+        message: "Success URL must start with http:// or https://",
       });
     }
     const currency = String(body.currency ?? "XMR").toUpperCase();
@@ -105,6 +119,7 @@ export async function editPaymentLinkRoute(req: Request) {
     return Response.json({
       success: true,
       paymentLinkId: paymentLinkId,
+      dashboard: await freshDashboard(),
     });
   } catch (error) {
     console.error("Error saving payment link:", error);
@@ -161,7 +176,7 @@ export async function deletePaymentLinkRoute(req: Request) {
     await deleteCheckoutSessionsByPaymentLinkId(body.paymentLinkId);
     await deletePaymentLink(body.paymentLinkId, body.linkType);
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, dashboard: await freshDashboard() });
   } catch (error) {
     console.error("Error deleting payment link:", error);
     return Response.json({

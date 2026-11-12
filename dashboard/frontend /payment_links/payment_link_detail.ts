@@ -1,76 +1,54 @@
-import {
-  html,
-  flatten,
-  type MiniHtmlString,
-  type Params,
-} from "@spirobel/mininext";
+import { html, type MiniHtmlString, type Params } from "@spirobel/mininext";
 import { router } from "../dashboard_router";
+import { applyDashboard, copyButton, postJson } from "../form_kit";
+import { openPaymentLinkForm } from "./payment_link_form";
 import { formatLinkAmountDisplay } from "../../../rates";
-import { txStatusClass, txStatusText } from "../tx_status";
+import { timeAgo, txStatusClass, txStatusText } from "../tx_status";
 
-declare global {
-  interface Window {
-    showDeletePaymentLinkDialog: (
-      paymentLinkId: string,
-      linkType: string,
-    ) => void;
-    hideDeletePaymentLinkDialog: () => void;
-    confirmDeletePaymentLink: () => void;
+let pendingDelete: { paymentLinkId: string; linkType: string } | null = null;
+
+async function confirmDelete() {
+  if (!pendingDelete) return;
+  const response = await postJson("/deletePaymentLink", pendingDelete);
+  pendingDelete = null;
+  if (!response.success) {
+    console.error("Error deleting payment link:", response.error);
+    return;
   }
+  applyDashboard(response.dashboard);
+  router.navigate("/payment-links");
 }
 
-let pendingDeletePaymentLinkId: string | null = null;
-let pendingDeleteLinkType: string | null = null;
-
-function showDeletePaymentLinkDialogCB(
-  paymentLinkId: string,
-  linkType: string,
-) {
-  pendingDeletePaymentLinkId = paymentLinkId;
-  pendingDeleteLinkType = linkType;
-  const overlay = document.getElementById(
-    "delete-dialog-overlay",
-  ) as HTMLDivElement;
-  if (overlay) {
-    overlay.style.display = "flex";
-  }
+function deleteDialog() {
+  if (!pendingDelete) return null;
+  return html`<div
+    class="delete-dialog-overlay"
+    style="display: flex"
+    onclick=${(e: Event) => {
+      if (e.target === e.currentTarget) pendingDelete = null;
+    }}
+  >
+    <div class="delete-dialog">
+      <h3>Delete Payment Link</h3>
+      <p>
+        <strong>Warning:</strong> This action cannot be undone. Deleting this
+        payment link will permanently remove it and all associated data.
+      </p>
+      <div class="delete-dialog-actions">
+        <button
+          type="button"
+          class="cancel-delete-btn"
+          onclick=${() => { pendingDelete = null; }}
+        >
+          Cancel
+        </button>
+        <button type="button" class="confirm-delete-btn" onclick=${confirmDelete}>
+          Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>`;
 }
-
-function hideDeletePaymentLinkDialogCB() {
-  const overlay = document.getElementById(
-    "delete-dialog-overlay",
-  ) as HTMLDivElement;
-  if (overlay) {
-    overlay.style.display = "none";
-  }
-  pendingDeletePaymentLinkId = null;
-  pendingDeleteLinkType = null;
-}
-
-function confirmDeletePaymentLinkCB() {
-  if (!pendingDeletePaymentLinkId || !pendingDeleteLinkType) return;
-
-  fetch("deletePaymentLink", {
-    method: "POST",
-    body: JSON.stringify({
-      paymentLinkId: pendingDeletePaymentLinkId,
-      linkType: pendingDeleteLinkType,
-    }),
-  }).then(async (result) => {
-    const response = await result.json();
-    if (response.success) {
-      router.navigate("/payment-links");
-      window.location.reload();
-    } else {
-      console.error("Error deleting payment link:", response.error);
-      hideDeletePaymentLinkDialogCB();
-    }
-  });
-}
-
-window.showDeletePaymentLinkDialog = showDeletePaymentLinkDialogCB;
-window.hideDeletePaymentLinkDialog = hideDeletePaymentLinkDialogCB;
-window.confirmDeletePaymentLink = confirmDeletePaymentLinkCB;
 
 export function paymentLinkDetailRoute(
   params: Params<"/payment-links/:id">,
@@ -118,24 +96,6 @@ export function paymentLinkDetailRoute(
   );
   const isPaid = transactions.some((session: any) => session.paid_status === 1);
 
-  function timeAgo(dateString: string): string {
-    // db stores utc without zone, parse as utc not local
-    const iso = dateString.includes("T") ? dateString : dateString.replace(" ", "T") + "Z";
-    const date = new Date(iso);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days}d ago`;
-    const months = Math.floor(days / 30);
-    if (months < 12) return `${months}mo ago`;
-    const years = Math.floor(months / 12);
-    return `${years}y ago`;
-  }
 
   let transactionsListHtml: MiniHtmlString;
   if (transactions.length > 0) {
@@ -171,10 +131,7 @@ export function paymentLinkDetailRoute(
         </div>
       </div>`;
     });
-    transactionsListHtml = flatten(
-      items,
-      (list) => html`<div class="transactions-list">${list}</div>`,
-    );
+    transactionsListHtml = html`<div class="transactions-list">${items}</div>`;
   } else {
     transactionsListHtml = html`<div class="transactions-list">
       <div class="transaction-item">
@@ -210,7 +167,7 @@ export function paymentLinkDetailRoute(
           <button
             class="edit-payment-link-btn"
             title="Edit payment link"
-            onclick="openPaymentLinkForm('${paymentLinkId}')"
+            onclick=${() => openPaymentLinkForm(paymentLinkId)}
           >
             <svg
               width="16"
@@ -231,7 +188,8 @@ export function paymentLinkDetailRoute(
           <button
             class="delete-payment-link-btn"
             title="Delete payment link"
-            onclick="showDeletePaymentLinkDialog('${paymentLinkId}', '${paymentLink.linkType}')"
+            onclick=${() =>
+              (pendingDelete = { paymentLinkId, linkType: paymentLink.linkType })}
           >
             <svg
               width="16"
@@ -292,24 +250,7 @@ export function paymentLinkDetailRoute(
           >
             ${location.origin}/pay/${paymentLinkId}
           </a>
-          <button
-            class="copy-link-btn"
-            onclick="event.preventDefault(); const btn=this; const original=btn.innerHTML; navigator.clipboard.writeText('${location.origin}/pay/${paymentLinkId}'); btn.textContent='Copied!'; setTimeout(() => { btn.innerHTML=original; }, 2000);"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path
-                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-              ></path>
-            </svg>
-          </button>
+          ${copyButton(`${location.origin}/pay/${paymentLinkId}`)}
         </div>
         ${isProduct
           ? html`<div class="detail-stats">
@@ -340,36 +281,7 @@ export function paymentLinkDetailRoute(
         ${transactionsListHtml}
       </div>
 
-      <div
-        class="delete-dialog-overlay"
-        id="delete-dialog-overlay"
-        onclick="if (event.target === this) hideDeletePaymentLinkDialog()"
-      >
-        <div class="delete-dialog">
-          <h3>Delete Payment Link</h3>
-          <p>
-            <strong>Warning:</strong> This action cannot be undone. Deleting
-            this payment link will permanently remove it and all associated
-            data.
-          </p>
-          <div class="delete-dialog-actions">
-            <button
-              type="button"
-              class="cancel-delete-btn"
-              onclick="hideDeletePaymentLinkDialog()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="confirm-delete-btn"
-              onclick="confirmDeletePaymentLink()"
-            >
-              Delete Permanently
-            </button>
-          </div>
-        </div>
-      </div>
+      ${deleteDialog}
     </div>
   </div>`;
 

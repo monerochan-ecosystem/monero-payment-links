@@ -1,24 +1,12 @@
 import { html } from "@spirobel/mininext";
 import { router } from "./dashboard_router";
 
-function navigateTo(path: string) {
-  router.navigate(path);
-}
-
-declare global {
-  interface Window {
-    navigateTo: (path: string) => void;
-  }
-}
-
-window.navigateTo = navigateTo;
-
 export function sidebar() {
   const current_path = router.getCurrentPath();
   return html`
     <nav class="sidebar">
       <div
-        onclick="navigateTo('/wallets')"
+        onclick=${() => router.navigate("/wallets")}
         class="menu-item ${current_path.startsWith("/wallets") ? "active" : ""}"
       >
         <svg
@@ -37,7 +25,7 @@ export function sidebar() {
       </div>
 
       <div
-        onclick="navigateTo('/transactions')"
+        onclick=${() => router.navigate("/transactions")}
         class="menu-item ${current_path.startsWith("/transactions")
           ? "active"
           : ""}"
@@ -56,7 +44,7 @@ export function sidebar() {
       </div>
 
       <div
-        onclick="navigateTo('/payment-links')"
+        onclick=${() => router.navigate("/payment-links")}
         class="menu-item ${current_path.startsWith("/payment-links")
           ? "active"
           : ""}"

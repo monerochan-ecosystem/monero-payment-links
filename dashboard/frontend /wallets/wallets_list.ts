@@ -1,6 +1,9 @@
-import { html, flatten, type MiniHtmlString } from "@spirobel/mininext";
-import { convertBigIntAmount, tools } from "@spirobel/monero-wallet-api";
+import { html } from "@spirobel/mininext";
+import { tools } from "@spirobel/monero-wallet-api/tools";
+import { atomicToXmr } from "../tx_status";
 import { router } from "../dashboard_router";
+import { editWallet } from "./wallets_form";
+import { openNodeUrlForm } from "./nodeurl_form";
 
 export function makeWalletCreationLink(wallet_slot: number = 0) {
   const makeWalletLink = tools["002"].counterparty.make({ wallet_slot });
@@ -23,21 +26,11 @@ export function walletGrid() {
   const scanSettings = window.dashboardData.scan_settings;
   const walletList = scanSettings?.wallets || [];
   return html`<div>
-    ${() => {
-      if (walletList.length < 1) {
-        return emptyWalletCard();
-      }
-      const walletElementList: MiniHtmlString[] = [];
-      for (const wallet of walletList) {
-        walletElementList.push(filledWalletCard(wallet));
-      }
-      return flatten(
-        walletElementList,
-        (l) => html` <div class="wallets-grid">${l}</div>`,
-      );
-    }}
+    ${walletList.length < 1
+      ? emptyWalletCard
+      : html`<div class="wallets-grid">${walletList.map(filledWalletCard)}</div>`}
     <div class="wallet-footer-left">
-      <button class="set-nodeurl-btn" onclick="openNodeUrlForm()">
+      <button class="set-nodeurl-btn" onclick=${openNodeUrlForm}>
         Settings
       </button>
       ${syncProgress()}
@@ -92,14 +85,14 @@ export function filledWalletCard(wallet: any) {
     (b) => b.primary_address === wallet.primary_address,
   );
   const spendable = balance
-    ? convertBigIntAmount(BigInt(balance.spendable)) + " XMR"
+    ? atomicToXmr(BigInt(balance.spendable)) + " XMR"
     : "0 XMR";
 
   return html` <div class="wallet-card">
     <div class="wallet-actions">
       <button
         class="edit-wallet-btn"
-        onclick="editWallet('${wallet.primary_address}')"
+        onclick=${() => editWallet(wallet.primary_address)}
       >
         <svg
           width="16"
