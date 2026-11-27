@@ -29,7 +29,7 @@ The pay page shows the amount, the address, and a button.
 
 **Tool 001 on the send plate.** After the pay click, click `#send` on the side panel. The plate shows the tool address, the amount, and the check result. Click `#send-action` only if the slider is on fire and you want that payment sent. With this tool call open, SEND posts `execute`. The worker runs tool `001`. 
 
-**Address check.** The wallet fetches `http://localhost:3003/monerochan001/<address>`. The site returns `valid_address: true` only for a live checkout address. `valid` means this host claims the address. It does not check the amount. The site checks the amount later, when the scan shows the output.
+**Address check and handover.** The wallet sends GET to `/monerochan001/:address` to validate the checkout address. Payment Links advertises the same URL for the handover. POST checks the signed transaction against the invoice and saves the receipt before submitting the transaction to the node.
 
 **Tool 002 on the wallets plate.** After the Add Wallet click, click `#wallets`. The plate shows the share request. Click `#acceptShareWallet` only if you want the view key posted to `http://localhost:3003/monerochan002/`. Click `#dismissShareWallet` to refuse. Accept does not give the spend key.
 

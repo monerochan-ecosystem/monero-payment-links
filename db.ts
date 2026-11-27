@@ -398,12 +398,18 @@ CREATE TABLE IF NOT EXISTS checkout_session (
     required_confirmations INTEGER NOT NULL DEFAULT 10,
     tx_confirmations INTEGER NOT NULL DEFAULT 0,
     tx_hash TEXT,
+    handover_received INTEGER NOT NULL DEFAULT 0,
     payment_link_id TEXT,
     timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
     paid_at TEXT DEFAULT NULL,
     tx_block_timestamp INTEGER DEFAULT NULL
   );
 `.execute();
+
+const handoverColumn = await sql`SELECT name FROM pragma_table_info('checkout_session') WHERE name = 'handover_received'`;
+if (handoverColumn.length === 0) {
+  await sql`ALTER TABLE checkout_session ADD COLUMN handover_received INTEGER NOT NULL DEFAULT 0`;
+}
 
 export type CheckoutSessionRow = {
   id: number;
@@ -414,6 +420,7 @@ export type CheckoutSessionRow = {
   required_confirmations: number;
   tx_confirmations: number;
   tx_hash: string | null;
+  handover_received: number;
   payment_link_id: string | null;
   timestamp: string;
   paid_at: string | null;
@@ -463,25 +470,33 @@ export function updateCheckoutSessionPaid(
   `.execute();
 }
 
-export function updateTxConfirmations(
+export function updateScannedPayment(
   id: number,
+  tx_hash: string,
   tx_confirmations: number,
 ): SQL.Query<CheckoutSessionRow[]> {
   return sql`
     UPDATE checkout_session
-    SET tx_confirmations = ${tx_confirmations}
-    WHERE id = ${id}
+    SET tx_hash = ${tx_hash}, tx_confirmations = ${tx_confirmations}
+    WHERE id = ${id} AND (tx_hash IS NULL OR tx_hash = ${tx_hash})
+    RETURNING *
   `.execute();
 }
 
-export function updateTxHash(
-  id: number,
-  tx_hash: string,
-): SQL.Query<CheckoutSessionRow[]> {
+export function recordHandover(id: number, txHash: string): SQL.Query<CheckoutSessionRow[]> {
   return sql`
     UPDATE checkout_session
-    SET tx_hash = ${tx_hash}
-    WHERE id = ${id}
+    SET tx_hash = ${txHash}, handover_received = 1
+    WHERE id = ${id} AND (tx_hash IS NULL OR tx_hash = ${txHash})
+    RETURNING *
+  `.execute();
+}
+
+export function releaseHandover(id: number, txHash: string): SQL.Query<CheckoutSessionRow[]> {
+  return sql`
+    UPDATE checkout_session
+    SET tx_hash = NULL, handover_received = 0
+    WHERE id = ${id} AND tx_hash = ${txHash} AND tx_confirmations = 0 AND paid_status = 0
   `.execute();
 }
 
@@ -489,7 +504,8 @@ export function markAsPaid(id: number): SQL.Query<CheckoutSessionRow[]> {
   return sql`
     UPDATE checkout_session
     SET paid_status = 1, paid_at = CURRENT_TIMESTAMP
-    WHERE id = ${id}
+    WHERE id = ${id} AND paid_status = 0
+    RETURNING *
   `.execute();
 }
 

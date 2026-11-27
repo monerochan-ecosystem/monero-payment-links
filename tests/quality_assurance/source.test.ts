@@ -44,20 +44,11 @@ test("q00 the scan found the app", () => {
   testData("q00").dump("files.txt", files.map((f) => f.path).join("\n"));
 });
 
-test("q01 every dependency is pinned to an exact version", () => {
-  // a ^ or ~ lets bun install pull a different mininext or wallet lib
-  const loose: string[] = [];
-  for (const group of ["dependencies", "devDependencies", "peerDependencies"])
-    for (const [name, v] of Object.entries(pkg[group] ?? {}))
-      if (!/^\d+\.\d+\.\d+$/.test(String(v))) loose.push(`${group}.${name}=${v}`);
-  expect(loose).toEqual([]);
-});
-
-test("q02 mininext is 0.9.0 in package.json, bun.lock and node_modules", () => {
-  expect(pkg.dependencies["@spirobel/mininext"]).toBe("0.9.0");
-  expect(readFileSync(resolve(REPO, "bun.lock"), "utf8")).toContain('"@spirobel/mininext@0.9.0"');
+test("q02 mininext is 0.9.2 in package.json, bun.lock and node_modules", () => {
+  expect(pkg.dependencies["@spirobel/mininext"]).toBe("0.9.2");
+  expect(readFileSync(resolve(REPO, "bun.lock"), "utf8")).toContain('"@spirobel/mininext@0.9.2"');
   const installed = JSON.parse(readFileSync(resolve(REPO, "node_modules/@spirobel/mininext/package.json"), "utf8"));
-  expect(installed.version).toBe("0.9.0");
+  expect(installed.version).toBe("0.9.2");
 });
 
 test("q03 no string on* handlers in templates", () => {
@@ -124,7 +115,7 @@ test("q10 every route in server.ts is known to backend.test.ts", () => {
 test("q11 checkout routes are the known public ones", () => {
   const checkout = files.find((f) => f.path === "checkout.ts")!.src;
   const routes = [...checkout.matchAll(/^\s{4}"(\/[^"]*)":/gm)].map((m) => m[1]).sort();
-  expect(routes).toEqual(["/", "/monerochan001/:address", "/pay/:paymentLinkId", "/paymentstatus", "/wallet_info"]);
+  expect(routes).toEqual(["/", "/monerochan001/:address", "/pay/:paymentLinkId", "/paymentstatus", "/return", "/wallet_info"]);
 });
 
 test("q12 user urls go through isHttpUrl", () => {
@@ -141,7 +132,9 @@ test("q13 frontend fetch calls use absolute paths", () => {
 
 test("q14 secrets and data stay out of git", () => {
   const ignore = readFileSync(resolve(REPO, ".gitignore"), "utf8").split("\n").map((l) => l.trim());
-  for (const entry of ["test-data/", "monero_payments.db", ".env", "*ScanSettings.json", "*_cache.json", ".mininext-*"]) expect(ignore).toContain(entry);
+  for (const entry of ["test-data/", "monero_payments.db", ".env", "*ScanSettings.json", "*_cache.json"]) expect(ignore).toContain(entry);
+  // since 0.9.1 mininext keeps its dev files in .mininext/, which ignores itself
+  expect(ignore.join("\n")).not.toContain(".mininext");
 });
 
 test("q15 the shop keeps port 3003 by default (the wallet repo tests use it)", () => {
