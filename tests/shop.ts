@@ -18,15 +18,20 @@ export function closedPort() {
   return port;
 }
 
-export async function startShop(dir: string, opts: { env?: Record<string, string>; hot?: boolean } = {}) {
+export async function startShop(dir: string, opts: {
+  env?: Record<string, string>;
+  hot?: boolean;
+  nodeUrl?: string;
+  wallets?: { primary_address: string }[];
+} = {}) {
   const cwd = resolve(dir, "shop");
   // the guard: a shop runs only below test-data, never in the repo root
   if (!cwd.startsWith(TEST_DATA + sep)) throw new Error("shop cwd must be below test-data: " + cwd);
   mkdirSync(resolve(cwd, "wallet-caches"), { recursive: true });
-  const nodeUrl = `http://127.0.0.1:${closedPort()}`;
+  const nodeUrl = opts.nodeUrl ?? `http://127.0.0.1:${closedPort()}`;
   writeFileSync(
     resolve(cwd, "wallet-caches/ScanSettings.json"),
-    JSON.stringify({ node_url: nodeUrl, start_height: 0, wallets: [] }, null, 2),
+    JSON.stringify({ node_url: nodeUrl, start_height: 0, wallets: opts.wallets ?? [] }, null, 2),
   );
   const secret = "test-" + crypto.randomUUID();
   // a clean env. bun test loads the repo .env (admin secret, view keys) into

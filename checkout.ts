@@ -3,6 +3,7 @@ import {
   openWallets,
   tools,
   convertAmountBigInt,
+  type FoundTransaction,
 } from "@spirobel/monero-wallet-api";
 import QRCode from "qrcode";
 import {
@@ -12,12 +13,14 @@ import {
   getCheckoutSessionByAddress,
   getCheckoutSessionByPrimaryId,
   markAsPaid,
-  updateTxConfirmations,
-  updateTxHash,
+  updateScannedPayment,
+  recordHandover,
+  releaseHandover,
   getPaymentLinkByPaymentLinkId,
   incrementPaymentLinkUses,
   updateTxBlockTime,
   getPaidCheckoutSessionByPaymentLinkId,
+  type CheckoutSessionRow,
 } from "./db";
 import type { BunRequest } from "bun";
 import { SCAN_SETTINGS_PATH, setWallets, getWallets, isHttpUrl } from "./dashboard/backend/wallets";
@@ -42,14 +45,8 @@ export function makeCheckoutRoutes() {
     ...skeleton.static_routes,
     "/pay/:paymentLinkId": { GET: payRoute },
     "/paymentstatus": { GET: paymentStatusRoute },
-    "/monerochan001/:address": {
-      GET: tools["001"].counterparty.validate_route({
-        isPayAddressKnown: async (address) => {
-          const sessionRow = await getCheckoutSessionByAddress(address);
-          return !!sessionRow[0]?.id;
-        },
-      }),
-    },
+    "/monerochan001/:address": { GET: validateAddressRoute, POST: handoverRoute },
+    "/return": { GET: checkoutRoute },
     "/": { GET: checkoutRoute },
     "/wallet_info": { GET: walletInfoRoute },
   };
@@ -93,38 +90,109 @@ function walletForLink(addr?: string | null) {
   if (!addr) return undefined;
   return list.find((w) => w.primary_address === addr);
 }
+
+function walletForCheckout(row: CheckoutSessionRow) {
+  return getWallets()?.wallets.find((wallet) => wallet.makeIntegratedAddress(row.id) === row.address);
+}
+
+async function validateAddressRoute(req: BunRequest<"/monerochan001/:address">) {
+  const row = (await getCheckoutSessionByAddress(req.params.address))[0];
+  return tools["001"].counterparty.validate_route({
+    isPayAddressKnown: (address) => row?.address === address,
+    getUrls: () => {
+      if (!row) return {};
+      const { origin, pathname } = new URL(req.url);
+      const id = encodeURIComponent(row.session_id);
+      return {
+        handoverUrl: `${origin}${pathname}`,
+        successUrl: `${origin}/return?checkoutId=${id}`,
+      };
+    },
+  })(req);
+}
+
+const handovers = new Map<number, { active: number; retain: boolean }>();
+
+async function handoverRoute(req: BunRequest<"/monerochan001/:address">) {
+  const row = (await getCheckoutSessionByAddress(req.params.address))[0];
+  if (!row?.address) return Response.json({ ok: false, error: "unknown checkout" }, { status: 404 });
+  const wallet = walletForCheckout(row);
+  const viewKey = wallet && Bun.env[`vk${wallet.primary_address}`];
+  if (!wallet || !viewKey) return Response.json({ ok: false, error: "merchant wallet not ready" }, { status: 503 });
+  let pending: { active: number; retain: boolean } | undefined;
+  let txHash: string | undefined;
+  try {
+    const response = await tools["001"].counterparty.execute_route({
+      node_url: wallet.node_url,
+      primary_address: wallet.primary_address,
+      view_key: viewKey,
+      checkPayment: async (scan) => {
+        if (scan.unlock_time !== "0" || (row.tx_hash && row.tx_hash !== scan.tx_hash)) return false;
+        const due = convertAmountBigInt(row.amount);
+        const received = scan.outputs.filter((output) => output.payment_id === String(row.id))
+          .reduce((sum, output) => sum + BigInt(output.amount), 0n);
+        if (due <= 0n || received < due || !(await recordHandover(row.id, scan.tx_hash)).length) return false;
+        txHash = scan.tx_hash;
+        pending = handovers.get(row.id) ?? { active: 0, retain: !!row.tx_hash };
+        pending.active++;
+        handovers.set(row.id, pending);
+        return true;
+      },
+    })(req);
+    const result = await response.clone().json() as { ok?: boolean; submission_unknown?: boolean };
+    if (pending && (result.ok || result.submission_unknown)) pending.retain = true;
+    return response;
+  } catch (error) {
+    if (pending) pending.retain = true;
+    throw error;
+  } finally {
+    if (pending && --pending.active === 0) {
+      handovers.delete(row.id);
+      if (!pending.retain && txHash) await releaseHandover(row.id, txHash);
+    }
+  }
+}
+
+function matchesScannedPayment(row: CheckoutSessionRow, tx: FoundTransaction) {
+  if (tx.confirmations < 1 || tx.amount <= 0n || (row.tx_hash && row.tx_hash !== tx.tx_hash)) return false;
+  const due = convertAmountBigInt(row.amount);
+  const received = tx.outputs.filter((output) => output.payment_id === row.id && output.burned === undefined)
+    .reduce((sum, output) => sum + output.amount, 0n);
+  return due > 0n && received >= due;
+}
+
+async function saveScannedPayment(row: CheckoutSessionRow, tx: FoundTransaction) {
+  const changed = !row.tx_hash || row.tx_confirmations !== tx.confirmations;
+  const reached = !row.paid_status && tx.confirmations >= row.required_confirmations;
+  if (!changed && !reached) return false;
+  if (!(await updateScannedPayment(row.id, tx.tx_hash, tx.confirmations)).length) return false;
+  if (reached && (await markAsPaid(row.id)).length) {
+    const blockTime = tx.outputs[0]?.block_timestamp;
+    if (blockTime) await updateTxBlockTime(row.id, blockTime);
+    if (row.payment_link_id) await incrementPaymentLinkUses(row.payment_link_id);
+  }
+  return true;
+}
+
 // full sync for background events
 // runs when user leaves page, iframe heals open page
 async function syncPaymentStatus() {
   try {
     for (const w of getWallets()?.wallets ?? []) {
-      let txs: { payment_id: number; confirmations: number; tx_hash: string; amount: bigint; outputs?: { block_timestamp: number }[] }[] = [];
+      let txs: FoundTransaction[];
       try {
-        txs = w.transactions as typeof txs;
+        txs = w.transactions;
       } catch {
         continue;
       }
       for (const tx of txs) {
         try {
-          const row = (await getCheckoutSessionByPrimaryId(tx.payment_id))[0];
-          if (!row) continue;
-          if (row.tx_hash && row.tx_hash !== tx.tx_hash) continue;
-          if (!row.tx_hash) await updateTxHash(tx.payment_id, tx.tx_hash);
-          if (row.tx_confirmations !== tx.confirmations) {
-            await updateTxConfirmations(tx.payment_id, tx.confirmations);
+          for (const id of new Set(tx.outputs.map((output) => output.payment_id))) {
+            const row = (await getCheckoutSessionByPrimaryId(id))[0];
+            if (!row || !matchesScannedPayment(row, tx)) continue;
+            if (w.makeIntegratedAddress(id) !== row.address) continue;
+            await saveScannedPayment(row, tx);
           }
-          if (row.paid_status === 1) continue;
-          let need: bigint | null = null;
-          try {
-            need = convertAmountBigInt(row.amount);
-          } catch {
-          }
-          if (need === null || tx.amount < need) continue;
-          if (tx.confirmations < row.required_confirmations) continue;
-          await markAsPaid(tx.payment_id);
-          const blockTime = tx.outputs?.[0]?.block_timestamp;
-          if (blockTime) await updateTxBlockTime(tx.payment_id, blockTime);
-          if (row.payment_link_id) await incrementPaymentLinkUses(row.payment_link_id);
         } catch {
         }
       }
@@ -181,36 +249,12 @@ async function paymentStatusRoute(req: Request) {
   // client polls each second, push conf forward here
   // paid rows render from sqlite only, no wallet look
   if (!sessionRow.paid_status) {
-    const rowId = sessionRow.id;
+    const row = sessionRow;
     try {
-      const live = getWallets()?.wallets.flatMap((w) => {
-        try {
-          return w.transactions;
-        } catch {
-          return [];
-        }
-      }).find((t) => t.payment_id === rowId);
-      if (live) {
-        const newHash = !sessionRow.tx_hash;
-        const newConf = sessionRow.tx_confirmations !== live.confirmations;
-        if (newHash) await updateTxHash(sessionRow.id, live.tx_hash);
-        if (newConf) await updateTxConfirmations(sessionRow.id, live.confirmations);
-        let need: bigint | null = null;
-        try {
-          need = convertAmountBigInt(sessionRow.amount);
-        } catch {
-        }
-        const reached =
-          need !== null &&
-          live.amount >= need &&
-          live.confirmations >= sessionRow.required_confirmations;
-        if (reached) {
-          await markAsPaid(sessionRow.id);
-          const blockTime = live.outputs?.[0]?.block_timestamp;
-          if (blockTime) await updateTxBlockTime(sessionRow.id, blockTime);
-          if (sessionRow.payment_link_id) await incrementPaymentLinkUses(sessionRow.payment_link_id);
-        }
-        if (newHash || newConf || reached) broadcast(await loadDashboardBroadcast());
+      const wallet = walletForCheckout(row);
+      const payment = wallet?.transactions.find((tx) => matchesScannedPayment(row, tx));
+      if (payment && await saveScannedPayment(row, payment)) {
+        broadcast(await loadDashboardBroadcast());
         sessionRow = (await getCheckoutSessionBySessionId(sessionId))[0] ?? sessionRow;
       }
     } catch {
@@ -268,11 +312,11 @@ async function paymentStatusRoute(req: Request) {
         >
           <circle cx="12" cy="12" r="10" stroke-dasharray="4 4" />
         </svg>
-        <span>
-          Waiting for payment...
-          (${sessionRow.tx_confirmations}/${sessionRow.required_confirmations}
-          confirmations)
-        </span>`;
+        <span>${sessionRow.handover_received
+          ? sessionRow.tx_confirmations > 0
+            ? `Transaction confirming (${sessionRow.tx_confirmations}/${sessionRow.required_confirmations})`
+            : "Transaction is valid & amount correct."
+          : `Waiting for payment... (${sessionRow.tx_confirmations}/${sessionRow.required_confirmations} confirmations)`}</span>`;
 
   const content = html`
     <div class="payment-status ${statusClass}">

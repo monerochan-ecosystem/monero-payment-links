@@ -3,6 +3,7 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { makeTestKeyPair, ViewPair } from "@spirobel/monero-wallet-api";
 import { insertCheckout, startShop, testKeys, type Shop } from "../shop";
 import { testDataFor } from "../testdata";
 
@@ -224,6 +225,152 @@ test("s09 unknown checkout ids and bad input do not crash the server", async () 
   // the server still answers
   expect((await fetch(shop.url + "/login")).status).toBe(200);
 });
+
+test("s12 the checkout records a valid handover before node submission", async () => {
+  const { dir } = testData("s12-handover");
+  const fixture = await Bun.file(new URL(
+    "../../../monero-wallet-api/typescript/tests/tools/unit/scan-fixture.json",
+    import.meta.url,
+  )).json();
+  const paymentId = Number(fixture.expected.payment_id);
+  const view = await ViewPair.create(fixture.primary_address, fixture.secret_view_key);
+  const address = view.makeIntegratedAddress(paymentId);
+  const submitted = Promise.withResolvers<unknown>();
+  const accepted = Promise.withResolvers<Response>();
+  let submissions = 0;
+  const node = Bun.serve({
+    hostname: "127.0.0.1",
+    port: 0,
+    async fetch(req) {
+      if (new URL(req.url).pathname !== "/send_raw_transaction") return new Response(null, { status: 503 });
+      submissions++;
+      submitted.resolve(await req.json());
+      return accepted.promise;
+    },
+  });
+  let checkoutShop: Shop | undefined;
+  try {
+    checkoutShop = await startShop(dir, { nodeUrl: node.url.origin });
+    const app = checkoutShop;
+    const { sessionId, linkId } = insertCheckout(app, fixture.primary_address, { amount: "0.2" });
+    const db = app.db();
+    try {
+      db.run("UPDATE checkout_session SET id = ?, address = ? WHERE session_id = ?", [paymentId, address, sessionId]);
+    } finally {
+      db.close();
+    }
+    const addressRoute = `/monerochan001/${address}`;
+    const status = `/paymentstatus?checkoutId=${sessionId}`;
+    const readRow = () => {
+      const db = app.db();
+      try {
+        return db.query("SELECT tx_hash, tx_confirmations, paid_status FROM checkout_session WHERE id = ?").get(paymentId);
+      } finally {
+        db.close();
+      }
+    };
+    expect(await (await fetch(app.url + addressRoute)).json()).toEqual({
+      valid_address: true,
+      handoverUrl: app.url + addressRoute,
+      successUrl: app.url + `/return?checkoutId=${sessionId}`,
+    });
+    const login = await app.login();
+    expect((await app.post("/editWallet", {
+      walletName: "handover fixture", primaryAddress: fixture.primary_address, secretViewKey: fixture.secret_view_key,
+    }, login.cookie)).json?.success).toBe(true);
+
+    const payment = { tx_as_hex: fixture.tx_as_hex };
+    expect((await app.post(`/monerochan001/unknown?checkoutId=${sessionId}`, payment)).res.status).toBe(404);
+    expect((await app.post(addressRoute, payment)).json?.ok).toBe(false);
+    expect(submissions).toBe(0);
+    expect(readRow()).toMatchObject({ tx_hash: null, tx_confirmations: 0, paid_status: 0 });
+    const valid = app.db();
+    valid.run("UPDATE checkout_session SET amount = '0.1' WHERE id = ?", [paymentId]);
+    valid.close();
+
+    const pending = app.post(addressRoute, payment);
+    expect(await Promise.race([submitted.promise, pending.then(result => result.json)])).toEqual(payment);
+    expect(readRow()).toMatchObject({ tx_hash: fixture.expected.tx_hash, tx_confirmations: 0, paid_status: 0 });
+    expect(await (await fetch(app.url + status)).text()).toContain("Transaction is valid &amp; amount correct.");
+    accepted.resolve(Response.json({ status: "OK" }));
+    expect((await pending).json).toEqual({ ok: true, tx_hash: fixture.expected.tx_hash });
+
+    const confirmed = app.db();
+    confirmed.run("UPDATE checkout_session SET tx_confirmations = 3 WHERE id = ?", [paymentId]);
+    expect(await (await fetch(app.url + status)).text()).toContain("Transaction confirming (3/10)");
+    expect(confirmed.query("SELECT currentUses FROM product_payment_links WHERE payment_link_id = ?").get(linkId))
+      .toMatchObject({ currentUses: 0 });
+    confirmed.close();
+  } finally {
+    accepted.resolve(Response.json({ status: "Failed" }));
+    await checkoutShop?.stop();
+    node.stop(true);
+  }
+}, 15_000);
+
+test("s13 the scanner uses the checkout address and amount even after a link changes wallets", async () => {
+  const { dir } = testData("s13-legacy-scan");
+  const merchant = await testKeys();
+  const other = (await makeTestKeyPair()).view_key;
+  const wallets = [merchant.address, other.mainnet_primary].map(primary_address => ({ primary_address }));
+  for (const [primary_address, payments] of [
+    [merchant.address, [[1, "400000000000", "a"], [3, "600000000000", "c"]]],
+    [other.mainnet_primary, [[2, "600000000000", "b"]]],
+  ] as const) {
+    const outputs = Object.fromEntries(payments.map(([payment_id, amount, hash]) => [payment_id, {
+      payment_id, amount, primary_address, tx_hash: hash.repeat(64), block_height: 17, block_timestamp: 123,
+      index_in_transaction: 0, index_on_blockchain: payment_id, stealth_address: hash.repeat(64),
+      subaddress_index: null, serialized: "", is_miner_tx: false,
+    }]));
+    await Bun.write(resolve(dir, "shop/wallet-caches", primary_address + "_cache.json"), JSON.stringify({
+      primary_address, daemon_height: 20, outputs, own_key_images: {},
+      scanned_ranges: [{ start: 0, end: 19, block_hashes: [] }],
+    }));
+  }
+  const app = await startShop(dir, {
+    env: { [`vk${merchant.address}`]: merchant.viewKey, [`vk${other.mainnet_primary}`]: other.view_key },
+    wallets,
+  });
+  try {
+    for (const { primary_address } of wallets) {
+      const stats = await Bun.file(resolve(app.cwd, "wallet-caches", primary_address + "_stats.json")).json();
+      expect(stats.ordered_transactions.length).toBeGreaterThan(0);
+    }
+    const sessions = Array.from({ length: 3 }, () => insertCheckout(app, merchant.address));
+    const view = await ViewPair.create(merchant.address, merchant.viewKey);
+    const seeded = app.db();
+    try {
+      for (const { sessionId } of sessions) {
+        const row = seeded.query("SELECT id FROM checkout_session WHERE session_id = ?").get(sessionId) as { id: number };
+        seeded.run("UPDATE checkout_session SET address = ? WHERE id = ?", [view.makeIntegratedAddress(row.id), row.id]);
+      }
+    } finally {
+      seeded.close();
+    }
+    const login = await app.login();
+    for (const { linkId } of sessions.slice(1)) {
+      const edit = await app.post("/editPaymentLink", {
+        paymentLinkId: linkId, walletId: other.mainnet_primary, linkType: "product", productTitle: "new wallet", amount: "0.5",
+      }, login.cookie);
+      expect(edit.json?.success).toBe(true);
+    }
+    for (const { sessionId } of sessions) {
+      expect((await fetch(app.url + `/paymentstatus?checkoutId=${sessionId}`)).status).toBe(200);
+    }
+    const db = app.db();
+    try {
+      expect(db.query("SELECT tx_hash, tx_confirmations FROM checkout_session ORDER BY id").all()).toEqual([
+        { tx_hash: null, tx_confirmations: 0 },
+        { tx_hash: null, tx_confirmations: 0 },
+        { tx_hash: "c".repeat(64), tx_confirmations: 3 },
+      ]);
+    } finally {
+      db.close();
+    }
+  } finally {
+    await app.stop();
+  }
+}, 10_000);
 
 test("s10 theme names are a fixed list: no newline can write a line into .env", async () => {
   const { dump } = testData("s10");
